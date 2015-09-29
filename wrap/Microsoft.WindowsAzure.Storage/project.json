@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net45": {
+      "bin": {
+        "assembly": "../../bin/Debug/Microsoft.WindowsAzure.Storage.dll"
+      },
+      "dependencies": {
+        "Microsoft.Azure.KeyVault.Core": "1.0.0-*",
+        "Microsoft.Data.Edm": "1.0.0-*",
+        "Microsoft.Data.OData": "1.0.0-*",
+        "Microsoft.Data.Services.Client": "1.0.0-*",
+        "Newtonsoft.Json": "1.0.0-*"
+      }
+    }
+  }
+}

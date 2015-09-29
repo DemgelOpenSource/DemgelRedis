@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net45": {
+      "bin": {
+        "assembly": "../../bin/Debug/Microsoft.Data.Services.Client.dll"
+      },
+      "dependencies": {
+        "Microsoft.Data.Edm": "1.0.0-*",
+        "Microsoft.Data.OData": "1.0.0-*",
+        "System.Spatial": "1.0.0-*"
+      }
+    }
+  }
+}

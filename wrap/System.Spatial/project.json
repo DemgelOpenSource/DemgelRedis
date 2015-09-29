@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net45": {
+      "bin": {
+        "assembly": "../../../../../C:/Program Files (x86)/Microsoft WCF Data Services/5.6.4/bin/.NETFramework/System.Spatial.dll"
+      }
+    }
+  }
+}
