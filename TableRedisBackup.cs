@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Demgel.Redis.Interfaces;
 using Microsoft.WindowsAzure.Storage;
@@ -110,9 +109,7 @@ namespace Demgel.Redis
         {
             var sepIndex = key.IndexOf(":", StringComparison.Ordinal);
             keyOne = key.Substring(0, sepIndex);
-            keyTwo = key.Substring(sepIndex);
-
-            Debug.WriteLine($"{keyOne} --- {keyTwo}");
+            keyTwo = key.Substring(sepIndex + 1);
         }
 
         /// <summary>
