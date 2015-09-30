@@ -161,15 +161,13 @@ namespace Demgel.Redis
 
             while (dynamicTableEntities.ContinuationToken != null)
             {
-                TableBatchOperation batch = null;
+                TableBatchOperation batch = new TableBatchOperation();
                 foreach (var row in dynamicTableEntities)
                 {
-                    batch = new TableBatchOperation();
-
                     batch.Delete(row);
                 }
 
-                if (batch != null) await cloudTable.ExecuteBatchAsync(batch);
+                await cloudTable.ExecuteBatchAsync(batch);
 
                 dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken);
             }
@@ -209,6 +207,51 @@ namespace Demgel.Redis
 #pragma warning restore 4014
         }
 
+        public async Task<HashEntry[]> GetHash(string hashKey)
+        {
+            string table, partitionKey;
+            ParseTableEntities(hashKey, out table, out partitionKey);
+            var cloudTable = await GetCloudTable(table);
+
+            var query = new TableQuery<DynamicTableEntity>
+            {
+                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey)
+            };
+
+            var result = new List<HashEntry>();
+
+            var dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, null);
+
+            while (dynamicTableEntities.ContinuationToken != null)
+            {
+                foreach (var row in dynamicTableEntities)
+                {
+                    EntityProperty value;
+                    if (row.Properties.TryGetValue("value", out value))
+                    {
+                        result.Add(new HashEntry(row.RowKey, value.StringValue));
+                    }
+                }
+
+                dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken);
+            }
+
+            return result.ToArray();
+        }
+
+        public async Task<HashEntry> GetHashEntry(string valueKey, string hashKey)
+        {
+            string varOne, varTwo;
+            ParseTableEntities(hashKey, out varOne, out varTwo);
+            var cloudTable = await GetCloudTable(varOne);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(varTwo, valueKey);
+            var result = await cloudTable.ExecuteAsync(operation);
+            var dynamicTableEntity = result.Result as DynamicTableEntity;
+            if (dynamicTableEntity == null) return new HashEntry("null", "null");
+            EntityProperty resultString;
+            return dynamicTableEntity.Properties.TryGetValue(valueKey, out resultString) ? new HashEntry(valueKey, resultString.StringValue) : new HashEntry("null", "null");
+        }
+
         public async void UpdateString(string value, string key, string table = "string")
         {
             string partitionKey, rowKey;
@@ -232,6 +275,19 @@ namespace Demgel.Redis
 #pragma warning disable 4014
             cloudTable.ExecuteAsync(operation);
 #pragma warning restore 4014
+        }
+
+        public async Task<RedisValue> GetString(string value, string key, string table = "string")
+        {
+            string partitionKey, rowKey;
+            ParseTableEntities(key, out partitionKey, out rowKey);
+            var cloudTable = await GetCloudTable(table);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(partitionKey, rowKey);
+            var result = await cloudTable.ExecuteAsync(operation);
+            var dynamicResult = result.Result as DynamicTableEntity;
+            if (dynamicResult == null) return "null";
+            EntityProperty resultProperty;
+            return dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : "null";
         }
 
         public void UpdateSet()
