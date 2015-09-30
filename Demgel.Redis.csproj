@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Demgel.Redis.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
