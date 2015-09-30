@@ -105,7 +105,7 @@ namespace Demgel.Redis
             }
         }
 
-        public static void ParseTableEntities(string key, out string keyOne, out string keyTwo)
+        private static void ParseTableEntities(string key, out string keyOne, out string keyTwo)
         {
             var sepIndex = key.IndexOf(":", StringComparison.Ordinal);
             keyOne = key.Substring(0, sepIndex);
@@ -131,7 +131,7 @@ namespace Demgel.Redis
                 entity.PartitionKey = partitionkey;
                 entity.RowKey = entry.Name;
                 
-                entity.Properties.Add(entry.Name, new EntityProperty((string)entry.Value));
+                entity.Properties.Add("value", new EntityProperty((string)entry.Value));
 
                 operation.InsertOrReplace(entity);
             }
@@ -139,6 +139,40 @@ namespace Demgel.Redis
 #pragma warning disable 4014
             cloudTable.ExecuteBatchAsync(operation);
 #pragma warning restore 4014
+        }
+
+        /// <summary>
+        /// Not a very effecient way to delete a hash, better to use
+        /// DeleteHashValues if you have the whole hash from the cache.
+        /// </summary>
+        /// <param name="hashKey"></param>
+        public async void DeleteHash(string hashKey)
+        {
+            string table, partitionKey;
+            ParseTableEntities(hashKey, out table, out partitionKey);
+            var cloudTable = await GetCloudTable(table);
+
+            var query = new TableQuery<DynamicTableEntity>
+            {
+                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey)
+            };
+
+            var dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, null);
+
+            while (dynamicTableEntities.ContinuationToken != null)
+            {
+                TableBatchOperation batch = null;
+                foreach (var row in dynamicTableEntities)
+                {
+                    batch = new TableBatchOperation();
+
+                    batch.Delete(row);
+                }
+
+                if (batch != null) await cloudTable.ExecuteBatchAsync(batch);
+
+                dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken);
+            }
         }
 
         public async void UpdateHashValue(HashEntry entry, string hashKey)
@@ -152,6 +186,8 @@ namespace Demgel.Redis
             entity.PartitionKey = partitionkey;
             entity.RowKey = entry.Name;
 
+            entity.Properties.Add("value", new EntityProperty((string)entry.Value));
+
             var operation = TableOperation.InsertOrReplace(entity);
 
             cloudTable.ExecuteAsync(operation);
@@ -159,20 +195,51 @@ namespace Demgel.Redis
 
         public void DeleteHashValue(HashEntry entry, string hashKey)
         {
-            throw new NotImplementedException();
+            DeleteHashValue(entry.Name, hashKey);
         }
 
-        public void UpdateString(RedisKey key, RedisValue value)
+        public async void DeleteHashValue(string valueKey, string hashKey)
         {
+            string varOne, varTwo;
+            ParseTableEntities(hashKey, out varOne, out varTwo);
+            var cloudTable = await GetCloudTable(varOne);
+            var operation = TableOperation.Delete(new DynamicTableEntity(varTwo, valueKey));
+#pragma warning disable 4014
+            cloudTable.ExecuteAsync(operation);
+#pragma warning restore 4014
+        }
+
+        public async void UpdateString(string value, string key, string table = "string")
+        {
+            string partitionKey, rowKey;
+            ParseTableEntities(key, out partitionKey, out rowKey);
+            var cloudTable = await GetCloudTable(table);
+            var entity = new DynamicTableEntity(partitionKey, rowKey);
+            entity.Properties.Add("value", new EntityProperty(value));
+            var operation = TableOperation.InsertOrReplace(entity);
             
+#pragma warning disable 4014
+            cloudTable.ExecuteAsync(operation);
+#pragma warning restore 4014
+        }
+
+        public async void DeleteString(string key, string table = "string")
+        {
+            string partitionKey, rowKey;
+            ParseTableEntities(key, out partitionKey, out rowKey);
+            var cloudTable = await GetCloudTable(table);
+            var operation = TableOperation.Delete(new DynamicTableEntity(partitionKey, rowKey));
+#pragma warning disable 4014
+            cloudTable.ExecuteAsync(operation);
+#pragma warning restore 4014
         }
 
         public void UpdateSet()
         {
-            
+            throw new NotImplementedException();
         }
 
-        public void DeleteKey()
+        public void DeleteSet(string setKey)
         {
             throw new NotImplementedException();
         }
