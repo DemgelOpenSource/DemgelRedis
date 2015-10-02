@@ -252,15 +252,25 @@ namespace Demgel.Redis
             return dynamicTableEntity.Properties.TryGetValue(valueKey, out resultString) ? new HashEntry(valueKey, resultString.StringValue) : new HashEntry("null", "null");
         }
 
-        public async void UpdateString(string value, string key, string table = "string")
+        /// <summary>
+        /// Will update the table database to the current value of the redisDatabase given and key.
+        /// </summary>
+        /// <param name="redisDatabase"></param>
+        /// <param name="key"></param>
+        /// <param name="table"></param>
+        public async void UpdateString(IDatabase redisDatabase, string key, string table = "string")
         {
+            var value = await redisDatabase.StringGetAsync(key);
+            if (value.IsNullOrEmpty) return;
+
             string partitionKey, rowKey;
             ParseTableEntities(key, out partitionKey, out rowKey);
             var cloudTable = await GetCloudTable(table);
             var entity = new DynamicTableEntity(partitionKey, rowKey);
-            entity.Properties.Add("value", new EntityProperty(value));
+            entity.Properties.Add("value", new EntityProperty((string) value));
             var operation = TableOperation.InsertOrReplace(entity);
-            
+
+
 #pragma warning disable 4014
             cloudTable.ExecuteAsync(operation);
 #pragma warning restore 4014
@@ -277,6 +287,13 @@ namespace Demgel.Redis
 #pragma warning restore 4014
         }
 
+        /// <summary>
+        /// TODO this will be renamed to RestoreString
+        /// Gets and restores the string to the redisDatabase given from table storage
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public async Task<RedisValue> GetString(string key, string table = "string")
         {
             string partitionKey, rowKey;
@@ -288,6 +305,39 @@ namespace Demgel.Redis
             if (dynamicResult == null) return "";
             EntityProperty resultProperty;
             return dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : "";
+        }
+
+        /// <summary>
+        /// Gets and restores the string to the redisDatabase given from table storage
+        /// </summary>
+        /// <param name="redisDatabase"></param>
+        /// <param name="key"></param>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public async Task<string> RestoreString(IDatabase redisDatabase, string key, string table = "string")
+        {
+            string partitionKey, rowKey;
+            ParseTableEntities(key, out partitionKey, out rowKey);
+            var cloudTable = await GetCloudTable(table);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(partitionKey, rowKey);
+            var result = await cloudTable.ExecuteAsync(operation);
+            var dynamicResult = result.Result as DynamicTableEntity;
+
+            EntityProperty resultProperty;
+            string value = dynamicResult != null && dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : null;
+
+            if (!string.IsNullOrEmpty(value))
+            {
+                // Assume redis database is most upto date?
+                if (!redisDatabase.StringSet(key, value, null, When.NotExists))
+                {
+                    // value already exists, so update the new value
+                    UpdateString(redisDatabase, key, table);
+                    value = await redisDatabase.StringGetAsync(key);
+                }
+            }
+
+            return value;
         }
 
         public void UpdateSet()
