@@ -15,7 +15,7 @@ namespace Demgel.Redis.Interfaces
 
         void UpdateString(string value, string key, string table = "string");
         void DeleteString(string key, string table = "string");
-        Task<RedisValue> GetString(string value, string key, string table = "string");
+        Task<RedisValue> GetString(string key, string table = "string");
 
         void UpdateSet();
         void DeleteSet(string setKey);

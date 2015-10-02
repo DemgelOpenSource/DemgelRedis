@@ -277,7 +277,7 @@ namespace Demgel.Redis
 #pragma warning restore 4014
         }
 
-        public async Task<RedisValue> GetString(string value, string key, string table = "string")
+        public async Task<RedisValue> GetString(string key, string table = "string")
         {
             string partitionKey, rowKey;
             ParseTableEntities(key, out partitionKey, out rowKey);
@@ -285,9 +285,9 @@ namespace Demgel.Redis
             var operation = TableOperation.Retrieve<DynamicTableEntity>(partitionKey, rowKey);
             var result = await cloudTable.ExecuteAsync(operation);
             var dynamicResult = result.Result as DynamicTableEntity;
-            if (dynamicResult == null) return "null";
+            if (dynamicResult == null) return "";
             EntityProperty resultProperty;
-            return dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : "null";
+            return dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : "";
         }
 
         public void UpdateSet()
