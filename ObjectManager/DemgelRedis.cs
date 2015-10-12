@@ -224,12 +224,16 @@ namespace DemgelRedis.ObjectManager
                     var value = prop.GetValue(result.Object, null);
                     if (value != null) continue;
 
-                    var newObj = Activator.CreateInstance(prop.PropertyType);
-                    var subresult = RetrieveObject(newObj, id, redisDatabase, prop);
-                    if (subresult.IsValid)
+                    try
                     {
-                        prop.SetValue(result.Object, subresult.Object);
+                        var newObj = Activator.CreateInstance(prop.PropertyType);
+                        var subresult = RetrieveObject(newObj, id, redisDatabase, prop);
+                        if (subresult.IsValid)
+                        {
+                            prop.SetValue(result.Object, subresult.Object);
+                        }
                     }
+                    catch { }
                 }
             }
 
