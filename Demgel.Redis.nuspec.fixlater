@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata>
-    <id>Demgel.Redis</id>
-    <authors>tenowg (Craig Russell)</authors>
-    <description>Some Simple Functions for Redis using StackExchange.Redis for Azure</description>
-    <language>en-US</language>
-  </metadata>
-</package>

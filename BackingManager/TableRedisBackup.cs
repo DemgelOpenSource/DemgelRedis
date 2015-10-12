@@ -79,8 +79,7 @@ namespace Demgel.Redis
         }
 
         /// <summary>
-        /// This function is not async, but once the tables are
-        /// found and referenced, this should be O(1)
+        /// Retrieve, Create, and register CloudTables in use, Caching for quick lookup.
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>

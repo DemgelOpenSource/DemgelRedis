@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Demgel.Redis.Events;
 using StackExchange.Redis;
 
-namespace Demgel.Redis
+namespace Demgel.Redis.JobQueue
 {
     /// <summary>
     /// Needed: (2) Redis queues 1 for new messages, 1 for currently processing messages
