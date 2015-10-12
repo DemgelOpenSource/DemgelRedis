@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Demgel.Redis.Interfaces;
 using StackExchange.Redis;
 
