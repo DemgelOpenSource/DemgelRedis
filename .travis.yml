@@ -2,3 +2,4 @@
 solution: DemgelRedis.sln
 script:
   - nuget restore DemgelRedis.sln
+  - xbuild /p:Configuration=Release DemgelRedis.sln
