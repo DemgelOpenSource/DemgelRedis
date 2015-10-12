@@ -39,7 +39,7 @@ namespace DemgelRedis.Tests
                 new HashEntry("TestDouble", "32342938283982.234232")
             };
 
-            var ret = _redis.ConvertToObject(typeof(TestClass), hashList.ToArray());
+            var ret = _redis.ConvertToObject(new TestClass(), hashList.ToArray());
             ((TestClass)ret).TestFloat = 1231128128182.242342F;
             Debug.WriteLine(((TestClass)ret).TestFloat);
         }
