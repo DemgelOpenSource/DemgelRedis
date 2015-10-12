@@ -1,2 +1,4 @@
 ﻿language: csharp
 solution: DemgelRedis.sln
+script:
+  - nuget restore DemgelRedis.sln
