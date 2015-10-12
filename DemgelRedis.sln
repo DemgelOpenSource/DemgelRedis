@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.nuspec = nuget.nuspec
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demgel.Redis.Test", "..\Demgel.Redis.Test\Demgel.Redis.Test.csproj", "{685B69CC-5C73-4B4A-808A-660A9977AEF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemgelRedis.Test", "DemgelRedis.Test\DemgelRedis.Test.csproj", "{7222A292-B9C5-47A0-9F55-9A29AF610BD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +22,10 @@ Global
 		{0E72EE73-72D3-4746-85BD-01938CA889E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E72EE73-72D3-4746-85BD-01938CA889E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E72EE73-72D3-4746-85BD-01938CA889E1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{685B69CC-5C73-4B4A-808A-660A9977AEF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{685B69CC-5C73-4B4A-808A-660A9977AEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{685B69CC-5C73-4B4A-808A-660A9977AEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{685B69CC-5C73-4B4A-808A-660A9977AEF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7222A292-B9C5-47A0-9F55-9A29AF610BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7222A292-B9C5-47A0-9F55-9A29AF610BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7222A292-B9C5-47A0-9F55-9A29AF610BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7222A292-B9C5-47A0-9F55-9A29AF610BD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
