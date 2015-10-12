@@ -1,4 +1,6 @@
-﻿This package is no where near ready for use... For Developers only (if interested)
+﻿[![Build Status](https://travis-ci.org/DemgelOpenSource/DemgelRedis.svg)](https://travis-ci.org/DemgelOpenSource/DemgelRedis)
+
+This package is no where near ready for use... For Developers only (if interested)
 
 ## Demgel Redis
 
