@@ -45,7 +45,9 @@ namespace DemgelRedis.ObjectManager
                 ITypeConverter converter;
                 if (_typeConverters.TryGetValue(type, out converter))
                 {
-                    yield return new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
+                    var ret = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
+                    if (ret.Value.IsNull) continue;
+                    yield return ret;
                 }
             }
         }

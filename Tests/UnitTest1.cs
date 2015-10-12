@@ -64,7 +64,7 @@ namespace DemgelRedis.Tests
             
             test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12346", connection.GetDatabase());
             Debug.WriteLine(test3.test);
             //var tt = test3.SomeStrings;
             test3.SomeStrings.Add("test9");
