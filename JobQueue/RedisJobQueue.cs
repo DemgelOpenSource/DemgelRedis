@@ -44,7 +44,7 @@ namespace Demgel.Redis.JobQueue
         private readonly string _processingQueue;
         private readonly string _subChannel;
         private readonly string _jobName;
-        private readonly string _deadMessage;
+        //private readonly string _deadMessage;
 
         private readonly string _luaTest = @"
                                             local timeToKill = tonumber(ARGV[1])
@@ -76,7 +76,7 @@ namespace Demgel.Redis.JobQueue
             _jobQueue = $"{jobName}:jobs";
             _processingQueue = $"{jobName}:process";
             _subChannel = $"{jobName}:channel";
-            _deadMessage = $"{jobName}:deadmessage";
+            //_deadMessage = $"{jobName}:deadmessage";
             _jobName = jobName;
             _cancellationToken = cancellationToken;
         }
