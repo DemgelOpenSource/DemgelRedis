@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Demgel.Redis.Interfaces;
-using Demgel.Redis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
 
-namespace DemgelRedis.Test
+namespace DemgelRedis.Tests
 {
 
     public class TestClass : IRedisObject

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.ObjectManager.Handlers
+namespace DemgelRedis.ObjectManager.Handlers
 {
     public class EnumerableHandler : RedisHandler
     {
@@ -80,7 +80,7 @@ namespace Demgel.Redis.ObjectManager.Handlers
             return true;
         }
 
-        public EnumerableHandler(DemgelRedis demgelRedis) : base(demgelRedis)
+        public EnumerableHandler(global::DemgelRedis.ObjectManager.DemgelRedis demgelRedis) : base(demgelRedis)
         {
         }
     }

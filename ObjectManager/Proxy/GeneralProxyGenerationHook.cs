@@ -2,7 +2,7 @@
 using System.Reflection;
 using Castle.DynamicProxy;
 
-namespace Demgel.Redis.ObjectManager.Proxy
+namespace DemgelRedis.ObjectManager.Proxy
 {
     public class GeneralProxyGenerationHook : IProxyGenerationHook
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Demgel.Redis.ObjectManager.Attributes
+namespace DemgelRedis.ObjectManager.Attributes
 {
     /// <summary>
     /// The suffix of you want to use one

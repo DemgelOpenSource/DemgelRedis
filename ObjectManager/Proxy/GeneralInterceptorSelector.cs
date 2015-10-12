@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
 
-namespace Demgel.Redis.ObjectManager.Proxy
+namespace DemgelRedis.ObjectManager.Proxy
 {
     public class GeneralInterceptorSelector : IInterceptorSelector
     {

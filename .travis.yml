@@ -1,5 +1,10 @@
 language: csharp
 solution: DemgelRedis.sln
-script:
+services:
+  - redis-server
+install:
   - nuget restore DemgelRedis.sln
+  - nuget install MUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
   - xbuild /p:Configuration=Release DemgelRedis.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./MyProject.Tests/bin/Release/DemgelRedis.dll

@@ -2,7 +2,7 @@
 using Castle.DynamicProxy;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.ObjectManager.Proxy
+namespace DemgelRedis.ObjectManager.Proxy
 {
     public class ChangeTrackerInterceptor : IInterceptor
     {

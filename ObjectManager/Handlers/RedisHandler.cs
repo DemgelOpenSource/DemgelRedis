@@ -3,13 +3,13 @@ using System.Reflection;
 using Demgel.Redis.Interfaces;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.ObjectManager.Handlers
+namespace DemgelRedis.ObjectManager.Handlers
 {
     public abstract class RedisHandler : IRedisHandler
     {
-        protected readonly DemgelRedis _demgelRedis;
+        protected readonly global::DemgelRedis.ObjectManager.DemgelRedis _demgelRedis;
 
-        protected RedisHandler(DemgelRedis demgelRedis)
+        protected RedisHandler(global::DemgelRedis.ObjectManager.DemgelRedis demgelRedis)
         {
             _demgelRedis = demgelRedis;
         }

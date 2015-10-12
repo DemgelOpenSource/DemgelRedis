@@ -1,4 +1,5 @@
 ﻿using System;
+using DemgelRedis;
 
 namespace Demgel.Redis.Events
 {

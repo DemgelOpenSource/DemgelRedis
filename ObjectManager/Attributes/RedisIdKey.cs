@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Demgel.Redis.ObjectManager.Attributes
+namespace DemgelRedis.ObjectManager.Attributes
 {
     /// <summary>
     /// The Id key for the redis cache

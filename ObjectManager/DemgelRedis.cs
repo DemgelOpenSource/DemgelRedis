@@ -4,14 +4,15 @@ using System.Linq;
 using System.Reflection;
 using Castle.Core.Internal;
 using Castle.DynamicProxy;
+using Demgel.Redis;
 using Demgel.Redis.Converters;
 using Demgel.Redis.Interfaces;
-using Demgel.Redis.ObjectManager.Attributes;
-using Demgel.Redis.ObjectManager.Handlers;
-using Demgel.Redis.ObjectManager.Proxy;
+using DemgelRedis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Handlers;
+using DemgelRedis.ObjectManager.Proxy;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.ObjectManager
+namespace DemgelRedis.ObjectManager
 {
     public class DemgelRedis
     {

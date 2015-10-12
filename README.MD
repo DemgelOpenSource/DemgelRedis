@@ -1,4 +1,5 @@
 ﻿[![Build Status](https://travis-ci.org/DemgelOpenSource/DemgelRedis.svg)](https://travis-ci.org/DemgelOpenSource/DemgelRedis)
+[![Build status](https://ci.appveyor.com/api/projects/status/6xl602hwsyu926aw/branch/master?svg=true)](https://ci.appveyor.com/project/tenowg/demgelredis/branch/master)
 
 This package is no where near ready for use... For Developers only (if interested)
 

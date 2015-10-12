@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using StackExchange.Redis;
 
-namespace DemgelRedis.Test
+namespace DemgelRedis.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class UnitTest1
     {
-        private readonly Demgel.Redis.ObjectManager.DemgelRedis _redis = new Demgel.Redis.ObjectManager.DemgelRedis();
-        [TestMethod]
+        private readonly ObjectManager.DemgelRedis _redis = new ObjectManager.DemgelRedis();
+        [Test]
         public void TestConvertToRedisHash()
         {
             //var demgelRedis = new DemgelRedis();
@@ -27,7 +27,7 @@ namespace DemgelRedis.Test
             Assert.IsTrue(ret.Count() == 2);
         }
 
-        [TestMethod]
+        [Test]
         public void TestRedisHashToObject()
         {
             var hashList = new List<HashEntry>
@@ -44,10 +44,10 @@ namespace DemgelRedis.Test
             Debug.WriteLine(((TestClass)ret).TestFloat);
         }
 
-        [TestMethod]
+        [Test]
         public void TestRedisRetrieveObject()
         {
-            var connection = ConnectionMultiplexer.Connect("192.168.107.129");
+            var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
             Debug.WriteLine(test3.subTest.Id);
@@ -55,12 +55,13 @@ namespace DemgelRedis.Test
             Assert.IsTrue(test3 != null);
         }
 
-        [TestMethod]
+        [Test]
         public void TestRedisSaveObject()
         {
-            var connection = ConnectionMultiplexer.Connect("192.168.107.129");
+            var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             var test = connection.GetSubscriber();
+            
             test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());

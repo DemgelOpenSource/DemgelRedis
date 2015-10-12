@@ -7,8 +7,8 @@
     <ProjectGuid>{0E72EE73-72D3-4746-85BD-01938CA889E1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Demgel.Redis</RootNamespace>
-    <AssemblyName>Demgel.Redis</AssemblyName>
+    <RootNamespace>DemgelRedis</RootNamespace>
+    <AssemblyName>DemgelRedis</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -58,6 +58,10 @@
       <HintPath>.\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="StackExchange.Redis, Version=1.0.316.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\StackExchange.Redis.1.0.481\lib\net45\StackExchange.Redis.dll</HintPath>
       <Private>True</Private>
@@ -99,6 +103,8 @@
     <Compile Include="JobQueue\RedisJobQueue.cs" />
     <Compile Include="RedisValueDictionary.cs" />
     <Compile Include="BackingManager\TableRedisBackup.cs" />
+    <Compile Include="Tests\TestClass.cs" />
+    <Compile Include="Tests\UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".travis.yml" />
