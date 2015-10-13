@@ -1,5 +1,6 @@
 ﻿using System;
 using DemgelRedis;
+using DemgelRedis.JobQueue;
 
 namespace Demgel.Redis.Events
 {

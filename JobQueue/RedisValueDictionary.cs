@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using StackExchange.Redis;
 
-namespace DemgelRedis
+namespace DemgelRedis.JobQueue
 {
     [Serializable]
     public class RedisValueDictionary : Dictionary<RedisValue, RedisValue>

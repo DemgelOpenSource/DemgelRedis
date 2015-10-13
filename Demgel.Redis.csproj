@@ -87,7 +87,7 @@
     <Compile Include="Converters\GuidConverter.cs" />
     <Compile Include="Converters\StringConverter.cs" />
     <Compile Include="ObjectManager\DemgelRedis.cs" />
-    <Compile Include="DemgelRedisResult.cs" />
+    <Compile Include="ObjectManager\DemgelRedisResult.cs" />
     <Compile Include="Events\JobReceivedEventArgs.cs" />
     <Compile Include="ObjectManager\Handlers\EnumerableHandler.cs" />
     <Compile Include="ObjectManager\Handlers\RedisHandler.cs" />
@@ -101,7 +101,7 @@
     <Compile Include="ObjectManager\Proxy\GeneralInterceptorSelector.cs" />
     <Compile Include="ObjectManager\Proxy\GeneralProxyGenerationHook.cs" />
     <Compile Include="JobQueue\RedisJobQueue.cs" />
-    <Compile Include="RedisValueDictionary.cs" />
+    <Compile Include="JobQueue\RedisValueDictionary.cs" />
     <Compile Include="BackingManager\TableRedisBackup.cs" />
     <Compile Include="Tests\TestClass.cs" />
     <Compile Include="Tests\UnitTest1.cs" />
@@ -112,7 +112,9 @@
     <None Include="packages.config" />
     <None Include="README.MD" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="LICENSE.TXT" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

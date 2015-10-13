@@ -1,4 +1,4 @@
-﻿namespace Demgel.Redis
+﻿namespace DemgelRedis.ObjectManager
 {
     public class DemgelRedisResult
     {
