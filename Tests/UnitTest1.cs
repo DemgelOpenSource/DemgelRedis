@@ -27,7 +27,7 @@ namespace DemgelRedis.Tests
 
             var ret = _redis.ConvertToRedisHash(test).ToList();
 
-            Assert.IsTrue(ret.Count() == 2);
+            Assert.IsTrue(ret.Count == 2);
         }
 
         [Test]
@@ -65,9 +65,9 @@ namespace DemgelRedis.Tests
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test = connection.GetSubscriber();
+            //var test = connection.GetSubscriber();
             
-            test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
+            //test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
             var test3 = await _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
             Debug.WriteLine(test3.test);
@@ -76,7 +76,7 @@ namespace DemgelRedis.Tests
             test3.SomeStrings.Add("test1");
             test3.SomeStrings.Add("test5");
             test3.SomeStrings[2] = "something else";
-            var e = test3.subTest;
+            //test3.subTest;
             //e.test = "hello...Test";
             test3.test = "Hello Redis... lets see if you saved";
 

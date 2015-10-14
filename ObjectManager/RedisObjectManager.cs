@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Castle.DynamicProxy;
-using Demgel.Redis.Converters;
 using DemgelRedis.Common;
+using DemgelRedis.Converters;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Handlers;
@@ -29,7 +29,8 @@ namespace DemgelRedis.ObjectManager
             TypeConverters = new Dictionary<Type, ITypeConverter>
             {
                 {typeof(Guid), new GuidConverter() },
-                {typeof(string), new StringConverter() }
+                {typeof(string), new StringConverter() },
+                {typeof(int), new Int32Converter() }
             };
 
             _handlers = new List<IRedisHandler>
@@ -46,7 +47,7 @@ namespace DemgelRedis.ObjectManager
             _redisBackup = redisBackup;
         }
 
-        public IEnumerable<HashEntry> ConvertToRedisHash(object o, bool ignoreFail = false)
+        public IEnumerable<HashEntry> ConvertToRedisHash(object o)
         {
             foreach (var prop in o.GetType().GetProperties())
             {
@@ -59,7 +60,7 @@ namespace DemgelRedis.ObjectManager
             }
         }
 
-        public object ConvertToObject(object obj, HashEntry[] hashEntries, bool ignoreFail = false)
+        public object ConvertToObject(object obj, HashEntry[] hashEntries)
         {
             var testObj = obj;
             var hashDict = hashEntries.ToDictionary();
@@ -89,11 +90,12 @@ namespace DemgelRedis.ObjectManager
         /// </summary>
         /// <param name="id">The id of the object to find</param>
         /// <param name="redisDatabase"></param>
+        /// <param name="isTransient">Short lived objects should be transient (prevent subscribing to events)</param>
         /// <returns></returns>
-        public async Task<T> RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
+        public async Task<T> RetrieveObjectProxy<T>(string id, IDatabase redisDatabase, bool isTransient = false)
             where T : class
         {
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null);            
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null, isTransient);            
             var result = (await RetrieveObject(proxy, id, redisDatabase)).Object as T;
             var changeTrackerInterceptor = (ChangeTrackerInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is ChangeTrackerInterceptor);
             if (changeTrackerInterceptor != null)
@@ -101,7 +103,7 @@ namespace DemgelRedis.ObjectManager
             return result;
         }
 
-        private object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj)
+        private object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, bool isTransient)
         {
             object proxy;
 
@@ -112,7 +114,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
             else if (obj == null)
             {
                 proxy = _generator.CreateInterfaceProxyWithoutTarget(type,
@@ -121,7 +123,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
             }
             else
             {
@@ -131,7 +133,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
             }
 
             // Lets try setting all Proxies...
@@ -141,7 +143,7 @@ namespace DemgelRedis.ObjectManager
                 if (!p.GetMethod.IsVirtual || p.PropertyType.IsSealed) continue;
                 if (!p.PropertyType.IsClass && !p.PropertyType.IsInterface) continue;
                 var baseObject = p.GetValue(proxy, null);
-                var pr = RetrieveObjectProxy(p.PropertyType, id, redisDatabase, baseObject);
+                var pr = RetrieveObjectProxy(p.PropertyType, id, redisDatabase, baseObject, isTransient);
                 proxy.GetType().GetProperty(p.Name).SetValue(proxy, pr);
             }
 
@@ -165,7 +167,6 @@ namespace DemgelRedis.ObjectManager
                 Object = obj
             };
 
-            //var objType = obj.GetType();
             var objType = obj.GetType();
 
             // We might not be dealing with a Hash all the time.. maybe a set? or List?
@@ -176,10 +177,8 @@ namespace DemgelRedis.ObjectManager
             }
 
             // If another type was not found, try to set all values normally.
-            //var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
             var redisKey = new RedisKeyObject(objType.GetCustomAttributes(), id);
 
-            // TODO check to see if we need to do Restore from Backing
             var ret = redisDatabase.HashGetAll(redisKey.RedisKey);
             if (ret.Length == 0)
             {
@@ -196,7 +195,7 @@ namespace DemgelRedis.ObjectManager
             }
 
             // Attempt to set all given properties
-            result.Object = ConvertToObject(obj, ret, true);
+            result.Object = ConvertToObject(obj, ret);
 
             // Do we continue here if it is a base system class?
             if (!(result.Object is IRedisObject)) return result;
@@ -246,7 +245,12 @@ namespace DemgelRedis.ObjectManager
             return result;
         }
 
-        // SaveObjectToRedis (and tables)
+        /// <summary>
+        /// Will manually save an object and all underlying objects
+        /// </summary>
+        /// <param name="obj">Object to be saved</param>
+        /// <param name="id">Id of the object to be saved</param>
+        /// <param name="redisDatabase">RedisDatabase to save too</param>
         public void SaveObject(object obj, string id, IDatabase redisDatabase)
         {
             var objType = obj.GetType();

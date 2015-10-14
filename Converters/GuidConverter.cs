@@ -2,7 +2,7 @@
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.Converters
+namespace DemgelRedis.Converters
 {
     public class GuidConverter : ITypeConverter
     {
