@@ -48,6 +48,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        [Ignore]
         public async void TestRedisRetrieveObject()
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
