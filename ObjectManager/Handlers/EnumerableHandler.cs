@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DemgelRedis.Common;
+using NUnit.Framework.Constraints;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
@@ -16,7 +18,8 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
-            var listKey = _demgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
+            //var listKey = DemgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
+            var listKey = new RedisKeyObject(basePropertyInfo.GetCustomAttributes(), id);
             Type itemType = null;
 
             if (objType.GetInterfaces().Any(interfaceType => interfaceType.IsGenericType &&
@@ -29,7 +32,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                 catch { }
             }
 
-            var retList = redisDatabase.ListRange(listKey);
+            var retList = redisDatabase.ListRange(listKey.RedisKey);
 
             //if (itemType != typeof(RedisValue))
             //{
@@ -48,7 +51,8 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
-            var listKey = _demgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
+            //var listKey = DemgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
+            var listKey = new RedisKeyObject(basePropertyInfo.GetCustomAttributes(), id);
 
             // Only handles lists if they are not currently set, lists need to be handled
             // on a per item basis otherwise
@@ -71,16 +75,16 @@ namespace DemgelRedis.ObjectManager.Handlers
             var trans = redisDatabase.CreateTransaction();
             foreach (var o in ((IEnumerable<RedisValue>) obj).ToArray())
             {
-                trans.ListRemoveAsync(listKey, o);
-                trans.ListLeftPushAsync(listKey, o);
+                trans.ListRemoveAsync(listKey.RedisKey, o);
+                trans.ListLeftPushAsync(listKey.RedisKey, o);
             }
-            var test = trans.Execute();
+            trans.Execute();
             //redisDatabase.ListRightPush(listKey, ((IEnumerable<RedisValue>)obj).ToArray());
 
             return true;
         }
 
-        public EnumerableHandler(global::DemgelRedis.ObjectManager.DemgelRedis demgelRedis) : base(demgelRedis)
+        public EnumerableHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
         {
         }
     }

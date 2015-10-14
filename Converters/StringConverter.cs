@@ -1,4 +1,4 @@
-﻿using Demgel.Redis.Interfaces;
+﻿using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
 namespace Demgel.Redis.Converters

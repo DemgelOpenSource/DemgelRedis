@@ -1,29 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using Demgel.Redis.Interfaces;
+using Castle.Core.Internal;
+using DemgelRedis.Common;
+using DemgelRedis.Extensions;
+using DemgelRedis.Interfaces;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Table;
 using StackExchange.Redis;
 
-namespace Demgel.Redis
+namespace DemgelRedis.BackingManager
 {
     /// <summary>
     /// Does an ongoing (real time) back up to Azure Tables
     /// 
     /// Format is Table:PartitionKey:RowKey (as in: user:1201212:info)
-    /// Format could be PartitionKey:RowKey (as in: user:1201212) Table is provided as param
-    /// 
-    /// TODO: Ability to override PartitionKey and Rowkey values by offering a
-    /// TODO: RemapKeys object.
-    /// 
-    /// TODO: RemapKeys object needs still needs String value but will be able to
-    /// TODO: set Keys based on Lamda Functions to different keys. Will be used to read
-    /// TODO: both from and to the backup database.
-    /// 
-    /// Autofac example registration:
-    ///     
+    /// Format could be PartitionKey:RowKey (as in: user:1201212) Table is provided as param. 
     /// </summary>
     public class TableRedisBackup : IRedisBackup
     {
@@ -83,17 +77,16 @@ namespace Demgel.Redis
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        private async Task<CloudTable> GetCloudTable(string tableName)
+        private CloudTable GetCloudTable(string tableName)
         {
             CloudTable table;
             lock (_lock)
             {
-                
                 if (_tablesDictionary.TryGetValue(tableName, out table)) return table;
             }
 
             table = Client.GetTableReference(tableName);
-            await table.CreateIfNotExistsAsync();
+            table.CreateIfNotExistsAsync().Wait();
 
             lock (_lock) {
                 if (!_tablesDictionary.ContainsKey(tableName))
@@ -104,40 +97,33 @@ namespace Demgel.Redis
             }
         }
 
-        private static void ParseTableEntities(string key, out string keyOne, out string keyTwo)
-        {
-            var sepIndex = key.IndexOf(":", StringComparison.Ordinal);
-            keyOne = key.Substring(0, sepIndex);
-            keyTwo = key.Substring(sepIndex + 1);
-        }
-
         /// <summary>
         /// Will process all hash entries (need to come from same hash)
         /// </summary>
         /// <param name="entries"></param>
         /// <param name="hashKey"></param>
-        public async void UpdateHash(HashEntry[] entries, string hashKey)
+        public void UpdateHash(IEnumerable<HashEntry> entries, RedisKeyObject hashKey)
         {
-            string table, partitionkey;
-            ParseTableEntities(hashKey, out table, out partitionkey);
-
             var operation = new TableBatchOperation();
-            var cloudTable = await GetCloudTable(table);
+            var cloudTable = GetCloudTable(hashKey.Prefix);
 
             foreach (var entry in entries)
             {
-                dynamic entity = new DynamicTableEntity();
-                entity.PartitionKey = partitionkey;
-                entity.RowKey = entry.Name;
-                
-                entity.Properties.Add("value", new EntityProperty((string)entry.Value));
+                var entity = new DynamicTableEntity
+                {
+                    PartitionKey = GetPartitionKey(hashKey),
+                    RowKey = entry.Name
+                };
 
+                entity.Properties.Add("value",
+                    entry.Value.IsByteArray()
+                        ? new EntityProperty((byte[]) entry.Value)
+                        : new EntityProperty((string) entry.Value));
+                
                 operation.InsertOrReplace(entity);
             }
-           
-#pragma warning disable 4014
+
             cloudTable.ExecuteBatchAsync(operation);
-#pragma warning restore 4014
         }
 
         /// <summary>
@@ -145,83 +131,89 @@ namespace Demgel.Redis
         /// DeleteHashValues if you have the whole hash from the cache.
         /// </summary>
         /// <param name="hashKey"></param>
-        public async void DeleteHash(string hashKey)
+        public void DeleteHash(RedisKeyObject hashKey)
         {
-            string table, partitionKey;
-            ParseTableEntities(hashKey, out table, out partitionKey);
-            var cloudTable = await GetCloudTable(table);
+            var cloudTable = GetCloudTable(hashKey.Prefix);
 
             var query = new TableQuery<DynamicTableEntity>
             {
-                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey)
+                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, GetPartitionKey(hashKey))
             };
 
-            var dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, null);
+            var dynamicTableEntities = cloudTable.ExecuteQuerySegmented(query, null);
 
-            while (dynamicTableEntities.ContinuationToken != null)
+            do
             {
-                TableBatchOperation batch = new TableBatchOperation();
+                var batch = new TableBatchOperation();
                 foreach (var row in dynamicTableEntities)
                 {
                     batch.Delete(row);
                 }
 
-                await cloudTable.ExecuteBatchAsync(batch);
+                if (!batch.IsNullOrEmpty())
+                    cloudTable.ExecuteBatchAsync(batch).Wait();
 
-                dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken);
-            }
+                dynamicTableEntities = cloudTable.ExecuteQuerySegmented(query, dynamicTableEntities.ContinuationToken);
+            } while (dynamicTableEntities.ContinuationToken != null);
         }
 
-        public async void UpdateHashValue(HashEntry entry, string hashKey)
+        public void UpdateHashValue(HashEntry entry, RedisKeyObject hashKey)
         {
-            string table, partitionkey;
-            ParseTableEntities(hashKey, out table, out partitionkey);
+            //string table, partitionkey;
+            //ParseTableEntities(hashKey, out table, out partitionkey);
 
-            var cloudTable = await GetCloudTable(table);
+            var cloudTable = GetCloudTable(hashKey.Prefix);
+
+            var partKey = GetPartitionKey(hashKey);
 
             dynamic entity = new DynamicTableEntity();
-            entity.PartitionKey = partitionkey;
+            entity.PartitionKey = partKey;
             entity.RowKey = entry.Name;
 
             entity.Properties.Add("value", new EntityProperty((string)entry.Value));
 
             var operation = TableOperation.InsertOrReplace(entity);
 
-            cloudTable.ExecuteAsync(operation);
+            cloudTable.ExecuteAsync(operation).Wait();
         }
 
-        public void DeleteHashValue(HashEntry entry, string hashKey)
+        public void DeleteHashValue(HashEntry entry, RedisKeyObject hashKey)
         {
             DeleteHashValue(entry.Name, hashKey);
         }
 
-        public async void DeleteHashValue(string valueKey, string hashKey)
+        public void DeleteHashValue(string valueKey, RedisKeyObject hashKey)
         {
-            string varOne, varTwo;
-            ParseTableEntities(hashKey, out varOne, out varTwo);
-            var cloudTable = await GetCloudTable(varOne);
-            var operation = TableOperation.Delete(new DynamicTableEntity(varTwo, valueKey));
-#pragma warning disable 4014
-            cloudTable.ExecuteAsync(operation);
-#pragma warning restore 4014
+            var cloudTable = GetCloudTable(hashKey.Prefix);
+
+            var partKey = GetPartitionKey(hashKey);
+
+            var operation = TableOperation.Delete(new DynamicTableEntity(partKey, valueKey) {ETag = "*"});
+
+            try
+            {
+                cloudTable.ExecuteAsync(operation).Wait();
+            }
+            catch
+            {
+                Debug.WriteLine("Object to Delete not found.");
+            }
         }
 
-        public async Task<HashEntry[]> GetHash(string hashKey)
+        public HashEntry[] GetHash(RedisKeyObject key)
         {
-            string table, partitionKey;
-            ParseTableEntities(hashKey, out table, out partitionKey);
-            var cloudTable = await GetCloudTable(table);
+            var cloudTable = GetCloudTable(key.Prefix);
 
             var query = new TableQuery<DynamicTableEntity>
             {
-                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey)
+                FilterString = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, GetPartitionKey(key))
             };
 
             var result = new List<HashEntry>();
 
-            var dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, null);
+            var dynamicTableEntities = cloudTable.ExecuteQuerySegmentedAsync(query, null).Result;
 
-            while (dynamicTableEntities.ContinuationToken != null)
+            do
             {
                 foreach (var row in dynamicTableEntities)
                 {
@@ -232,18 +224,27 @@ namespace Demgel.Redis
                     }
                 }
 
-                dynamicTableEntities = await cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken);
-            }
+                dynamicTableEntities = cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken).Result;
+            } while (dynamicTableEntities.ContinuationToken != null);
+           
 
             return result.ToArray();
         }
 
-        public async Task<HashEntry> GetHashEntry(string valueKey, string hashKey)
+        public HashEntry[] RestoreHash(IDatabase redisDatabase, RedisKeyObject hashKey)
         {
-            string varOne, varTwo;
-            ParseTableEntities(hashKey, out varOne, out varTwo);
-            var cloudTable = await GetCloudTable(varOne);
-            var operation = TableOperation.Retrieve<DynamicTableEntity>(varTwo, valueKey);
+            var hashes = GetHash(hashKey);
+            if (hashes.Length != 0)
+            {
+                redisDatabase.HashSet(hashKey.RedisKey, hashes);
+            }
+            return hashes;
+        }
+
+        public async Task<HashEntry> GetHashEntry(string valueKey, RedisKeyObject hashKey)
+        {
+            var cloudTable = GetCloudTable(hashKey.Prefix);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(GetPartitionKey(hashKey), valueKey);
             var result = await cloudTable.ExecuteAsync(operation);
             var dynamicTableEntity = result.Result as DynamicTableEntity;
             if (dynamicTableEntity == null) return new HashEntry("null", "null");
@@ -257,33 +258,25 @@ namespace Demgel.Redis
         /// <param name="redisDatabase"></param>
         /// <param name="key"></param>
         /// <param name="table"></param>
-        public async void UpdateString(IDatabase redisDatabase, string key, string table = "string")
+        public async void UpdateString(IDatabase redisDatabase, RedisKeyObject key, string table = "string")
         {
-            var value = await redisDatabase.StringGetAsync(key);
+            var value = await redisDatabase.StringGetAsync(key.RedisKey);
             if (value.IsNullOrEmpty) return;
 
-            string partitionKey, rowKey;
-            ParseTableEntities(key, out partitionKey, out rowKey);
-            var cloudTable = await GetCloudTable(table);
-            var entity = new DynamicTableEntity(partitionKey, rowKey);
+            var cloudTable = GetCloudTable(table);
+            var entity = new DynamicTableEntity(key.Prefix, GetPartitionKey(key));
             entity.Properties.Add("value", new EntityProperty((string) value));
             var operation = TableOperation.InsertOrReplace(entity);
 
-
-#pragma warning disable 4014
-            cloudTable.ExecuteAsync(operation);
-#pragma warning restore 4014
+            await cloudTable.ExecuteAsync(operation);
         }
 
-        public async void DeleteString(string key, string table = "string")
+        public async void DeleteString(RedisKeyObject key, string table = "string")
         {
-            string partitionKey, rowKey;
-            ParseTableEntities(key, out partitionKey, out rowKey);
-            var cloudTable = await GetCloudTable(table);
-            var operation = TableOperation.Delete(new DynamicTableEntity(partitionKey, rowKey));
-#pragma warning disable 4014
-            cloudTable.ExecuteAsync(operation);
-#pragma warning restore 4014
+            var cloudTable = GetCloudTable(table);
+            var operation = TableOperation.Delete(new DynamicTableEntity(key.Prefix, GetPartitionKey(key)));
+
+            await cloudTable.ExecuteAsync(operation);
         }
 
         /// <summary>
@@ -293,12 +286,10 @@ namespace Demgel.Redis
         /// <param name="key"></param>
         /// <param name="table"></param>
         /// <returns></returns>
-        public async Task<RedisValue> GetString(string key, string table = "string")
+        public async Task<RedisValue> GetString(RedisKeyObject key, string table = "string")
         {
-            string partitionKey, rowKey;
-            ParseTableEntities(key, out partitionKey, out rowKey);
-            var cloudTable = await GetCloudTable(table);
-            var operation = TableOperation.Retrieve<DynamicTableEntity>(partitionKey, rowKey);
+            var cloudTable = GetCloudTable(table);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(key.Prefix, GetPartitionKey(key));
             var result = await cloudTable.ExecuteAsync(operation);
             var dynamicResult = result.Result as DynamicTableEntity;
             if (dynamicResult == null) return "";
@@ -313,28 +304,22 @@ namespace Demgel.Redis
         /// <param name="key"></param>
         /// <param name="table"></param>
         /// <returns></returns>
-        public async Task<string> RestoreString(IDatabase redisDatabase, string key, string table = "string")
+        public async Task<string> RestoreString(IDatabase redisDatabase, RedisKeyObject key, string table = "string")
         {
-            string partitionKey, rowKey;
-            ParseTableEntities(key, out partitionKey, out rowKey);
-            var cloudTable = await GetCloudTable(table);
-            var operation = TableOperation.Retrieve<DynamicTableEntity>(partitionKey, rowKey);
+            var cloudTable = GetCloudTable(table);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(key.Prefix, GetPartitionKey(key));
             var result = await cloudTable.ExecuteAsync(operation);
             var dynamicResult = result.Result as DynamicTableEntity;
 
             EntityProperty resultProperty;
             string value = dynamicResult != null && dynamicResult.Properties.TryGetValue("value", out resultProperty) ? resultProperty.StringValue : null;
 
-            if (!string.IsNullOrEmpty(value))
-            {
-                // Assume redis database is most upto date?
-                if (!redisDatabase.StringSet(key, value, null, When.NotExists))
-                {
-                    // value already exists, so update the new value
-                    UpdateString(redisDatabase, key, table);
-                    value = await redisDatabase.StringGetAsync(key);
-                }
-            }
+            if (string.IsNullOrEmpty(value)) return value;
+            // Assume redis database is most upto date?
+            if (redisDatabase.StringSet(key.RedisKey, value, null, When.NotExists)) return value;
+            // value already exists, so update the new value
+            UpdateString(redisDatabase, key, table);
+            value = await redisDatabase.StringGetAsync(key.RedisKey);
 
             return value;
         }
@@ -347,6 +332,11 @@ namespace Demgel.Redis
         public void DeleteSet(string setKey)
         {
             throw new NotImplementedException();
+        }
+
+        private string GetPartitionKey(RedisKeyObject key)
+        {
+            return key.Suffix != null ? $"{key.Id}:{key.Suffix}" : key.Id;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Demgel.Redis.Interfaces;
+using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
 
@@ -27,13 +27,9 @@ namespace DemgelRedis.Tests
     [RedisSuffix(Key = "infosuffix")]
     public class TestConvertClassSubSuffix : IRedisObject
     {
-        public TestConvertClassSubSuffix()
-        {
-        }
-
         [RedisIdKey]
         public string Id { get; set; }
-        public string test { get; set; }
+        public virtual string test { get; set; }
         public virtual TestConvertClassSub subTest { get; set; }
         [RedisPrefix(Key = "testlist")]
         public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
@@ -44,7 +40,7 @@ namespace DemgelRedis.Tests
     {
         [RedisIdKey]
         public string Id { get; set; }
-        public string test { get; set; }
+        public virtual string test { get; set; }
 
     }
 }

@@ -1,8 +1,7 @@
 ﻿using System;
-using DemgelRedis;
 using DemgelRedis.JobQueue;
 
-namespace Demgel.Redis.Events
+namespace DemgelRedis.Events
 {
     public class JobReceivedEventArgs : EventArgs
     {

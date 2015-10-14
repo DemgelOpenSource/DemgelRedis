@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Castle.DynamicProxy;
 using StackExchange.Redis;
@@ -12,13 +13,13 @@ namespace DemgelRedis.ObjectManager.Proxy
     {
         private readonly string _id;
         private readonly IDatabase _database;
-        private readonly DemgelRedis _demgelRedis;
+        private readonly RedisObjectManager _demgelRedis;
 
         private readonly Dictionary<string, bool> _retrieved;
 
-        protected internal bool SubGet { get; private set; }
+        private bool SubGet { get; set; }
 
-        public GeneralInterceptor(string id, IDatabase database, DemgelRedis demgelRedis)
+        public GeneralInterceptor(string id, IDatabase database, RedisObjectManager demgelRedis)
         {
             _id = id;
             _database = database;
@@ -27,18 +28,11 @@ namespace DemgelRedis.ObjectManager.Proxy
             _retrieved = new Dictionary<string, bool>();
         }
 
-        public void Intercept(IInvocation invocation)
+        public async void Intercept(IInvocation invocation)
         {
-            Debug.WriteLine("GeneralInterceptor " + invocation.Method.Name);
             if (!invocation.Method.Name.StartsWith("get_", StringComparison.Ordinal) ||
                 SubGet)
             {
-
-                //if (invocation.Method.Name.StartsWith("set_", StringComparison.Ordinal))
-                //{
-                //    Debug.WriteLine("set called on: " + invocation.Method.Name);
-                //    invocation.ReturnValue = invocation.GetArgumentValue(0);
-                //}
                 invocation.Proceed();
                 return;
             }
@@ -67,8 +61,19 @@ namespace DemgelRedis.ObjectManager.Proxy
                 var value = cAttr?.GetValue(invocation.Proxy);
                 if (!(value is IProxyTargetAccessor)) return;
 
-                var result = _demgelRedis.RetrieveObject(value, _id,
+                var result = await _demgelRedis.RetrieveObject(value, _id,
                     _database, cAttr);
+
+                var changeTracker = ((IProxyTargetAccessor) value)
+                    .GetInterceptors()
+                    .SingleOrDefault(x => x is ChangeTrackerInterceptor) as ChangeTrackerInterceptor;
+
+                if (changeTracker != null)
+                {
+                    changeTracker.Processed = true;
+                    changeTracker.ParentProxy = invocation.Proxy;
+                }
+                Debug.WriteLine("Set Processed for " + invocation.Method.Name);
 
                 _retrieved.Add(invocation.Method.Name, true);
 

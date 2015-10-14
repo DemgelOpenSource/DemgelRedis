@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.Interfaces
+namespace DemgelRedis.Interfaces
 {
     public interface IRedisHandler
     {

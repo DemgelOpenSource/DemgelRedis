@@ -1,22 +1,25 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using DemgelRedis.Common;
 using StackExchange.Redis;
 
-namespace Demgel.Redis.Interfaces
+namespace DemgelRedis.Interfaces
 {
     public interface IRedisBackup
     {
-        void UpdateHash(HashEntry[] entries, string hashKey);
-        void DeleteHash(string hashKey);
-        void UpdateHashValue(HashEntry entry, string hashKey);
-        void DeleteHashValue(HashEntry entry, string hashKey);
-        void DeleteHashValue(string valueKey, string hashKey);
-        Task<HashEntry[]> GetHash(string hashKey);
-        Task<HashEntry> GetHashEntry(string valueKey, string hashKey);
+        void UpdateHash(IEnumerable<HashEntry> entries, RedisKeyObject hashKey);
+        void DeleteHash(RedisKeyObject hashKey);
+        void UpdateHashValue(HashEntry entry, RedisKeyObject hashKey);
+        void DeleteHashValue(HashEntry entry, RedisKeyObject hashKey);
+        void DeleteHashValue(string valueKey, RedisKeyObject hashKey);
+        HashEntry[] GetHash(RedisKeyObject hashKey);
+        HashEntry[] RestoreHash(IDatabase redisDatabase, RedisKeyObject hashKey);
+        Task<HashEntry> GetHashEntry(string valueKey, RedisKeyObject hashKey);
 
-        void UpdateString(IDatabase redisDatabase, string key, string table = "string");
-        void DeleteString(string key, string table = "string");
-        Task<RedisValue> GetString(string key, string table = "string");
-        Task<string> RestoreString(IDatabase redisDatabase, string key, string table = "string");
+        void UpdateString(IDatabase redisDatabase, RedisKeyObject key, string table = "string");
+        void DeleteString(RedisKeyObject key, string table = "string");
+        Task<RedisValue> GetString(RedisKeyObject key, string table = "string");
+        Task<string> RestoreString(IDatabase redisDatabase, RedisKeyObject key, string table = "string");
 
         void UpdateSet();
         void DeleteSet(string setKey);

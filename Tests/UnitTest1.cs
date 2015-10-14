@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DemgelRedis.BackingManager;
+using DemgelRedis.ObjectManager;
+using Microsoft.WindowsAzure.Storage;
 using NUnit.Framework;
 using StackExchange.Redis;
 
@@ -10,7 +13,7 @@ namespace DemgelRedis.Tests
     [TestFixture]
     public class UnitTest1
     {
-        private readonly ObjectManager.DemgelRedis _redis = new ObjectManager.DemgelRedis();
+        private readonly RedisObjectManager _redis = new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
         [Test]
         public void TestConvertToRedisHash()
         {
@@ -45,18 +48,19 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        public void TestRedisRetrieveObject()
+        public async void TestRedisRetrieveObject()
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
+            var test3 = await _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
             Debug.WriteLine(test3.subTest.Id);
 
             Assert.IsTrue(test3 != null);
         }
 
         [Test]
-        public void TestRedisSaveObject()
+        [Ignore]
+        public async void TestRedisSaveObject()
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
@@ -64,7 +68,7 @@ namespace DemgelRedis.Tests
             
             test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12346", connection.GetDatabase());
+            var test3 = await _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
             Debug.WriteLine(test3.test);
             //var tt = test3.SomeStrings;
             test3.SomeStrings.Add("test9");
@@ -72,10 +76,11 @@ namespace DemgelRedis.Tests
             test3.SomeStrings.Add("test5");
             test3.SomeStrings[2] = "something else";
             var e = test3.subTest;
+            //e.test = "hello...Test";
             test3.test = "Hello Redis... lets see if you saved";
 
             // Change the value and see if it saves...
-            _redis.SaveObject(test3, test3.Id, connection.GetDatabase());
+            //_redis.SaveObject(test3, test3.Id, connection.GetDatabase());
             test3.test = "This should be changed to this new value...";
         }
     }

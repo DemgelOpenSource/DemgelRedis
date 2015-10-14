@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Castle.DynamicProxy;
-using Demgel.Redis;
 using Demgel.Redis.Converters;
-using Demgel.Redis.Interfaces;
+using DemgelRedis.Common;
+using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Handlers;
 using DemgelRedis.ObjectManager.Proxy;
@@ -14,16 +16,17 @@ using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager
 {
-    public class DemgelRedis
+    public class RedisObjectManager
     {
         private readonly ProxyGenerator _generator = new ProxyGenerator();
-        private readonly Dictionary<Type, ITypeConverter> _typeConverters;
+        protected internal readonly Dictionary<Type, ITypeConverter> TypeConverters;
         private readonly IList<IRedisHandler> _handlers;
         private readonly GeneralInterceptorSelector _generalInterceptorSelector;
+        private readonly IRedisBackup _redisBackup;
 
-        public DemgelRedis()
+        public RedisObjectManager()
         {
-            _typeConverters = new Dictionary<Type, ITypeConverter>
+            TypeConverters = new Dictionary<Type, ITypeConverter>
             {
                 {typeof(Guid), new GuidConverter() },
                 {typeof(string), new StringConverter() }
@@ -37,18 +40,22 @@ namespace DemgelRedis.ObjectManager
             _generalInterceptorSelector = new GeneralInterceptorSelector();
         }
 
+        public RedisObjectManager(IRedisBackup redisBackup)
+            : this()
+        {
+            _redisBackup = redisBackup;
+        }
+
         public IEnumerable<HashEntry> ConvertToRedisHash(object o, bool ignoreFail = false)
         {
             foreach (var prop in o.GetType().GetProperties())
             {
                 var type = prop.PropertyType;
                 ITypeConverter converter;
-                if (_typeConverters.TryGetValue(type, out converter))
-                {
-                    var ret = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
-                    if (ret.Value.IsNull) continue;
-                    yield return ret;
-                }
+                if (!TypeConverters.TryGetValue(type, out converter)) continue;
+                var ret = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
+                if (ret.Value.IsNull) continue;
+                yield return ret;
             }
         }
 
@@ -64,7 +71,7 @@ namespace DemgelRedis.ObjectManager
 
                 var type = prop.PropertyType;
                 ITypeConverter converter;
-                if (!_typeConverters.TryGetValue(type, out converter)) continue;
+                if (!TypeConverters.TryGetValue(type, out converter)) continue;
                 var value = converter.OnRead(hashPair);
                 prop.SetValue(testObj, value);
             }
@@ -83,28 +90,14 @@ namespace DemgelRedis.ObjectManager
         /// <param name="id">The id of the object to find</param>
         /// <param name="redisDatabase"></param>
         /// <returns></returns>
-        public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
+        public async Task<T> RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
             where T : class
         {
-            // TODO this needs to be moved down
-            // TODO make this a redirect function
-            //var proxy = _generator.CreateClassProxy<T>(
-            //    new ProxyGenerationOptions(new GeneralProxyGenerationHook()) {Selector = _generalInterceptorSelector},
-            //    new GeneralInterceptor(id, redisDatabase, this),
-            //    new ChangeTrackerInterceptor(redisDatabase));
-
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null);
-            // Lets try setting all Proxies...
-            
-            //foreach (var p in proxy.GetType().GetProperties())
-            //{
-            //    if (!p.GetMethod.IsVirtual) continue;
-            //    var baseObject = p.GetValue(proxy, null);
-            //    var pr = RetrieveObjectProxy(p.PropertyType, id, redisDatabase, baseObject);
-            //    proxy.GetType().GetProperty(p.Name).SetValue(proxy, pr);
-            //}
-            
-            var result = RetrieveObject(proxy, id, redisDatabase).Object as T;
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null);            
+            var result = (await RetrieveObject(proxy, id, redisDatabase)).Object as T;
+            var changeTrackerInterceptor = (ChangeTrackerInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is ChangeTrackerInterceptor);
+            if (changeTrackerInterceptor != null)
+                changeTrackerInterceptor.Processed = true;
             return result;
         }
 
@@ -119,7 +112,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
             else if (obj == null)
             {
                 proxy = _generator.CreateInterfaceProxyWithoutTarget(type,
@@ -128,7 +121,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
             }
             else
             {
@@ -138,7 +131,7 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase));
+                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id));
             }
 
             // Lets try setting all Proxies...
@@ -163,7 +156,7 @@ namespace DemgelRedis.ObjectManager
         /// <param name="redisDatabase"></param>
         /// <param name="basePropertyInfo">Optional PropertyInfo, only required is calling IEnumerable</param>
         /// <returns></returns>
-        protected internal DemgelRedisResult RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo = null)
+        protected internal async Task<DemgelRedisResult> RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo = null)
         {
     
             var result = new DemgelRedisResult
@@ -183,9 +176,19 @@ namespace DemgelRedis.ObjectManager
             }
 
             // If another type was not found, try to set all values normally.
-            var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
+            //var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
+            var redisKey = new RedisKeyObject(objType.GetCustomAttributes(), id);
 
-            var ret = redisDatabase.HashGetAll(redisKey);
+            // TODO check to see if we need to do Restore from Backing
+            var ret = redisDatabase.HashGetAll(redisKey.RedisKey);
+            if (ret.Length == 0)
+            {
+                // Probably need to try to restore this item
+                if (_redisBackup != null)
+                {
+                    ret = _redisBackup.RestoreHash(redisDatabase, redisKey);
+                }
+            }
 
             if (ret.Length == 0)
             {
@@ -202,7 +205,6 @@ namespace DemgelRedis.ObjectManager
 
             foreach (var prop in props)
             {
-                //if (prop.CustomAttributes.Any(x => x.AttributeType == typeof (RedisIdKey)))
                 if(prop.HasAttribute<RedisIdKey>())
                 {
                     if (!prop.PropertyType.IsAssignableFrom(typeof (string)))
@@ -216,8 +218,6 @@ namespace DemgelRedis.ObjectManager
                     // If value is virtual assume it is lazy
                     if (prop.GetMethod.IsVirtual)
                     {
-                        //var t = RetrieveObjectProxy(prop.PropertyType, id, redisDatabase, obj);
-                        //prop.SetValue(result.Object, t);
                         continue;
                     }
 
@@ -229,13 +229,17 @@ namespace DemgelRedis.ObjectManager
                     try
                     {
                         var newObj = Activator.CreateInstance(prop.PropertyType);
-                        var subresult = RetrieveObject(newObj, id, redisDatabase, prop);
+                        var subresult = await RetrieveObject(newObj, id, redisDatabase, prop);
                         if (subresult.IsValid)
                         {
                             prop.SetValue(result.Object, subresult.Object);
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                        // TODO add something to log this better
+                        Debug.WriteLine($"Exception handing '{prop.Name}'");
+                    }
                 }
             }
 
@@ -265,47 +269,13 @@ namespace DemgelRedis.ObjectManager
             }
 
             // If no other handler could handle this obj, parse it normally and save it.
-            var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
+            //var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
+            var redisKey = new RedisKeyObject(objType.GetCustomAttributes(), id);
 
             var hashList = ConvertToRedisHash(obj);
-            redisDatabase.HashSet(redisKey, hashList.ToArray());
+            // TODO check if we need to do any Backing work
+            redisDatabase.HashSet(redisKey.RedisKey, hashList.ToArray());
         }
         // DeleteObjectFromRedis (and tables)
-
-        #region HelperFunctions
-
-        protected internal string ParseRedisKey(IEnumerable<Attribute> obj, string id)
-        {
-            //var classAttr = obj.GetType().GetCustomAttributes(true);
-            string prefix = null, suffix = null, redisKey;
-
-            foreach (var attr in obj)
-            {
-                if (attr is RedisPrefix)
-                {
-                    prefix = ((RedisPrefix)attr).Key;
-                    //Debug.WriteLine("Key Found");
-                }
-                else if (attr is RedisSuffix)
-                {
-                    suffix = ((RedisSuffix)attr).Key;
-                    //Debug.WriteLine("Suffix Found.");
-                }
-            }
-
-            if (prefix != null)
-            {
-                redisKey = suffix != null ? $"{prefix}:{id}:{suffix}" : $"{prefix}:{id}";
-            }
-            else
-            {
-                redisKey = suffix != null ? $"{id}:{suffix}" : id;
-            }
-
-            return redisKey;
-        } 
-        
-        #endregion
-    }
-   
+    }   
 }

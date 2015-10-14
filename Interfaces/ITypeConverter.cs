@@ -1,12 +1,11 @@
-﻿using System.Reflection;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
-namespace Demgel.Redis.Interfaces
+namespace DemgelRedis.Interfaces
 {
     public interface ITypeConverter
     {
         /// <summary>
-        /// Return a value that is exceptable to redis cache
+        /// Return a value that is acceptable to redis cache
         /// </summary>
         /// <returns></returns>
         RedisValue ToWrite(object prop);

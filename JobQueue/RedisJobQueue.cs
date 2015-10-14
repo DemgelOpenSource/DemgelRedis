@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Demgel.Redis.Events;
+using DemgelRedis.Events;
 using StackExchange.Redis;
 
 namespace DemgelRedis.JobQueue
@@ -229,7 +229,6 @@ namespace DemgelRedis.JobQueue
         private async Task HandleNewJobs()
         {
             if (_receiving) return;
-
             _receiving = true;
 
             var job = await GetJobAsync();
@@ -286,12 +285,11 @@ namespace DemgelRedis.JobQueue
                 || parametersDictionary.ContainsKey("active")
                 || parametersDictionary.ContainsKey("failedcount"))
             {
-                Trace.WriteLine("parameter 'key', 'active' or 'failedcount' are reserved.");
+                Trace.WriteLine("Parameter 'key', 'active' or 'failedcount' are reserved.");
                 return;
             }
 
             var db = Database;
-            //var id = await db.StringIncrementAsync($"{_jobName}:jobid");
             var key = await GetNextJobId();
 
             await db.HashSetAsync(key, parametersDictionary.Select(entries => new HashEntry(entries.Key, entries.Value)).ToArray());

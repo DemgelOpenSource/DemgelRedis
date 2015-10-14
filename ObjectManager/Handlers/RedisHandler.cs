@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Reflection;
-using Demgel.Redis.Interfaces;
+using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
 {
     public abstract class RedisHandler : IRedisHandler
     {
-        protected readonly global::DemgelRedis.ObjectManager.DemgelRedis _demgelRedis;
+        protected readonly RedisObjectManager DemgelRedis;
 
-        protected RedisHandler(global::DemgelRedis.ObjectManager.DemgelRedis demgelRedis)
+        protected RedisHandler(RedisObjectManager demgelRedis)
         {
-            _demgelRedis = demgelRedis;
+            DemgelRedis = demgelRedis;
         }
 
         public abstract bool CanHandle(object obj);

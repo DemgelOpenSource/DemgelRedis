@@ -1,4 +1,4 @@
-﻿namespace Demgel.Redis.Interfaces
+﻿namespace DemgelRedis.Interfaces
 {
     public interface IRedisObject
     {
