@@ -27,7 +27,7 @@ namespace DemgelRedis.Tests
 
             var ret = _redis.ConvertToRedisHash(test).ToList();
 
-            Assert.IsTrue(ret.Count == 2);
+            Assert.IsTrue(ret.Count == 3);
         }
 
         [Test]

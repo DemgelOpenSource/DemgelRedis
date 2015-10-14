@@ -13,9 +13,10 @@ namespace DemgelRedis.Converters
 
         public object OnRead(RedisValue obj)
         {
-            if (obj.IsInteger)
+            int value;
+            if (int.TryParse(obj, out value))
             {
-                return (int) obj;
+                return value;
             }
 
             throw new InvalidCastException("obj is not an Int32 value");
