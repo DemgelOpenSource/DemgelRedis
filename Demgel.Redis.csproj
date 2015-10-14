@@ -114,6 +114,7 @@
   <ItemGroup>
     <None Include=".travis.yml" />
     <None Include="app.config" />
+    <None Include="DemgelRedis.nuspec" />
     <None Include="packages.config" />
     <None Include="README.MD" />
   </ItemGroup>

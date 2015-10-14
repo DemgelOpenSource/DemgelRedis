@@ -1,4 +1,5 @@
 ﻿using System;
+using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
@@ -20,16 +21,10 @@ namespace DemgelRedis.Converters
         public object OnRead(RedisValue value)
         {
             Guid guid;
+            if (value.IsByteArray()) return new Guid((byte[])value);
             if (Guid.TryParse(value, out guid)) return guid;
-            try
-            {
-                guid = new Guid((byte[])value);
-            }
-            catch
-            {
-                guid = Guid.Empty;
-            }
-            return guid;
+            
+            throw new ArgumentException("Value is not a Guid");
         }
     }
 }
