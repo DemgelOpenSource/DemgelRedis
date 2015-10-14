@@ -1,0 +1,118 @@
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler}{}\section{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler Class Reference}
+\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler}\index{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler@{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler}}
+
+
+Inheritance diagram for Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=226pt]{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=322pt]{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+abstract bool \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa5026306847a86faaf9464f923c5cb96}{Can\+Handle} (object obj)
+\item 
+abstract object \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a094629bfc66d785f22295cf406917214}{Read} (object obj, Type obj\+Type, I\+Database redis\+Database, string id, Property\+Info base\+Property\+Info=null)
+\item 
+abstract bool \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa22411cec0623a305ce794fa8201f086}{Save} (object obj, Type obj\+Type, I\+Database redis\+Database, string id, Property\+Info base\+Property\+Info=null)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_ac589e0333db79219fd985f02d382bd9f}{Redis\+Handler} (\hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager}{Redis\+Object\+Manager} demgel\+Redis)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+readonly \hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager}{Redis\+Object\+Manager} \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a0de0f348f9291af190f2a452fc10acfe}{Demgel\+Redis}
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_ac589e0333db79219fd985f02d382bd9f}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}!Redis\+Handler@{Redis\+Handler}}
+\index{Redis\+Handler@{Redis\+Handler}!Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}}
+\subsubsection[{Redis\+Handler(\+Redis\+Object\+Manager demgel\+Redis)}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler.\+Redis\+Handler (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Object\+Manager}}]{demgel\+Redis}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_ac589e0333db79219fd985f02d382bd9f}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa5026306847a86faaf9464f923c5cb96}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}!Can\+Handle@{Can\+Handle}}
+\index{Can\+Handle@{Can\+Handle}!Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}}
+\subsubsection[{Can\+Handle(object obj)}]{\setlength{\rightskip}{0pt plus 5cm}abstract bool Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler.\+Can\+Handle (
+\begin{DoxyParamCaption}
+\item[{object}]{obj}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa5026306847a86faaf9464f923c5cb96}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_handler_a834f8f6fb03ed770295205df1d395c76}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Handler}.
+
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_enumerable_handler_ac3a0ff82394fb1f75939279cbba8974d}{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Enumerable\+Handler}.
+
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a094629bfc66d785f22295cf406917214}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}!Read@{Read}}
+\index{Read@{Read}!Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}}
+\subsubsection[{Read(object obj, Type obj\+Type, I\+Database redis\+Database, string id, Property\+Info base\+Property\+Info=null)}]{\setlength{\rightskip}{0pt plus 5cm}abstract object Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler.\+Read (
+\begin{DoxyParamCaption}
+\item[{object}]{obj, }
+\item[{Type}]{obj\+Type, }
+\item[{I\+Database}]{redis\+Database, }
+\item[{string}]{id, }
+\item[{Property\+Info}]{base\+Property\+Info = {\ttfamily null}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a094629bfc66d785f22295cf406917214}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_handler_a04550ae73923a29c2709850a7b299d94}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Handler}.
+
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_enumerable_handler_a6b84b56dda376ce7ecdb2a543a7c0ecc}{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Enumerable\+Handler}.
+
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa22411cec0623a305ce794fa8201f086}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}!Save@{Save}}
+\index{Save@{Save}!Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}}
+\subsubsection[{Save(object obj, Type obj\+Type, I\+Database redis\+Database, string id, Property\+Info base\+Property\+Info=null)}]{\setlength{\rightskip}{0pt plus 5cm}abstract bool Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler.\+Save (
+\begin{DoxyParamCaption}
+\item[{object}]{obj, }
+\item[{Type}]{obj\+Type, }
+\item[{I\+Database}]{redis\+Database, }
+\item[{string}]{id, }
+\item[{Property\+Info}]{base\+Property\+Info = {\ttfamily null}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_aa22411cec0623a305ce794fa8201f086}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_handler_abab252e162cbe78ce5a79202d45efa30}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Handler}.
+
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_enumerable_handler_af38d5dfc9460b26c631e42e13ec5f359}{Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Enumerable\+Handler}.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a0de0f348f9291af190f2a452fc10acfe}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}!Demgel\+Redis@{Demgel\+Redis}}
+\index{Demgel\+Redis@{Demgel\+Redis}!Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler@{Demgel\+Redis\+::\+Object\+Manager\+::\+Handlers\+::\+Redis\+Handler}}
+\subsubsection[{Demgel\+Redis}]{\setlength{\rightskip}{0pt plus 5cm}readonly {\bf Redis\+Object\+Manager} Demgel\+Redis.\+Object\+Manager.\+Handlers.\+Redis\+Handler.\+Demgel\+Redis\hspace{0.3cm}{\ttfamily [protected]}}\label{class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler_a0de0f348f9291af190f2a452fc10acfe}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+G\+:/\+Libraries/\+Demgel.\+Redis/\+Object\+Manager/\+Handlers/\hyperlink{_redis_handler_8cs}{Redis\+Handler.\+cs}\end{DoxyCompactItemize}

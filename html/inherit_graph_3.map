@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$interface_demgel_redis_1_1_interfaces_1_1_i_redis_handler.html" title="DemgelRedis.Interfaces.IRedis\lHandler" alt="" coords="5,5,204,47"/>
+<area shape="rect" id="node2" href="$class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_redis_handler.html" title="DemgelRedis.ObjectManager.\lHandlers.RedisHandler" alt="" coords="252,5,447,47"/>
+<area shape="rect" id="node3" href="$class_demgel_redis_1_1_object_manager_1_1_handlers_1_1_enumerable_handler.html" title="DemgelRedis.ObjectManager.\lHandlers.EnumerableHandler" alt="" coords="495,5,689,47"/>
+</map>

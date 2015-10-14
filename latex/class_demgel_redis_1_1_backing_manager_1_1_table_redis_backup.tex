@@ -1,0 +1,378 @@
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup}{}\section{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup Class Reference}
+\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup}\index{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup@{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}}
+
+
+Does an ongoing (real time) back up to Azure Tables  
+
+
+
+
+Inheritance diagram for Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=233pt]{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=233pt]{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+delegate \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup}{Table\+Redis\+Backup} \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad2cf3786cccf4855c36b0f4b9b6eea99}{Factory} (string storage\+Name, string access\+Key, bool use\+Https=true)
+\item 
+\hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afe95b88cc08f6cd336f8b9befd838487}{Table\+Redis\+Backup} (string storage\+Name, string access\+Key, bool use\+Https)
+\begin{DoxyCompactList}\small\item\em It is recommended to use the Factory Method and pass in your credientials that way \end{DoxyCompactList}\item 
+\hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a3aee678b5c810a63a41d71fadb45cd8c}{Table\+Redis\+Backup} (Cloud\+Storage\+Account storage\+Account)
+\begin{DoxyCompactList}\small\item\em Initialize with a specific storage account. \end{DoxyCompactList}\item 
+\hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a0b4d33dcecd5236a1ebb5089a73d61ac}{Table\+Redis\+Backup} (Storage\+Credentials storage\+Credentials)
+\begin{DoxyCompactList}\small\item\em Intialize with a specific storage\+Credentials \end{DoxyCompactList}\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a156b585116d9adc63744f4c0f4eaefa6}{Update\+Hash} (I\+Enumerable$<$ Hash\+Entry $>$ entries, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\begin{DoxyCompactList}\small\item\em Will process all hash entries (need to come from same hash) \end{DoxyCompactList}\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a642f38a893d79849f45f9aa2e6762250}{Delete\+Hash} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\begin{DoxyCompactList}\small\item\em Not a very effecient way to delete a hash, better to use Delete\+Hash\+Values if you have the whole hash from the cache. \end{DoxyCompactList}\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ab5bde991a33b01a79974c7646f7ce095}{Update\+Hash\+Value} (Hash\+Entry entry, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad50f5694655be933e5bc28fbcb6582f4}{Delete\+Hash\+Value} (Hash\+Entry entry, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afd8440f585c10a7729e8108720939f04}{Delete\+Hash\+Value} (string value\+Key, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+Hash\+Entry\mbox{[}$\,$\mbox{]} \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a55e95dab2aec1b0b39a5d463956862f3}{Get\+Hash} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key)
+\item 
+Hash\+Entry\mbox{[}$\,$\mbox{]} \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a07d3687007574e626d1849842b38c036}{Restore\+Hash} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+async Task$<$ Hash\+Entry $>$ \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad0dc112c45eeb41176cc66ca57f079d3}{Get\+Hash\+Entry} (string value\+Key, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+async void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a2bcedf06f3ada316aee7ab83550202bb}{Update\+String} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\begin{DoxyCompactList}\small\item\em Will update the table database to the current value of the redis\+Database given and key. \end{DoxyCompactList}\item 
+async void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a69becf1c831cc6570d5068f9a155229d}{Delete\+String} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\item 
+async Task$<$ Redis\+Value $>$ \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4576be1120b15bdcbeefb034ad7e7851}{Get\+String} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\begin{DoxyCompactList}\small\item\em T\+O\+D\+O this will be renamed to Restore\+String Gets and restores the string to the redis\+Database given from table storage \end{DoxyCompactList}\item 
+async Task$<$ string $>$ \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a24333973d03cd2e2b8777f595a7e6470}{Restore\+String} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\begin{DoxyCompactList}\small\item\em Gets and restores the string to the redis\+Database given from table storage \end{DoxyCompactList}\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4486624948798324e6ff2e749e1b782f}{Update\+Set} ()
+\item 
+void \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a9f74c31912d81a3eac575e7f7a4f816d}{Delete\+Set} (string set\+Key)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Does an ongoing (real time) back up to Azure Tables 
+
+Format is Table\+:\+Partition\+Key\+:Row\+Key (as in\+: user\+:1201212\+:info) Format could be Partition\+Key\+:Row\+Key (as in\+: user\+:1201212) Table is provided as param. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afe95b88cc08f6cd336f8b9befd838487}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Table\+Redis\+Backup@{Table\+Redis\+Backup}}
+\index{Table\+Redis\+Backup@{Table\+Redis\+Backup}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Table\+Redis\+Backup(string storage\+Name, string access\+Key, bool use\+Https)}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Table\+Redis\+Backup (
+\begin{DoxyParamCaption}
+\item[{string}]{storage\+Name, }
+\item[{string}]{access\+Key, }
+\item[{bool}]{use\+Https}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afe95b88cc08f6cd336f8b9befd838487}
+
+
+It is recommended to use the Factory Method and pass in your credientials that way 
+
+
+\begin{DoxyParams}{Parameters}
+{\em storage\+Name} & \\
+\hline
+{\em access\+Key} & \\
+\hline
+{\em use\+Https} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a3aee678b5c810a63a41d71fadb45cd8c}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Table\+Redis\+Backup@{Table\+Redis\+Backup}}
+\index{Table\+Redis\+Backup@{Table\+Redis\+Backup}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Table\+Redis\+Backup(\+Cloud\+Storage\+Account storage\+Account)}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Table\+Redis\+Backup (
+\begin{DoxyParamCaption}
+\item[{Cloud\+Storage\+Account}]{storage\+Account}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a3aee678b5c810a63a41d71fadb45cd8c}
+
+
+Initialize with a specific storage account. 
+
+Can be used with Autofac, but do not register both Cloud\+Storage\+Account and Storage\+Credentials with Autofac 
+
+
+\begin{DoxyParams}{Parameters}
+{\em storage\+Account} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a0b4d33dcecd5236a1ebb5089a73d61ac}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Table\+Redis\+Backup@{Table\+Redis\+Backup}}
+\index{Table\+Redis\+Backup@{Table\+Redis\+Backup}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Table\+Redis\+Backup(\+Storage\+Credentials storage\+Credentials)}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Table\+Redis\+Backup (
+\begin{DoxyParamCaption}
+\item[{Storage\+Credentials}]{storage\+Credentials}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a0b4d33dcecd5236a1ebb5089a73d61ac}
+
+
+Intialize with a specific storage\+Credentials 
+
+Can be used with Autofac (or Io\+C), but do not register both Cloud\+Storage\+Account and Storage\+Credientials unless you have full control of instanciation 
+
+
+\begin{DoxyParams}{Parameters}
+{\em storage\+Credentials} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a642f38a893d79849f45f9aa2e6762250}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Delete\+Hash@{Delete\+Hash}}
+\index{Delete\+Hash@{Delete\+Hash}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash(\+Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Delete\+Hash (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a642f38a893d79849f45f9aa2e6762250}
+
+
+Not a very effecient way to delete a hash, better to use Delete\+Hash\+Values if you have the whole hash from the cache. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hash\+Key} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a4bc3af3e7bd7d1a28f38230d2030a864}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad50f5694655be933e5bc28fbcb6582f4}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Delete\+Hash\+Value@{Delete\+Hash\+Value}}
+\index{Delete\+Hash\+Value@{Delete\+Hash\+Value}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash\+Value(\+Hash\+Entry entry, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Delete\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{Hash\+Entry}]{entry, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad50f5694655be933e5bc28fbcb6582f4}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a5cd539983c598e26976560d893412f1f}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afd8440f585c10a7729e8108720939f04}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Delete\+Hash\+Value@{Delete\+Hash\+Value}}
+\index{Delete\+Hash\+Value@{Delete\+Hash\+Value}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash\+Value(string value\+Key, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Delete\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{string}]{value\+Key, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afd8440f585c10a7729e8108720939f04}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a2e8413f622a80e29a22fe51facd3f916}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a9f74c31912d81a3eac575e7f7a4f816d}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Delete\+Set@{Delete\+Set}}
+\index{Delete\+Set@{Delete\+Set}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Delete\+Set(string set\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Delete\+Set (
+\begin{DoxyParamCaption}
+\item[{string}]{set\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a9f74c31912d81a3eac575e7f7a4f816d}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a36e4bf8f4e2d8ac4e33faf05b7b9a3b2}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a69becf1c831cc6570d5068f9a155229d}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Delete\+String@{Delete\+String}}
+\index{Delete\+String@{Delete\+String}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Delete\+String(\+Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}async void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Delete\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a69becf1c831cc6570d5068f9a155229d}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a0e86152c3f2a32677088cf040b912a52}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad2cf3786cccf4855c36b0f4b9b6eea99}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Factory@{Factory}}
+\index{Factory@{Factory}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Factory(string storage\+Name, string access\+Key, bool use\+Https=true)}]{\setlength{\rightskip}{0pt plus 5cm}delegate {\bf Table\+Redis\+Backup} Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Factory (
+\begin{DoxyParamCaption}
+\item[{string}]{storage\+Name, }
+\item[{string}]{access\+Key, }
+\item[{bool}]{use\+Https = {\ttfamily true}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad2cf3786cccf4855c36b0f4b9b6eea99}
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a55e95dab2aec1b0b39a5d463956862f3}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Get\+Hash@{Get\+Hash}}
+\index{Get\+Hash@{Get\+Hash}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Get\+Hash(\+Redis\+Key\+Object key)}]{\setlength{\rightskip}{0pt plus 5cm}Hash\+Entry \mbox{[}$\,$\mbox{]} Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Get\+Hash (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a55e95dab2aec1b0b39a5d463956862f3}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a768b6feccaf35fc2d25a370685d7762a}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad0dc112c45eeb41176cc66ca57f079d3}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Get\+Hash\+Entry@{Get\+Hash\+Entry}}
+\index{Get\+Hash\+Entry@{Get\+Hash\+Entry}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Get\+Hash\+Entry(string value\+Key, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}async Task$<$Hash\+Entry$>$ Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Get\+Hash\+Entry (
+\begin{DoxyParamCaption}
+\item[{string}]{value\+Key, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad0dc112c45eeb41176cc66ca57f079d3}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a450309b3a5885cf6e0358ffcdc6a88d3}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4576be1120b15bdcbeefb034ad7e7851}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Get\+String@{Get\+String}}
+\index{Get\+String@{Get\+String}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Get\+String(\+Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}async Task$<$Redis\+Value$>$ Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Get\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4576be1120b15bdcbeefb034ad7e7851}
+
+
+T\+O\+D\+O this will be renamed to Restore\+String Gets and restores the string to the redis\+Database given from table storage 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & \\
+\hline
+{\em table} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a29a2d6b56aa6f14ec867ed253dc1d2f0}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a07d3687007574e626d1849842b38c036}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Restore\+Hash@{Restore\+Hash}}
+\index{Restore\+Hash@{Restore\+Hash}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Restore\+Hash(\+I\+Database redis\+Database, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}Hash\+Entry \mbox{[}$\,$\mbox{]} Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Restore\+Hash (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a07d3687007574e626d1849842b38c036}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_aa0a6644c11ee64b23000d0264142612a}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a24333973d03cd2e2b8777f595a7e6470}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Restore\+String@{Restore\+String}}
+\index{Restore\+String@{Restore\+String}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Restore\+String(\+I\+Database redis\+Database, Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}async Task$<$string$>$ Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Restore\+String (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a24333973d03cd2e2b8777f595a7e6470}
+
+
+Gets and restores the string to the redis\+Database given from table storage 
+
+
+\begin{DoxyParams}{Parameters}
+{\em redis\+Database} & \\
+\hline
+{\em key} & \\
+\hline
+{\em table} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a3ee680936017e9acfe1694ba2646e6ac}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a156b585116d9adc63744f4c0f4eaefa6}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Update\+Hash@{Update\+Hash}}
+\index{Update\+Hash@{Update\+Hash}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Update\+Hash(\+I\+Enumerable$<$ Hash\+Entry $>$ entries, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Update\+Hash (
+\begin{DoxyParamCaption}
+\item[{I\+Enumerable$<$ Hash\+Entry $>$}]{entries, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a156b585116d9adc63744f4c0f4eaefa6}
+
+
+Will process all hash entries (need to come from same hash) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em entries} & \\
+\hline
+{\em hash\+Key} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a8de95df7ab4cb996be4fe6d46df9156b}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ab5bde991a33b01a79974c7646f7ce095}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Update\+Hash\+Value@{Update\+Hash\+Value}}
+\index{Update\+Hash\+Value@{Update\+Hash\+Value}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Update\+Hash\+Value(\+Hash\+Entry entry, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Update\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{Hash\+Entry}]{entry, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ab5bde991a33b01a79974c7646f7ce095}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_ad3f3a8fd6bcbaea1e2223b0bfd82f86c}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4486624948798324e6ff2e749e1b782f}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Update\+Set@{Update\+Set}}
+\index{Update\+Set@{Update\+Set}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Update\+Set()}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Update\+Set (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4486624948798324e6ff2e749e1b782f}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a1099471fb295577c03cb0bd96b27a7c7}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+\hypertarget{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a2bcedf06f3ada316aee7ab83550202bb}{}\index{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}!Update\+String@{Update\+String}}
+\index{Update\+String@{Update\+String}!Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup@{Demgel\+Redis\+::\+Backing\+Manager\+::\+Table\+Redis\+Backup}}
+\subsubsection[{Update\+String(\+I\+Database redis\+Database, Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}async void Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup.\+Update\+String (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a2bcedf06f3ada316aee7ab83550202bb}
+
+
+Will update the table database to the current value of the redis\+Database given and key. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em redis\+Database} & \\
+\hline
+{\em key} & \\
+\hline
+{\em table} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a541db9d1321777cd98a570a20f304f00}{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+G\+:/\+Libraries/\+Demgel.\+Redis/\+Backing\+Manager/\hyperlink{_table_redis_backup_8cs}{Table\+Redis\+Backup.\+cs}\end{DoxyCompactItemize}

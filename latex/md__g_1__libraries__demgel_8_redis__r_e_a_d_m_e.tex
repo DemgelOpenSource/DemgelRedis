@@ -1,0 +1,57 @@
+Mono Build (Travis)\+: \href{https://travis-ci.org/DemgelOpenSource/DemgelRedis}{\tt !\mbox{[}Build Status\mbox{]}(https\+://travis-\/ci.\+org/\+Demgel\+Open\+Source/\+Demgel\+Redis.\+svg)} Windows Build (App\+Veyor)\+: \href{https://ci.appveyor.com/project/tenowg/demgelredis/branch/master}{\tt !\mbox{[}Build status\mbox{]}(https\+://ci.\+appveyor.\+com/api/projects/status/6xl602hwsyu926aw/branch/master?svg=true)}
+
+This package is no where near ready for use... For Developers only (if interested)
+
+\subsection*{Demgel Redis}
+
+\subsubsection*{Backing Source}
+
+\hyperlink{namespace_demgel_redis}{Demgel\+Redis} Backing\+Source will backup your Redis Cache to a Backing Datasource such as Azure Tables, Azure Document\+D\+B, Sql\+Server, My\+Sql, and will retrieve/restore these objects to the Redis Cache as needed.
+
+\subsubsection*{Job Queue}
+
+A Reliable Job Queue on Redis Cache, enabling Cloud/\+Scalable apps to process jobs and recieve messages without worring about auto scaling projects and load balancing.
+
+\subsubsection*{O\+M}
+
+\hyperlink{namespace_demgel_redis}{Demgel\+Redis} O\+M is an {\ttfamily Object Manager} for Redis Cache servers.
+
+\hyperlink{namespace_demgel_redis}{Demgel\+Redis} O\+M will perform {\ttfamily on the fly} Redis Cache updates as values change in either the Local or Remote copy of the object. This will update any copy of the object that is loaded in any application this is connected to the Redis Server.
+
+\hyperlink{namespace_demgel_redis}{Demgel\+Redis} O\+M Lazy loads all {\ttfamily virtual} properties, loading them only when needed.
+
+\hyperlink{namespace_demgel_redis}{Demgel\+Redis} O\+M will handle some {\ttfamily Relational Operations}, such as matching lists to keys, which will also be lazy loaded.
+
+\paragraph*{Example C\# P\+O\+C\+O Object}
+
+
+\begin{DoxyCode}
+1 \{c#\}
+2 
+3 [RedisSuffix(Key = "suffix")]
+4 [RedisPrefix(Key = "prefix")]
+5 public class ExampleClass : IRedisObject
+6 \{
+7     public ExampleClass()
+8     \{
+9         SomeList = new List<RedisValue>();
+10     \}
+11 
+12     [RedisIdKey]
+13     public string Id \{ get; set; \}
+14 
+15     [RedisPrefix(Key = "listprefix")]
+16     public virtual IList<RedisValue> SomeList \{ get; set; \}
+17 
+18     public virtual DifferentRedisObject RedisObject \{ get; set; \}
+19 \}
+\end{DoxyCode}
+
+
+\subsection*{Future}
+
+
+\begin{DoxyItemize}
+\item Have backing data servers from Sql\+Server, My\+Sql to No\+Sql servers like Azure Table, or Document\+D\+B and Mongo.
+\item Track changes to all Objects loaded, if you don\textquotesingle{}t want {\ttfamily on the fly} behaviour. Letting you save the object on your terms. 
+\end{DoxyItemize}

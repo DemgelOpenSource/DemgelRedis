@@ -1,0 +1,98 @@
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager}{}\section{Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager Class Reference}
+\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager}\index{Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager@{Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_ae033645a4f3cfccde846e71dc115fb02}{Redis\+Object\+Manager} ()
+\item 
+\hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aed91c882241ecfe5022328f1366f71ad}{Redis\+Object\+Manager} (\hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup}{I\+Redis\+Backup} redis\+Backup)
+\item 
+I\+Enumerable$<$ Hash\+Entry $>$ \hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a5b1c8c3fe6ff7785de10ca9bdfeb5c65}{Convert\+To\+Redis\+Hash} (object o, bool ignore\+Fail=false)
+\item 
+object \hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_af73400269f96ab1a8cee3aecbcb1adc6}{Convert\+To\+Object} (object obj, Hash\+Entry\mbox{[}$\,$\mbox{]} hash\+Entries, bool ignore\+Fail=false)
+\item 
+async Task$<$ T $>$ \hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a877ed59f8186f98b0ab6629bb541e770}{Retrieve\+Object\+Proxy$<$ T $>$} (string id, I\+Database redis\+Database)
+\begin{DoxyCompactList}\small\item\em Retrieves an object from redis cache by id \end{DoxyCompactList}\item 
+void \hyperlink{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aeac285de3ddcde3dabd0514b767ef72d}{Save\+Object} (object obj, string id, I\+Database redis\+Database)
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_ae033645a4f3cfccde846e71dc115fb02}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Redis\+Object\+Manager@{Redis\+Object\+Manager}}
+\index{Redis\+Object\+Manager@{Redis\+Object\+Manager}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Redis\+Object\+Manager()}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Redis\+Object\+Manager (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_ae033645a4f3cfccde846e71dc115fb02}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aed91c882241ecfe5022328f1366f71ad}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Redis\+Object\+Manager@{Redis\+Object\+Manager}}
+\index{Redis\+Object\+Manager@{Redis\+Object\+Manager}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Redis\+Object\+Manager(\+I\+Redis\+Backup redis\+Backup)}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Redis\+Object\+Manager (
+\begin{DoxyParamCaption}
+\item[{{\bf I\+Redis\+Backup}}]{redis\+Backup}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aed91c882241ecfe5022328f1366f71ad}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_af73400269f96ab1a8cee3aecbcb1adc6}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Convert\+To\+Object@{Convert\+To\+Object}}
+\index{Convert\+To\+Object@{Convert\+To\+Object}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Convert\+To\+Object(object obj, Hash\+Entry[] hash\+Entries, bool ignore\+Fail=false)}]{\setlength{\rightskip}{0pt plus 5cm}object Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Convert\+To\+Object (
+\begin{DoxyParamCaption}
+\item[{object}]{obj, }
+\item[{Hash\+Entry\mbox{[}$\,$\mbox{]}}]{hash\+Entries, }
+\item[{bool}]{ignore\+Fail = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_af73400269f96ab1a8cee3aecbcb1adc6}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a5b1c8c3fe6ff7785de10ca9bdfeb5c65}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Convert\+To\+Redis\+Hash@{Convert\+To\+Redis\+Hash}}
+\index{Convert\+To\+Redis\+Hash@{Convert\+To\+Redis\+Hash}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Convert\+To\+Redis\+Hash(object o, bool ignore\+Fail=false)}]{\setlength{\rightskip}{0pt plus 5cm}I\+Enumerable$<$Hash\+Entry$>$ Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Convert\+To\+Redis\+Hash (
+\begin{DoxyParamCaption}
+\item[{object}]{o, }
+\item[{bool}]{ignore\+Fail = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a5b1c8c3fe6ff7785de10ca9bdfeb5c65}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a877ed59f8186f98b0ab6629bb541e770}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Retrieve\+Object\+Proxy$<$ T $>$@{Retrieve\+Object\+Proxy$<$ T $>$}}
+\index{Retrieve\+Object\+Proxy$<$ T $>$@{Retrieve\+Object\+Proxy$<$ T $>$}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Retrieve\+Object\+Proxy$<$ T $>$(string id, I\+Database redis\+Database)}]{\setlength{\rightskip}{0pt plus 5cm}async Task$<$T$>$ Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Retrieve\+Object\+Proxy$<$ T $>$ (
+\begin{DoxyParamCaption}
+\item[{string}]{id, }
+\item[{I\+Database}]{redis\+Database}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_a877ed59f8186f98b0ab6629bb541e770}
+
+
+Retrieves an object from redis cache by id 
+
+usually assumes a key\+:id structure, but if no key field is supplied will just search by id
+
+can use key\+:id\+:suffix 
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The id of the object to find\\
+\hline
+{\em redis\+Database} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\begin{Desc}
+\item[Type Constraints]\begin{description}
+\item[{\em T} : {\em class}]\end{description}
+\end{Desc}
+\hypertarget{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aeac285de3ddcde3dabd0514b767ef72d}{}\index{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}!Save\+Object@{Save\+Object}}
+\index{Save\+Object@{Save\+Object}!Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager@{Demgel\+Redis\+::\+Object\+Manager\+::\+Redis\+Object\+Manager}}
+\subsubsection[{Save\+Object(object obj, string id, I\+Database redis\+Database)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Object\+Manager.\+Redis\+Object\+Manager.\+Save\+Object (
+\begin{DoxyParamCaption}
+\item[{object}]{obj, }
+\item[{string}]{id, }
+\item[{I\+Database}]{redis\+Database}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_object_manager_1_1_redis_object_manager_aeac285de3ddcde3dabd0514b767ef72d}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+G\+:/\+Libraries/\+Demgel.\+Redis/\+Object\+Manager/\hyperlink{_redis_object_manager_8cs}{Redis\+Object\+Manager.\+cs}\end{DoxyCompactItemize}

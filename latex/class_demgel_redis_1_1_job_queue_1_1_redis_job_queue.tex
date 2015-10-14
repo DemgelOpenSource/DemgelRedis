@@ -1,0 +1,195 @@
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}{}\section{Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue Class Reference}
+\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}\index{Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue@{Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue}}
+
+
+Needed\+: (2) Redis queues 1 for new messages, 1 for currently processing messages Needed\+: processing messages list is F\+I\+L\+O  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+delegate \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}{Redis\+Job\+Queue} \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a30612ea8f10363f5fcfcdf4fb4ba07c2}{Factory} (string job\+Name, Cancellation\+Token cancellation\+Token=new Cancellation\+Token())
+\item 
+\hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a9d971219276f17816d0cbccacd360695}{Redis\+Job\+Queue} (Lazy$<$ I\+Connection\+Multiplexer $>$ multiplexer, string job\+Name, Cancellation\+Token cancellation\+Token=new Cancellation\+Token())
+\item 
+async Task \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a99a97b83e2e8e2e26b8bc8b279b5270a}{Finish} (string key, bool success=true)
+\begin{DoxyCompactList}\small\item\em When a job is finished, remove it from the processing\+Queue and from the cache database. \end{DoxyCompactList}\item 
+\hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}{Redis\+Job\+Queue} \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa73224944c4d505cd334dd970d930cea}{As\+Consumer} ()
+\begin{DoxyCompactList}\small\item\em Do we consume messages from the queue \end{DoxyCompactList}\item 
+\hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}{Redis\+Job\+Queue} \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a02f73c9f0eca4b31b26411cc21420ef0}{As\+Manager} ()
+\begin{DoxyCompactList}\small\item\em Runs a Task every 10 seconds to see if any remaining items are in processing queue \end{DoxyCompactList}\item 
+\hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue}{Redis\+Job\+Queue} \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a90544b3949cb429cc8ef808dfabb0656}{Preserve\+Async\+Order} (bool preserve\+Order)
+\item 
+void \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a4e442e47f67b5f6ff018db612e96fdae}{Add\+Job} (Redis\+Value job)
+\begin{DoxyCompactList}\small\item\em Add a job to the Queue \end{DoxyCompactList}\item 
+async Task \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa1d6b8bfafb4ae2210c7ca3134307a52}{Add\+Job\+Async} (Redis\+Value job)
+\begin{DoxyCompactList}\small\item\em Add a job to the Queue (async) \end{DoxyCompactList}\item 
+async Task \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_af5bc5168b1811ba89f31ce82ae9b0c4c}{Add\+Job\+Async} (\hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_value_dictionary}{Redis\+Value\+Dictionary} parameters\+Dictionary)
+\begin{DoxyCompactList}\small\item\em Add a job to the Queue (async) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Events}
+\begin{DoxyCompactItemize}
+\item 
+Event\+Handler$<$ \hyperlink{class_demgel_redis_1_1_events_1_1_job_received_event_args}{Job\+Received\+Event\+Args} $>$ \hyperlink{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a98fc5a40355d1ffe3ecb61b221d8d254}{On\+Job\+Received}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Needed\+: (2) Redis queues 1 for new messages, 1 for currently processing messages Needed\+: processing messages list is F\+I\+L\+O 
+
+The queues will only contain the key to the message in redis, which is stored as a single entity for quick lookup
+
+job\+Queue -- processing\+Queue job\+:1 job\+:2
+
+job\+:1 (job to do index 1) job\+:2 (job to do index 2)
+
+Finish method, will L\+R\+E\+M key, and Remove Key from database
+
+O\+N adding a new job, send a Publish to say a new job is added
+
+O\+N taking a job, R\+P\+O\+P\+L\+P\+U\+S\+H from job\+Queue to processing\+Queue
+
+Checking for failed jobs, experation time 10 seconds (this should be long enough to process anything) If job stays in processing\+Queue for longer than timeout, R\+P\+O\+P\+L\+P\+U\+S\+H to job\+Queue
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a9d971219276f17816d0cbccacd360695}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Redis\+Job\+Queue@{Redis\+Job\+Queue}}
+\index{Redis\+Job\+Queue@{Redis\+Job\+Queue}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Redis\+Job\+Queue(\+Lazy$<$ I\+Connection\+Multiplexer $>$ multiplexer, string job\+Name, Cancellation\+Token cancellation\+Token=new Cancellation\+Token())}]{\setlength{\rightskip}{0pt plus 5cm}Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Redis\+Job\+Queue (
+\begin{DoxyParamCaption}
+\item[{Lazy$<$ I\+Connection\+Multiplexer $>$}]{multiplexer, }
+\item[{string}]{job\+Name, }
+\item[{Cancellation\+Token}]{cancellation\+Token = {\ttfamily new~CancellationToken()}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a9d971219276f17816d0cbccacd360695}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a4e442e47f67b5f6ff018db612e96fdae}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Add\+Job@{Add\+Job}}
+\index{Add\+Job@{Add\+Job}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Add\+Job(\+Redis\+Value job)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Add\+Job (
+\begin{DoxyParamCaption}
+\item[{Redis\+Value}]{job}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a4e442e47f67b5f6ff018db612e96fdae}
+
+
+Add a job to the Queue 
+
+
+\begin{DoxyParams}{Parameters}
+{\em job} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa1d6b8bfafb4ae2210c7ca3134307a52}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Add\+Job\+Async@{Add\+Job\+Async}}
+\index{Add\+Job\+Async@{Add\+Job\+Async}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Add\+Job\+Async(\+Redis\+Value job)}]{\setlength{\rightskip}{0pt plus 5cm}async Task Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Add\+Job\+Async (
+\begin{DoxyParamCaption}
+\item[{Redis\+Value}]{job}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa1d6b8bfafb4ae2210c7ca3134307a52}
+
+
+Add a job to the Queue (async) 
+
+the single Redis\+Value is marked as \textquotesingle{}payload\textquotesingle{} in the hash 
+
+
+\begin{DoxyParams}{Parameters}
+{\em job} & payload\\
+\hline
+\end{DoxyParams}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_af5bc5168b1811ba89f31ce82ae9b0c4c}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Add\+Job\+Async@{Add\+Job\+Async}}
+\index{Add\+Job\+Async@{Add\+Job\+Async}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Add\+Job\+Async(\+Redis\+Value\+Dictionary parameters\+Dictionary)}]{\setlength{\rightskip}{0pt plus 5cm}async Task Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Add\+Job\+Async (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Value\+Dictionary}}]{parameters\+Dictionary}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_af5bc5168b1811ba89f31ce82ae9b0c4c}
+
+
+Add a job to the Queue (async) 
+
+Adds a Dictionary to the message, both values are Redis\+Value.
+
+Reserved names for dictionary keys are \textquotesingle{}key\textquotesingle{}, \textquotesingle{}active\textquotesingle{}, \textquotesingle{}failedcount\textquotesingle{} 
+
+
+\begin{DoxyParams}{Parameters}
+{\em parameters\+Dictionary} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa73224944c4d505cd334dd970d930cea}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!As\+Consumer@{As\+Consumer}}
+\index{As\+Consumer@{As\+Consumer}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{As\+Consumer()}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Redis\+Job\+Queue} Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+As\+Consumer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_aa73224944c4d505cd334dd970d930cea}
+
+
+Do we consume messages from the queue 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a02f73c9f0eca4b31b26411cc21420ef0}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!As\+Manager@{As\+Manager}}
+\index{As\+Manager@{As\+Manager}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{As\+Manager()}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Redis\+Job\+Queue} Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+As\+Manager (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a02f73c9f0eca4b31b26411cc21420ef0}
+
+
+Runs a Task every 10 seconds to see if any remaining items are in processing queue 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a30612ea8f10363f5fcfcdf4fb4ba07c2}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Factory@{Factory}}
+\index{Factory@{Factory}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Factory(string job\+Name, Cancellation\+Token cancellation\+Token=new Cancellation\+Token())}]{\setlength{\rightskip}{0pt plus 5cm}delegate {\bf Redis\+Job\+Queue} Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Factory (
+\begin{DoxyParamCaption}
+\item[{string}]{job\+Name, }
+\item[{Cancellation\+Token}]{cancellation\+Token = {\ttfamily new~CancellationToken()}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a30612ea8f10363f5fcfcdf4fb4ba07c2}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a99a97b83e2e8e2e26b8bc8b279b5270a}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Finish@{Finish}}
+\index{Finish@{Finish}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Finish(string key, bool success=true)}]{\setlength{\rightskip}{0pt plus 5cm}async Task Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Finish (
+\begin{DoxyParamCaption}
+\item[{string}]{key, }
+\item[{bool}]{success = {\ttfamily true}}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a99a97b83e2e8e2e26b8bc8b279b5270a}
+
+
+When a job is finished, remove it from the processing\+Queue and from the cache database. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & \\
+\hline
+{\em success} & if false requeue for another attempt\\
+\hline
+\end{DoxyParams}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a90544b3949cb429cc8ef808dfabb0656}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!Preserve\+Async\+Order@{Preserve\+Async\+Order}}
+\index{Preserve\+Async\+Order@{Preserve\+Async\+Order}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{Preserve\+Async\+Order(bool preserve\+Order)}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Redis\+Job\+Queue} Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+Preserve\+Async\+Order (
+\begin{DoxyParamCaption}
+\item[{bool}]{preserve\+Order}
+\end{DoxyParamCaption}
+)}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a90544b3949cb429cc8ef808dfabb0656}
+
+
+\subsection{Event Documentation}
+\hypertarget{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a98fc5a40355d1ffe3ecb61b221d8d254}{}\index{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}!On\+Job\+Received@{On\+Job\+Received}}
+\index{On\+Job\+Received@{On\+Job\+Received}!Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue@{Demgel\+Redis\+::\+Job\+Queue\+::\+Redis\+Job\+Queue}}
+\subsubsection[{On\+Job\+Received}]{\setlength{\rightskip}{0pt plus 5cm}Event\+Handler$<${\bf Job\+Received\+Event\+Args}$>$ Demgel\+Redis.\+Job\+Queue.\+Redis\+Job\+Queue.\+On\+Job\+Received}\label{class_demgel_redis_1_1_job_queue_1_1_redis_job_queue_a98fc5a40355d1ffe3ecb61b221d8d254}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+G\+:/\+Libraries/\+Demgel.\+Redis/\+Job\+Queue/\hyperlink{_redis_job_queue_8cs}{Redis\+Job\+Queue.\+cs}\end{DoxyCompactItemize}

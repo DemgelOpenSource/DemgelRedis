@@ -1,0 +1,217 @@
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup}{}\section{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup Interface Reference}
+\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup}\index{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup@{Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup}}
+
+
+Inheritance diagram for Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=233pt]{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup__inherit__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a8de95df7ab4cb996be4fe6d46df9156b}{Update\+Hash} (I\+Enumerable$<$ Hash\+Entry $>$ entries, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a4bc3af3e7bd7d1a28f38230d2030a864}{Delete\+Hash} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_ad3f3a8fd6bcbaea1e2223b0bfd82f86c}{Update\+Hash\+Value} (Hash\+Entry entry, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a5cd539983c598e26976560d893412f1f}{Delete\+Hash\+Value} (Hash\+Entry entry, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a2e8413f622a80e29a22fe51facd3f916}{Delete\+Hash\+Value} (string value\+Key, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+Hash\+Entry\mbox{[}$\,$\mbox{]} \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a768b6feccaf35fc2d25a370685d7762a}{Get\+Hash} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+Hash\+Entry\mbox{[}$\,$\mbox{]} \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_aa0a6644c11ee64b23000d0264142612a}{Restore\+Hash} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+Task$<$ Hash\+Entry $>$ \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a450309b3a5885cf6e0358ffcdc6a88d3}{Get\+Hash\+Entry} (string value\+Key, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} hash\+Key)
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a541db9d1321777cd98a570a20f304f00}{Update\+String} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a0e86152c3f2a32677088cf040b912a52}{Delete\+String} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\item 
+Task$<$ Redis\+Value $>$ \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a29a2d6b56aa6f14ec867ed253dc1d2f0}{Get\+String} (\hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\item 
+Task$<$ string $>$ \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a3ee680936017e9acfe1694ba2646e6ac}{Restore\+String} (I\+Database redis\+Database, \hyperlink{class_demgel_redis_1_1_common_1_1_redis_key_object}{Redis\+Key\+Object} key, string table=\char`\"{}string\char`\"{})
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a1099471fb295577c03cb0bd96b27a7c7}{Update\+Set} ()
+\item 
+void \hyperlink{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a36e4bf8f4e2d8ac4e33faf05b7b9a3b2}{Delete\+Set} (string set\+Key)
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a4bc3af3e7bd7d1a28f38230d2030a864}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Delete\+Hash@{Delete\+Hash}}
+\index{Delete\+Hash@{Delete\+Hash}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash(\+Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Delete\+Hash (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a4bc3af3e7bd7d1a28f38230d2030a864}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a642f38a893d79849f45f9aa2e6762250}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a5cd539983c598e26976560d893412f1f}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Delete\+Hash\+Value@{Delete\+Hash\+Value}}
+\index{Delete\+Hash\+Value@{Delete\+Hash\+Value}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash\+Value(\+Hash\+Entry entry, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Delete\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{Hash\+Entry}]{entry, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a5cd539983c598e26976560d893412f1f}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad50f5694655be933e5bc28fbcb6582f4}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a2e8413f622a80e29a22fe51facd3f916}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Delete\+Hash\+Value@{Delete\+Hash\+Value}}
+\index{Delete\+Hash\+Value@{Delete\+Hash\+Value}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Delete\+Hash\+Value(string value\+Key, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Delete\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{string}]{value\+Key, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a2e8413f622a80e29a22fe51facd3f916}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_afd8440f585c10a7729e8108720939f04}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a36e4bf8f4e2d8ac4e33faf05b7b9a3b2}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Delete\+Set@{Delete\+Set}}
+\index{Delete\+Set@{Delete\+Set}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Delete\+Set(string set\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Delete\+Set (
+\begin{DoxyParamCaption}
+\item[{string}]{set\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a36e4bf8f4e2d8ac4e33faf05b7b9a3b2}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a9f74c31912d81a3eac575e7f7a4f816d}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a0e86152c3f2a32677088cf040b912a52}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Delete\+String@{Delete\+String}}
+\index{Delete\+String@{Delete\+String}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Delete\+String(\+Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Delete\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a0e86152c3f2a32677088cf040b912a52}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a69becf1c831cc6570d5068f9a155229d}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a768b6feccaf35fc2d25a370685d7762a}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Get\+Hash@{Get\+Hash}}
+\index{Get\+Hash@{Get\+Hash}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Get\+Hash(\+Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}Hash\+Entry \mbox{[}$\,$\mbox{]} Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Get\+Hash (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a768b6feccaf35fc2d25a370685d7762a}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a55e95dab2aec1b0b39a5d463956862f3}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a450309b3a5885cf6e0358ffcdc6a88d3}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Get\+Hash\+Entry@{Get\+Hash\+Entry}}
+\index{Get\+Hash\+Entry@{Get\+Hash\+Entry}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Get\+Hash\+Entry(string value\+Key, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}Task$<$Hash\+Entry$>$ Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Get\+Hash\+Entry (
+\begin{DoxyParamCaption}
+\item[{string}]{value\+Key, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a450309b3a5885cf6e0358ffcdc6a88d3}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ad0dc112c45eeb41176cc66ca57f079d3}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a29a2d6b56aa6f14ec867ed253dc1d2f0}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Get\+String@{Get\+String}}
+\index{Get\+String@{Get\+String}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Get\+String(\+Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}Task$<$Redis\+Value$>$ Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Get\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a29a2d6b56aa6f14ec867ed253dc1d2f0}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4576be1120b15bdcbeefb034ad7e7851}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_aa0a6644c11ee64b23000d0264142612a}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Restore\+Hash@{Restore\+Hash}}
+\index{Restore\+Hash@{Restore\+Hash}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Restore\+Hash(\+I\+Database redis\+Database, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}Hash\+Entry \mbox{[}$\,$\mbox{]} Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Restore\+Hash (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_aa0a6644c11ee64b23000d0264142612a}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a07d3687007574e626d1849842b38c036}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a3ee680936017e9acfe1694ba2646e6ac}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Restore\+String@{Restore\+String}}
+\index{Restore\+String@{Restore\+String}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Restore\+String(\+I\+Database redis\+Database, Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}Task$<$string$>$ Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Restore\+String (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a3ee680936017e9acfe1694ba2646e6ac}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a24333973d03cd2e2b8777f595a7e6470}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a8de95df7ab4cb996be4fe6d46df9156b}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Update\+Hash@{Update\+Hash}}
+\index{Update\+Hash@{Update\+Hash}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Update\+Hash(\+I\+Enumerable$<$ Hash\+Entry $>$ entries, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Update\+Hash (
+\begin{DoxyParamCaption}
+\item[{I\+Enumerable$<$ Hash\+Entry $>$}]{entries, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a8de95df7ab4cb996be4fe6d46df9156b}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a156b585116d9adc63744f4c0f4eaefa6}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_ad3f3a8fd6bcbaea1e2223b0bfd82f86c}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Update\+Hash\+Value@{Update\+Hash\+Value}}
+\index{Update\+Hash\+Value@{Update\+Hash\+Value}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Update\+Hash\+Value(\+Hash\+Entry entry, Redis\+Key\+Object hash\+Key)}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Update\+Hash\+Value (
+\begin{DoxyParamCaption}
+\item[{Hash\+Entry}]{entry, }
+\item[{{\bf Redis\+Key\+Object}}]{hash\+Key}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_ad3f3a8fd6bcbaea1e2223b0bfd82f86c}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_ab5bde991a33b01a79974c7646f7ce095}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a1099471fb295577c03cb0bd96b27a7c7}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Update\+Set@{Update\+Set}}
+\index{Update\+Set@{Update\+Set}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Update\+Set()}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Update\+Set (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a1099471fb295577c03cb0bd96b27a7c7}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a4486624948798324e6ff2e749e1b782f}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+\hypertarget{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a541db9d1321777cd98a570a20f304f00}{}\index{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}!Update\+String@{Update\+String}}
+\index{Update\+String@{Update\+String}!Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup@{Demgel\+Redis\+::\+Interfaces\+::\+I\+Redis\+Backup}}
+\subsubsection[{Update\+String(\+I\+Database redis\+Database, Redis\+Key\+Object key, string table=""string"")}]{\setlength{\rightskip}{0pt plus 5cm}void Demgel\+Redis.\+Interfaces.\+I\+Redis\+Backup.\+Update\+String (
+\begin{DoxyParamCaption}
+\item[{I\+Database}]{redis\+Database, }
+\item[{{\bf Redis\+Key\+Object}}]{key, }
+\item[{string}]{table = {\ttfamily \char`\"{}string\char`\"{}}}
+\end{DoxyParamCaption}
+)}\label{interface_demgel_redis_1_1_interfaces_1_1_i_redis_backup_a541db9d1321777cd98a570a20f304f00}
+
+
+Implemented in \hyperlink{class_demgel_redis_1_1_backing_manager_1_1_table_redis_backup_a2bcedf06f3ada316aee7ab83550202bb}{Demgel\+Redis.\+Backing\+Manager.\+Table\+Redis\+Backup}.
+
+
+
+The documentation for this interface was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+G\+:/\+Libraries/\+Demgel.\+Redis/\+Interfaces/\hyperlink{_i_redis_backup_8cs}{I\+Redis\+Backup.\+cs}\end{DoxyCompactItemize}
