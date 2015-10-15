@@ -7,6 +7,7 @@ using System.Reflection;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
+using DemgelRedis.ObjectManager.Attributes;
 using NUnit.Framework.Constraints;
 using StackExchange.Redis;
 
@@ -47,10 +48,37 @@ namespace DemgelRedis.ObjectManager.Handlers
                 catch { }
             }
 
+            var method = objType.GetMethod("Add");
+
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
                 // TODO make proxies for each List Item
                 Debug.WriteLine("This would be complex, as these are RedisObjects");
+                var retlist = redisDatabase.ListRange(listKey.RedisKey);
+                foreach (var ret in retlist)
+                {
+                    var newObj = Activator.CreateInstance(itemType);
+                    var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+
+                    if (redisKeyProp != null)
+                    {
+                        // Parse the key...
+                        var keyindex1 = ((string) ret).IndexOf(":", StringComparison.Ordinal);
+                        var stringPart1 = ((string) ret).Substring(keyindex1 + 1);
+                        var keyindex2 = stringPart1.IndexOf(":", StringComparison.Ordinal);
+                        var key = keyindex2 > 0 ? stringPart1.Substring(keyindex2) : stringPart1;
+
+                        if (redisKeyProp.PropertyType == typeof (string))
+                        {
+                            redisKeyProp.SetValue(newObj, key);
+                        }
+                        else
+                        {
+                            redisKeyProp.SetValue(newObj, Guid.Parse(key));
+                        }
+                    }
+                    method.Invoke(obj, new[] { newObj });
+                }
                 return obj;
             }
 
@@ -59,8 +87,6 @@ namespace DemgelRedis.ObjectManager.Handlers
                 // Try to process each entry as a proxy, or fail
                 throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
             }
-
-            var method = objType.GetMethod("Add");
 
             var retList = redisDatabase.ListRange(listKey.RedisKey);
             foreach (var ret in retList)

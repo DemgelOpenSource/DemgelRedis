@@ -72,19 +72,18 @@ namespace DemgelRedis.Tests
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
             Debug.WriteLine(test3.test);
             //var tt = test3.SomeStrings;
-            test3.SomeStrings.Add("test9");
-            test3.SomeStrings.Add("test1");
-            test3.SomeStrings.Add("test5");
-            test3.SomeStrings[2] = "something else";
+            //test3.SomeStrings.Add("test9");
+            //test3.SomeStrings.Add("test1");
+            //test3.SomeStrings.Add("test5");
+            //test3.SomeStrings[2] = "something else";
             //test3.subTest;
             //e.test = "hello...Test";
-            test3.test = "Hello Redis... lets see if you saved";
+            //test3.test = "Hello Redis... lets see if you saved";
 
-            test3.SomeIntegers.Add(new TestConvertClass());
+            //test3.SomeIntegers.Add(new TestConvertClass());
             var hello = test3.SomeIntegers[0];
             var hello2 = hello.TestValue = "testing";
-            var testClass = new TestConvertClass();
-            testClass.TestValue = "Blah Blah Blah";
+            var testClass = new TestConvertClass {TestValue = "Blah Blah Blah"};
             test3.SomeIntegers.Add(testClass);
 
             // Change the value and see if it saves...

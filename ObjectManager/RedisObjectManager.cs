@@ -53,6 +53,7 @@ namespace DemgelRedis.ObjectManager
         {
             foreach (var prop in o.GetType().GetProperties())
             {
+                //if (prop.HasAttribute<RedisIdKey>()) continue;
                 var type = prop.PropertyType;
                 ITypeConverter converter;
                 if (!TypeConverters.TryGetValue(type, out converter)) continue;
@@ -228,11 +229,20 @@ namespace DemgelRedis.ObjectManager
             {
                 if(prop.HasAttribute<RedisIdKey>())
                 {
-                    if (!prop.PropertyType.IsAssignableFrom(typeof (string)))
+                    if (!prop.PropertyType.IsAssignableFrom(typeof (string))
+                        && !prop.PropertyType.IsAssignableFrom(typeof(Guid)))
                     {
-                        throw new InvalidOperationException("RedisIdKey can only be of type String");
+                        throw new InvalidOperationException("RedisIdKey can only be of type String or Guid");
                     }
-                    prop.SetValue(result.Object, id);
+
+                    if (prop.PropertyType.IsAssignableFrom(typeof (string)))
+                    {
+                        prop.SetValue(result.Object, id);
+                    }
+                    else
+                    {
+                        prop.SetValue(result.Object, Guid.Parse(id));
+                    }
                 }
                 else
                 {

@@ -22,6 +22,18 @@ namespace DemgelRedis.Common
             }
         }
 
+        public string CounterKey
+        {
+            get
+            {
+                if (Prefix != null)
+                {
+                    return Suffix != null ? $"{Prefix}:{Suffix}" : $"{Prefix}";
+                }
+                return Suffix;
+            }
+        }
+
         public RedisKeyObject(IEnumerable<Attribute> attributes, string id)
         {
             Id = id;

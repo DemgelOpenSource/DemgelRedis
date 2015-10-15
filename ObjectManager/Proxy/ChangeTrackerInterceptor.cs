@@ -42,7 +42,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             Transient = transient;
         }
 
-        public async void Intercept(IInvocation invocation)
+        public void Intercept(IInvocation invocation)
         {
             // Decide if we are to save automaticly
             var hasNoSave = invocation.Method.ReflectedType?.GetMembers().Any(x => x.HasAttribute<RedisNoAutoSave>());
@@ -89,15 +89,83 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
             else
             {
+                // this would result from a add, or set_Item
+                // TODO refactor this to reflect that
                 if (invocation.Arguments[0] is IRedisObject && !(invocation.Arguments[0] is IProxyTargetAccessor))
                 {
-                    invocation.Arguments[0] = _redisObjectManager.RetrieveObjectProxy(invocation.Arguments[0].GetType(), _id, _database, invocation.Arguments[0], Transient);
-                    //await _redisObjectManager.RetrieveObject(invocation.Arguments[0], _id, _database);
+                    var key = new RedisKeyObject(invocation.Arguments[0].GetType().GetCustomAttributes(), string.Empty);
+
+                    GenerateId(invocation, key);
+
+                    invocation.Arguments[0] = _redisObjectManager.RetrieveObjectProxy(invocation.Arguments[0].GetType(), key.Id, _database, invocation.Arguments[0], Transient);
+
+                    var prop = invocation.Arguments[0].GetType()
+                        .GetProperties()
+                        .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+
+                    if (prop != null && prop.PropertyType == typeof (string))
+                    {
+                        prop.SetValue(invocation.Arguments[0], key.Id);
+                    } else if (prop != null && prop.PropertyType == typeof (Guid))
+                    {
+                        prop.SetValue(invocation.Arguments[0], Guid.Parse(key.Id));
+                    }
+                    // Don't save the objects added during processing
+                    var cAttr =
+                        ParentProxy?.GetType().BaseType?
+                            .GetProperties()
+                            .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy);
+                    
+                    if (Processed)
+                    {
+                        var listKey = new RedisKeyObject(cAttr.GetCustomAttributes(), _id);
+                        _database.ListRightPush(listKey.RedisKey, key.RedisKey);
+                        _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+                    }
                 }
-                Debug.WriteLine("No autosave attempted");
+                Debug.WriteLine("No autosave attempted " + invocation.Method.Name);
             }
 
             invocation.Proceed();
+        }
+
+        private void GenerateId(IInvocation invocation, RedisKeyObject key)
+        {
+            var redisIdAttr =
+                invocation.Arguments[0].GetType().GetProperties().SingleOrDefault(
+                    x => x.GetCustomAttributes().Any(a => a is RedisIdKey));
+            var value = redisIdAttr?.GetValue(invocation.Arguments[0], null);
+
+            if (redisIdAttr != null && redisIdAttr.PropertyType == typeof(string))
+            {
+                if (((string) value).IsNullOrEmpty())
+                {
+                    var newId = _database.StringIncrement($"demgelcounter:{key.CounterKey}");
+                    key.Id = newId.ToString();
+                    redisIdAttr.SetValue(invocation.Arguments[0], key.Id);
+                }
+                else
+                {
+                    key.Id = (string) value;
+                }
+            }
+            else if (redisIdAttr != null && redisIdAttr.PropertyType == typeof(Guid))
+            {
+                if ((Guid) value == new Guid())
+                {
+                    var guid = Guid.NewGuid();
+                    key.Id = guid.ToString();
+                    redisIdAttr.SetValue(invocation.Arguments[0], guid);
+                }
+                else
+                {
+                    key.Id = ((Guid) value).ToString();
+                }
+            }
+            else
+            {
+                throw new ArgumentException("RedisIdKey needs to be either Guid or String");
+            }
         }
 
         private void Notify(IInvocation invocation, RedisKeyObject key)
