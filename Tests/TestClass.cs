@@ -21,6 +21,7 @@ namespace DemgelRedis.Tests
     {
         [RedisIdKey]
         public string Id { get; set; }
+        public virtual string TestValue { get; set; }
     }
 
     [RedisPrefix(Key = "testcase")]
@@ -33,6 +34,7 @@ namespace DemgelRedis.Tests
         public virtual TestConvertClassSub subTest { get; set; }
         [RedisPrefix(Key = "testlist")]
         public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
+        public virtual IList<TestConvertClass> SomeIntegers { get; set; } = new List<TestConvertClass>(); 
     }
 
     [RedisPrefix(Key = "testcasesub")]

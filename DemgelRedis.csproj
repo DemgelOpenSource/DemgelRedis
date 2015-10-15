@@ -62,8 +62,8 @@
       <HintPath>packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="StackExchange.Redis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StackExchange.Redis.Mono.1.0.0\lib\StackExchange.Redis.dll</HintPath>
+    <Reference Include="StackExchange.Redis, Version=1.0.316.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StackExchange.Redis.1.0.481\lib\net45\StackExchange.Redis.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\RedisKeyObject.cs" />
+    <Compile Include="Converters\FloatConverter.cs" />
+    <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />
     <Compile Include="Extensions\RedisValueExtensions.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />
@@ -93,7 +95,7 @@
     <Compile Include="ObjectManager\RedisObjectManager.cs" />
     <Compile Include="ObjectManager\DemgelRedisResult.cs" />
     <Compile Include="Events\JobReceivedEventArgs.cs" />
-    <Compile Include="ObjectManager\Handlers\EnumerableHandler.cs" />
+    <Compile Include="ObjectManager\Handlers\ListHandler.cs" />
     <Compile Include="ObjectManager\Handlers\RedisHandler.cs" />
     <Compile Include="Interfaces\IRedisBackup.cs" />
     <Compile Include="Interfaces\IRedisHandler.cs" />

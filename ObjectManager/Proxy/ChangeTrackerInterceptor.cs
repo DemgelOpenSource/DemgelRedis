@@ -42,7 +42,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             Transient = transient;
         }
 
-        public void Intercept(IInvocation invocation)
+        public async void Intercept(IInvocation invocation)
         {
             // Decide if we are to save automaticly
             var hasNoSave = invocation.Method.ReflectedType?.GetMembers().Any(x => x.HasAttribute<RedisNoAutoSave>());
@@ -89,6 +89,11 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
             else
             {
+                if (invocation.Arguments[0] is IRedisObject && !(invocation.Arguments[0] is IProxyTargetAccessor))
+                {
+                    invocation.Arguments[0] = _redisObjectManager.RetrieveObjectProxy(invocation.Arguments[0].GetType(), _id, _database, invocation.Arguments[0], Transient);
+                    //await _redisObjectManager.RetrieveObject(invocation.Arguments[0], _id, _database);
+                }
                 Debug.WriteLine("No autosave attempted");
             }
 

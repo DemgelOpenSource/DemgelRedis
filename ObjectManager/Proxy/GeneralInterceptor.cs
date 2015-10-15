@@ -57,7 +57,7 @@ namespace DemgelRedis.ObjectManager.Proxy
                     return y != null && y.GetMethod.Name.Equals(invocation.Method.Name);
                 }).SingleOrDefault() as PropertyInfo;
 
-                var value = cAttr?.GetValue(invocation.Proxy);
+                var value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
                 if (!(value is IProxyTargetAccessor)) return;
 
                 var result = await _demgelRedis.RetrieveObject(value, _id,
@@ -76,7 +76,11 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 _retrieved.Add(invocation.Method.Name, true);
 
-                invocation.ReturnValue = result.Object;                
+                invocation.ReturnValue = result.Object;
+            }
+            catch
+            {
+                Debug.WriteLine("There was an error here....");
             }
             finally
             {

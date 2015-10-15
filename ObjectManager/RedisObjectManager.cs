@@ -30,12 +30,14 @@ namespace DemgelRedis.ObjectManager
             {
                 {typeof(Guid), new GuidConverter() },
                 {typeof(string), new StringConverter() },
-                {typeof(int), new Int32Converter() }
+                {typeof(int), new Int32Converter() },
+                {typeof(float), new FloatConverter() },
+                {typeof(double), new DoubleConverter() }
             };
 
             _handlers = new List<IRedisHandler>
             {
-                new EnumerableHandler(this)
+                new ListHandler(this)
             };
 
             _generalInterceptorSelector = new GeneralInterceptorSelector();
@@ -92,29 +94,42 @@ namespace DemgelRedis.ObjectManager
         /// <param name="redisDatabase"></param>
         /// <param name="isTransient">Short lived objects should be transient (prevent subscribing to events)</param>
         /// <returns></returns>
-        public async Task<T> RetrieveObjectProxy<T>(string id, IDatabase redisDatabase, bool isTransient = false)
+        public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase, bool isTransient = false)
             where T : class
         {
             var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null, isTransient);            
-            var result = (await RetrieveObject(proxy, id, redisDatabase)).Object as T;
+            var result = (RetrieveObject(proxy, id, redisDatabase)).Result.Object as T;
             var changeTrackerInterceptor = (ChangeTrackerInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is ChangeTrackerInterceptor);
             if (changeTrackerInterceptor != null)
                 changeTrackerInterceptor.Processed = true;
             return result;
         }
 
-        private object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, bool isTransient)
+        protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, bool isTransient)
         {
             object proxy;
 
             if (!type.IsInterface)
-                proxy = _generator.CreateClassProxy(type,
-                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                    {
-                        Selector = _generalInterceptorSelector
-                    },
-                    new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
+                if (obj != null)
+                {
+                    proxy = _generator.CreateClassProxyWithTarget(type, obj,
+                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                        {
+                            Selector = _generalInterceptorSelector
+                        },
+                        new GeneralInterceptor(id, redisDatabase, this),
+                        new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
+                }
+                else
+                {
+                    proxy = _generator.CreateClassProxy(type,
+                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                        {
+                            Selector = _generalInterceptorSelector
+                        },
+                        new GeneralInterceptor(id, redisDatabase, this),
+                        new ChangeTrackerInterceptor(redisDatabase, this, _redisBackup, id, isTransient));
+                }
             else if (obj == null)
             {
                 proxy = _generator.CreateInterfaceProxyWithoutTarget(type,
@@ -137,14 +152,21 @@ namespace DemgelRedis.ObjectManager
             }
 
             // Lets try setting all Proxies...
-
-            foreach (var p in proxy.GetType().GetProperties())
+            var props = proxy.GetType().GetProperties();
+            foreach (var p in props)
             {
                 if (!p.GetMethod.IsVirtual || p.PropertyType.IsSealed) continue;
                 if (!p.PropertyType.IsClass && !p.PropertyType.IsInterface) continue;
-                var baseObject = p.GetValue(proxy, null);
-                var pr = RetrieveObjectProxy(p.PropertyType, id, redisDatabase, baseObject, isTransient);
-                proxy.GetType().GetProperty(p.Name).SetValue(proxy, pr);
+                try
+                {
+                    var baseObject = p.GetValue(proxy, null);
+                    var pr = RetrieveObjectProxy(p.PropertyType, id, redisDatabase, baseObject, isTransient);
+                    proxy.GetType().GetProperty(p.Name).SetValue(proxy, pr);
+                }
+                catch
+                {
+                    Debug.WriteLine("Error here");
+                }
             }
 
             return proxy;

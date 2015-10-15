@@ -27,7 +27,7 @@ namespace DemgelRedis.Tests
 
             var ret = _redis.ConvertToRedisHash(test).ToList();
 
-            Assert.IsTrue(ret.Count == 3);
+            Assert.IsTrue(ret.Count == 5);
         }
 
         [Test]
@@ -49,11 +49,11 @@ namespace DemgelRedis.Tests
 
         [Test]
         [Ignore]
-        public async void TestRedisRetrieveObject()
+        public void TestRedisRetrieveObject()
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = await _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
+            var test3 =  _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
             Debug.WriteLine(test3.subTest.Id);
 
             Assert.IsTrue(test3 != null);
@@ -61,7 +61,7 @@ namespace DemgelRedis.Tests
 
         [Test]
         [Ignore]
-        public async void TestRedisSaveObject()
+        public void TestRedisSaveObject()
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
@@ -69,7 +69,7 @@ namespace DemgelRedis.Tests
             
             //test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
-            var test3 = await _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
             Debug.WriteLine(test3.test);
             //var tt = test3.SomeStrings;
             test3.SomeStrings.Add("test9");
@@ -79,6 +79,13 @@ namespace DemgelRedis.Tests
             //test3.subTest;
             //e.test = "hello...Test";
             test3.test = "Hello Redis... lets see if you saved";
+
+            test3.SomeIntegers.Add(new TestConvertClass());
+            var hello = test3.SomeIntegers[0];
+            var hello2 = hello.TestValue = "testing";
+            var testClass = new TestConvertClass();
+            testClass.TestValue = "Blah Blah Blah";
+            test3.SomeIntegers.Add(testClass);
 
             // Change the value and see if it saves...
             //_redis.SaveObject(test3, test3.Id, connection.GetDatabase());

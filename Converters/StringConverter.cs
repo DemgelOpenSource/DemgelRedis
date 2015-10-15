@@ -12,6 +12,7 @@ namespace DemgelRedis.Converters
 
         public object OnRead(RedisValue obj)
         {
+            if (obj.IsNullOrEmpty) return "";
             return (string)obj;
         }
     }
