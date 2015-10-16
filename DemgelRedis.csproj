@@ -81,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackingManager\ListTableEntry.cs" />
     <Compile Include="Common\RedisKeyObject.cs" />
     <Compile Include="Converters\FloatConverter.cs" />
     <Compile Include="Converters\DoubleConverter.cs" />

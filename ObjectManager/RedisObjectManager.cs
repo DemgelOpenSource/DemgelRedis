@@ -200,7 +200,7 @@ namespace DemgelRedis.ObjectManager
             }
 
             // If another type was not found, try to set all values normally.
-            var redisKey = new RedisKeyObject(objType.GetCustomAttributes(), id);
+            var redisKey = new RedisKeyObject(objType, id);
 
             var ret = redisDatabase.HashGetAll(redisKey.RedisKey);
             if (ret.Length == 0)
@@ -306,12 +306,14 @@ namespace DemgelRedis.ObjectManager
 
             // If no other handler could handle this obj, parse it normally and save it.
             //var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
-            var redisKey = new RedisKeyObject(objType.GetCustomAttributes(), id);
+            var redisKey = new RedisKeyObject(objType, id);
 
-            var hashList = ConvertToRedisHash(obj);
-            // TODO check if we need to do any Backing work
-            redisDatabase.HashSet(redisKey.RedisKey, hashList.ToArray());
+            var hashList = ConvertToRedisHash(obj).ToArray();
+
+            _redisBackup?.UpdateHash(hashList, redisKey);
+            _redisBackup?.RestoreHash(redisDatabase, redisKey);
+            redisDatabase.HashSet(redisKey.RedisKey, hashList);
         }
-        // DeleteObjectFromRedis (and tables)
+        // DeleteObjectFromRedis (and backing)
     }   
 }

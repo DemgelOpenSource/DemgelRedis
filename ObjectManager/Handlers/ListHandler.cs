@@ -34,7 +34,7 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
-            var listKey = new RedisKeyObject(basePropertyInfo.GetCustomAttributes(), id);
+            var listKey = new RedisKeyObject(basePropertyInfo, id);
             var targetType = GetTarget(obj).GetType();
             Type itemType = null;
 
@@ -52,8 +52,6 @@ namespace DemgelRedis.ObjectManager.Handlers
 
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
-                // TODO make proxies for each List Item
-                Debug.WriteLine("This would be complex, as these are RedisObjects");
                 var retlist = redisDatabase.ListRange(listKey.RedisKey);
                 foreach (var ret in retlist)
                 {
@@ -99,7 +97,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         public override bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
             //var listKey = DemgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
-            var listKey = new RedisKeyObject(basePropertyInfo.GetCustomAttributes(), id);
+            var listKey = new RedisKeyObject(basePropertyInfo, id);
 
             // Only handles lists if they are not currently set, lists need to be handled
             // on a per item basis otherwise

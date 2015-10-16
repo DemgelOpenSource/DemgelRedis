@@ -1,6 +1,6 @@
 ﻿Mono Build (Travis): [![Build Status](https://travis-ci.org/DemgelOpenSource/DemgelRedis.svg)](https://travis-ci.org/DemgelOpenSource/DemgelRedis)  
 Windows Build (AppVeyor): [![Build status](https://ci.appveyor.com/api/projects/status/6xl602hwsyu926aw/branch/master?svg=true)](https://ci.appveyor.com/project/tenowg/demgelredis/branch/master)  
-Nuget Package Build: [![demgel MyGet Build Status](https://www.myget.org/BuildSource/Badge/demgel?identifier=6a7b8d2a-f1c4-4a35-a41c-b350a6a7ce57)](https://www.myget.org/)
+Nuget Package Build: [![demgel MyGet Build Status](https://www.myget.org/BuildSource/Badge/demgel?identifier=caa525cf-17f7-4bf4-b2c6-d5f5abf6b122)](https://www.myget.org/)
 
 This package is no where near ready for use... For Developers only (if interested)
 

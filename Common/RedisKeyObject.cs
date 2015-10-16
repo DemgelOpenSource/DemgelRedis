@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Reflection;
 using DemgelRedis.ObjectManager.Attributes;
 
 namespace DemgelRedis.Common
@@ -34,29 +34,40 @@ namespace DemgelRedis.Common
             }
         }
 
-        public RedisKeyObject(IEnumerable<Attribute> attributes, string id)
-        {
-            Id = id;
-            ParseRedisKey(attributes);
-        }
-
         public RedisKeyObject()
         {
         }
 
-        private void ParseRedisKey(IEnumerable<Attribute> attributes)
+        public RedisKeyObject(PropertyInfo propertyInfo, string id)
         {
-            foreach (var attr in attributes)
+            var prefix = propertyInfo.DeclaringType?.GetCustomAttribute<RedisPrefix>();
+            if (propertyInfo.DeclaringType?.BaseType == typeof(object))
             {
-                if (attr is RedisPrefix)
-                {
-                    Prefix = ((RedisPrefix)attr).Key;
-                }
-                else if (attr is RedisSuffix)
-                {
-                    Suffix = ((RedisSuffix)attr).Key;
-                }
+                Prefix = prefix != null ? prefix.Key : propertyInfo.DeclaringType.Name;
             }
+            else
+            {
+                Prefix = prefix != null ? prefix.Key : propertyInfo.DeclaringType?.BaseType?.Name;
+            }
+
+            var suffix = propertyInfo.GetCustomAttribute<RedisSuffix>();
+            Suffix = suffix != null ? suffix.Key : propertyInfo.Name;
+
+            Id = id;
+        }
+
+        public RedisKeyObject(Type classType, string id)
+        {
+            var prefix = classType.GetCustomAttribute<RedisPrefix>();
+            if (classType.BaseType != null && classType.BaseType == typeof(object))
+            {
+                Prefix = prefix != null ? prefix.Key : classType.Name;
+            }
+            else
+            {
+                Prefix = prefix != null ? prefix.Key : classType.BaseType?.Name;
+            }
+            Id = id;
         }
     }
 }

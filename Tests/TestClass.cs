@@ -16,25 +16,25 @@ namespace DemgelRedis.Tests
         public double TestDouble { get; set; }
     }
 
-    [RedisPrefix(Key = "testcase")]
+    //[RedisPrefix(Key = "testcase")]
     public class TestConvertClass : IRedisObject
     {
         [RedisIdKey]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public virtual string TestValue { get; set; }
     }
 
-    [RedisPrefix(Key = "testcase")]
-    [RedisSuffix(Key = "infosuffix")]
+    //[RedisPrefix(Key = "testcase")]
+    //[RedisSuffix(Key = "infosuffix")]
     public class TestConvertClassSubSuffix : IRedisObject
     {
         [RedisIdKey]
         public string Id { get; set; }
         public virtual string test { get; set; }
         public virtual TestConvertClassSub subTest { get; set; }
-        [RedisPrefix(Key = "testlist")]
+        //[RedisSuffix(Key = "testlist")]
         public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
-        [RedisPrefix(Key = "guidtest")]
+        //[RedisPrefix(Key = "guidtest")]
         public virtual IList<TestConvertClass> SomeIntegers { get; set; } = new List<TestConvertClass>(); 
     }
 

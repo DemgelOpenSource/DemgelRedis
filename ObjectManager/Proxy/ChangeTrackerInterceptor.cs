@@ -23,7 +23,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         private readonly Dictionary<string, object> _listeners; 
 
         protected internal bool Processed { private get; set; }
-        protected internal bool Transient { private get; set; }
+        private bool Transient { get; }
         protected internal object ParentProxy { private get; set; }
 
         public ChangeTrackerInterceptor(
@@ -60,7 +60,7 @@ namespace DemgelRedis.ObjectManager.Proxy
                 if (cAttr.GetType().GetInterfaces().Contains(typeof(IRedisObject)))
                 {
                     // This is a single item within an IRedisObject... it will be saved as a hash
-                    key = new RedisKeyObject(cAttr.GetType().GetCustomAttributes(), _id);
+                    key = new RedisKeyObject(cAttr.GetType(), _id);
                     // Need to get the property name of the IRedisObject this is being set in
                     var property =
                         invocation.Method.ReflectedType?.GetProperties()
@@ -70,8 +70,10 @@ namespace DemgelRedis.ObjectManager.Proxy
                     if (property != null && _redisObjectManager.TypeConverters.TryGetValue(property.PropertyType, out converter))
                     {
                         var ret = new HashEntry(property.Name, converter.ToWrite(invocation.Arguments[0]));
-                        _database.HashSet(key.RedisKey, ret.Name, ret.Value);
+
                         _redisBackup?.UpdateHashValue(ret, key);
+                        _redisBackup?.RestoreHash(_database, key);
+                        _database.HashSet(key.RedisKey, ret.Name, ret.Value);
                     }
                 }
                 else
@@ -79,13 +81,11 @@ namespace DemgelRedis.ObjectManager.Proxy
                     var prop = cAttr as PropertyInfo;
                     if (prop != null)
                     {
-                        key = new RedisKeyObject(prop.GetCustomAttributes(), _id);
+                        key = new RedisKeyObject(prop, _id);
                     }
                 }
 
                 Notify(invocation, key);
-
-                Debug.WriteLine("ChangeTrackerInterceptor (Save attempting) " + invocation.Method.Name);
             }
             else
             {
@@ -93,14 +93,14 @@ namespace DemgelRedis.ObjectManager.Proxy
                 // TODO refactor this to reflect that
                 if (invocation.Arguments[0] is IRedisObject && !(invocation.Arguments[0] is IProxyTargetAccessor))
                 {
-                    var key = new RedisKeyObject(invocation.Arguments[0].GetType().GetCustomAttributes(), string.Empty);
+                    var argumentType = invocation.Arguments[0].GetType();
+                    var key = new RedisKeyObject(argumentType, string.Empty);
 
                     GenerateId(invocation, key);
 
-                    invocation.Arguments[0] = _redisObjectManager.RetrieveObjectProxy(invocation.Arguments[0].GetType(), key.Id, _database, invocation.Arguments[0], Transient);
+                    invocation.Arguments[0] = _redisObjectManager.RetrieveObjectProxy(argumentType, key.Id, _database, invocation.Arguments[0], Transient);
 
-                    var prop = invocation.Arguments[0].GetType()
-                        .GetProperties()
+                    var prop = argumentType.GetProperties()
                         .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
                     if (prop != null && prop.PropertyType == typeof (string))
@@ -110,20 +110,22 @@ namespace DemgelRedis.ObjectManager.Proxy
                     {
                         prop.SetValue(invocation.Arguments[0], Guid.Parse(key.Id));
                     }
+
                     // Don't save the objects added during processing
-                    var cAttr =
-                        ParentProxy?.GetType().BaseType?
-                            .GetProperties()
-                            .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy);
-                    
                     if (Processed)
                     {
-                        var listKey = new RedisKeyObject(cAttr.GetCustomAttributes(), _id);
+                        var cAttr =
+                            ParentProxy?.GetType().BaseType?
+                                .GetProperties()
+                                .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy);
+                        var listKey = new RedisKeyObject(cAttr, _id);
+
+                        _redisBackup?.AddListItem(_database, key, key.RedisKey);
+                        _redisBackup?.RestoreList(_database, listKey, key);
                         _database.ListRightPush(listKey.RedisKey, key.RedisKey);
                         _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
                     }
                 }
-                Debug.WriteLine("No autosave attempted " + invocation.Method.Name);
             }
 
             invocation.Proceed();
@@ -184,7 +186,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             _database.Multiplexer.GetSubscriber().Publish($"demgelom:{key.RedisKey}", "somevalue changed...");
         }
 
-        public void RecieveSub(RedisChannel channel, RedisValue value)
+        private void RecieveSub(RedisChannel channel, RedisValue value)
         {
             Debug.WriteLine(channel + " -- " + value);
             // All we are going to do is mark the GeneralIntercepter as dirty and start over
