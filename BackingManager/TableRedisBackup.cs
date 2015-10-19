@@ -336,12 +336,12 @@ namespace DemgelRedis.BackingManager
             // Don't bother if a key already exists (Redis first)
             if (redisDatabase.KeyExists(listKey.RedisKey)) return new List<RedisValue>();
 
-            var cloudTable = GetCloudTable(key.Prefix);
+            var cloudTable = GetCloudTable(listKey.Prefix);
 
             var query = new TableQuery<DynamicTableEntity>
             {
                 FilterString =
-                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, GetPartitionKey(key))
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, GetPartitionKey(listKey))
             };
 
             var dynamicTableEntities = cloudTable.ExecuteQuerySegmented(query, null);

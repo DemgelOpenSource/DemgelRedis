@@ -20,7 +20,7 @@ namespace DemgelRedis.Tests
     public class TestConvertClass : IRedisObject
     {
         [RedisIdKey]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public virtual string TestValue { get; set; }
     }
 
@@ -44,6 +44,7 @@ namespace DemgelRedis.Tests
         [RedisIdKey]
         public string Id { get; set; }
         public virtual string test { get; set; }
+        public virtual TestConvertClassSubSuffix TestInitite { get; set; }
 
     }
 }

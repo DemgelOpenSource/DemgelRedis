@@ -93,6 +93,7 @@
     <Compile Include="ObjectManager\Attributes\RedisSuffix.cs" />
     <Compile Include="Converters\GuidConverter.cs" />
     <Compile Include="Converters\StringConverter.cs" />
+    <Compile Include="ObjectManager\Handlers\RedisObjectHandler.cs" />
     <Compile Include="ObjectManager\RedisObjectManager.cs" />
     <Compile Include="ObjectManager\DemgelRedisResult.cs" />
     <Compile Include="Events\JobReceivedEventArgs.cs" />

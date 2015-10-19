@@ -7,11 +7,11 @@ namespace DemgelRedis.ObjectManager.Handlers
 {
     public abstract class RedisHandler : IRedisHandler
     {
-        protected readonly RedisObjectManager DemgelRedis;
+        protected readonly RedisObjectManager RedisObjectManager;
 
         protected RedisHandler(RedisObjectManager demgelRedis)
         {
-            DemgelRedis = demgelRedis;
+            RedisObjectManager = demgelRedis;
         }
 
         public abstract bool CanHandle(object obj);

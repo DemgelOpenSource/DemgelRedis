@@ -41,21 +41,22 @@ namespace DemgelRedis.ObjectManager.Handlers
             if (targetType.GetInterfaces().Any(interfaceType => interfaceType.IsGenericType &&
                       interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
-                try
+                if (targetType.GetGenericArguments().Any())
                 {
                     itemType = targetType.GetGenericArguments()[0];
                 }
-                catch { }
             }
 
             var method = objType.GetMethod("Add");
 
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
+                RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey, null);
                 var retlist = redisDatabase.ListRange(listKey.RedisKey);
                 foreach (var ret in retlist)
                 {
                     var newObj = Activator.CreateInstance(itemType);
+                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj, false);
                     var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
                     if (redisKeyProp != null)
@@ -68,14 +69,14 @@ namespace DemgelRedis.ObjectManager.Handlers
 
                         if (redisKeyProp.PropertyType == typeof (string))
                         {
-                            redisKeyProp.SetValue(newObj, key);
+                            redisKeyProp.SetValue(newProxy, key);
                         }
                         else
                         {
-                            redisKeyProp.SetValue(newObj, Guid.Parse(key));
+                            redisKeyProp.SetValue(newProxy, Guid.Parse(key));
                         }
                     }
-                    method.Invoke(obj, new[] { newObj });
+                    method.Invoke(obj, new[] { newProxy });
                 }
                 return obj;
             }
@@ -86,6 +87,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                 throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
             }
 
+            RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey, null);
             var retList = redisDatabase.ListRange(listKey.RedisKey);
             foreach (var ret in retList)
             {
@@ -124,7 +126,6 @@ namespace DemgelRedis.ObjectManager.Handlers
                 trans.ListLeftPushAsync(listKey.RedisKey, o);
             }
             trans.Execute();
-            //redisDatabase.ListRightPush(listKey, ((IEnumerable<RedisValue>)obj).ToArray());
 
             return true;
         }

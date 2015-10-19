@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -71,12 +72,13 @@ namespace DemgelRedis.ObjectManager.Proxy
                     {
                         var ret = new HashEntry(property.Name, converter.ToWrite(invocation.Arguments[0]));
 
-                        _redisBackup?.UpdateHashValue(ret, key);
                         _redisBackup?.RestoreHash(_database, key);
+                        _redisBackup?.UpdateHashValue(ret, key);
+                        
                         _database.HashSet(key.RedisKey, ret.Name, ret.Value);
                     }
                 }
-                else
+                else if (cAttr.GetType() == typeof(IList))
                 {
                     var prop = cAttr as PropertyInfo;
                     if (prop != null)
@@ -120,8 +122,9 @@ namespace DemgelRedis.ObjectManager.Proxy
                                 .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy);
                         var listKey = new RedisKeyObject(cAttr, _id);
 
-                        _redisBackup?.AddListItem(_database, key, key.RedisKey);
                         _redisBackup?.RestoreList(_database, listKey, key);
+                        _redisBackup?.AddListItem(_database, listKey, key.RedisKey);
+                        
                         _database.ListRightPush(listKey.RedisKey, key.RedisKey);
                         _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
                     }

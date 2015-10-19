@@ -87,7 +87,7 @@ namespace DemgelRedis.ObjectManager.Proxy
                     redisId = _id;
                 }
 
-                var result = await _demgelRedis.RetrieveObject(value, redisId,
+                var result = _demgelRedis.RetrieveObject(value, redisId,
                     _database, cAttr);
 
                 var changeTracker = ((IProxyTargetAccessor) value)

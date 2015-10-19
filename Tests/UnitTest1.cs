@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -18,7 +19,9 @@ namespace DemgelRedis.Tests
     [TestFixture]
     public class UnitTest1
     {
-        private readonly RedisObjectManager _redis = new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
+        private readonly RedisObjectManager _redis =
+            new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
+
         [Test]
         public void TestConvertToRedisHash()
         {
@@ -48,8 +51,8 @@ namespace DemgelRedis.Tests
             };
 
             var ret = _redis.ConvertToObject(new TestClass(), hashList.ToArray());
-            ((TestClass)ret).TestFloat = 1231128128182.242342F;
-            Debug.WriteLine(((TestClass)ret).TestFloat);
+            ((TestClass) ret).TestFloat = 1231128128182.242342F;
+            Debug.WriteLine(((TestClass) ret).TestFloat);
         }
 
         [Test]
@@ -58,7 +61,7 @@ namespace DemgelRedis.Tests
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 =  _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
             Debug.WriteLine(test3.subTest.Id);
 
             Assert.IsTrue(test3 != null);
@@ -71,23 +74,23 @@ namespace DemgelRedis.Tests
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             //var test = connection.GetSubscriber();
-            
+
             //test.Subscribe("__key*__:*", (redisChannel, redisValue) => Debug.WriteLine($"{redisChannel} -- {redisValue}"));
 
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
             Debug.WriteLine(test3.test);
             //var tt = test3.SomeStrings;
-            //test3.SomeStrings.Add("test9");
-            //test3.SomeStrings.Add("test1");
-            //test3.SomeStrings.Add("test5");
-            //test3.SomeStrings[2] = "something else";
+            test3.SomeStrings.Add("test9");
+            test3.SomeStrings.Add("test1");
+            test3.SomeStrings.Add("test5");
+            test3.SomeStrings[2] = "something else";
             //test3.subTest;
             //e.test = "hello...Test";
-            //test3.test = "Hello Redis... lets see if you saved";
+            test3.test = "Hello Redis... lets see if you saved";
 
             test3.SomeIntegers.Add(new TestConvertClass());
             var hello = test3.SomeIntegers[0];
-            var hello2 = hello.TestValue = "testing";
+            //var hello2 = hello.TestValue = "testing";
             var testClass = new TestConvertClass {TestValue = "Blah Blah Blah"};
             test3.SomeIntegers.Add(testClass);
 
@@ -107,6 +110,24 @@ namespace DemgelRedis.Tests
 
             Assert.IsTrue(key2.RedisKey.Equals("TestConvertClassSubSuffix:123:SomeStrings"));
             Assert.IsTrue(key.RedisKey.Equals("TestConvertClassSubSuffix:123"));
+        }
+
+        [Test]
+        public void TestInfinate()
+        {
+            var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
+
+            var test = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("test", connection.GetDatabase());
+            var aa = test.SomeIntegers;
+            var aaa = test.SomeStrings;
+            var aaaa = test.subTest;
+            var a = test.test;
+
+            var b = aaaa.TestInitite;
+
+            var c = b.SomeIntegers;
+            var cc = b.SomeStrings;
+            var ccc = b.subTest;
         }
     }
 }
