@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Castle.Components.DictionaryAdapter;
 using Castle.Core.Internal;
 using DemgelRedis.Common;
 using DemgelRedis.Extensions;
@@ -331,7 +329,7 @@ namespace DemgelRedis.BackingManager
             return value;
         }
 
-        public List<RedisValue> RestoreList(IDatabase redisDatabase, RedisKeyObject listKey, RedisKeyObject key)
+        public List<RedisValue> RestoreList(IDatabase redisDatabase, RedisKeyObject listKey)
         {
             // Don't bother if a key already exists (Redis first)
             if (redisDatabase.KeyExists(listKey.RedisKey)) return new List<RedisValue>();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Castle.DynamicProxy;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
@@ -12,6 +13,12 @@ namespace DemgelRedis.ObjectManager.Handlers
         protected RedisHandler(RedisObjectManager demgelRedis)
         {
             RedisObjectManager = demgelRedis;
+        }
+
+        protected virtual object GetTarget(object obj)
+        {
+            var accessor = obj as IProxyTargetAccessor;
+            return accessor?.DynProxyGetTarget();
         }
 
         public abstract bool CanHandle(object obj);

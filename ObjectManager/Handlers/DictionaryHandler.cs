@@ -10,7 +10,7 @@ using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
 {
-    public class ListHandler : RedisHandler
+    public class DictionaryHandler : RedisHandler
     {
         /// <summary>
         /// Need to pass in the Proxy object of the list/enumerable
@@ -20,7 +20,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         public override bool CanHandle(object obj)
         {
             var targetObject = GetTarget(obj);
-            return targetObject is IList;
+            return targetObject is IDictionary;
         }
 
         public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
@@ -121,7 +121,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return true;
         }
 
-        public ListHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
+        public DictionaryHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
         {
         }
     }

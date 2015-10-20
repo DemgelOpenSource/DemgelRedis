@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
@@ -178,81 +177,6 @@ namespace DemgelRedis.ObjectManager
                 return result;
             }
 
-            // If another type was not found, try to set all values normally.
-            //var redisKey = new RedisKeyObject(objType, id);
-
-            //var ret = redisDatabase.HashGetAll(redisKey.RedisKey);
-            //if (ret.Length == 0)
-            //{
-            //    // Probably need to try to restore this item
-            //    if (_redisBackup != null)
-            //    {
-            //        ret = _redisBackup.RestoreHash(redisDatabase, redisKey);
-            //    }
-            //}
-
-            //if (ret.Length == 0)
-            //{
-            //    result.Result = DemgelResult.NotFound;
-            //}
-
-            //// Attempt to set all given properties
-            //result.Object = ConvertToObject(obj, ret);
-
-            //// Do we continue here if it is a base system class?
-            //if (!(result.Object is IRedisObject)) return result;
-
-            //var props = result.Object.GetType().GetProperties();
-
-            //foreach (var prop in props)
-            //{
-            //    if(prop.HasAttribute<RedisIdKey>())
-            //    {
-            //        if (!prop.PropertyType.IsAssignableFrom(typeof (string))
-            //            && !prop.PropertyType.IsAssignableFrom(typeof(Guid)))
-            //        {
-            //            throw new InvalidOperationException("RedisIdKey can only be of type String or Guid");
-            //        }
-
-            //        if (prop.PropertyType.IsAssignableFrom(typeof (string)))
-            //        {
-            //            prop.SetValue(result.Object, id);
-            //        }
-            //        else
-            //        {
-            //            prop.SetValue(result.Object, Guid.Parse(id));
-            //        }
-            //    }
-            //    else
-            //    {
-            //        // If value is virtual assume it is lazy
-            //        if (prop.GetMethod.IsVirtual)
-            //        {
-            //            continue;
-            //        }
-
-            //        // If value is not set, then recursion
-            //        // Not sure if this check is really needed, we are getting all new values
-            //        var value = prop.GetValue(result.Object, null);
-            //        if (value != null) continue;
-
-            //        try
-            //        {
-            //            var newObj = Activator.CreateInstance(prop.PropertyType);
-            //            var subresult = await RetrieveObject(newObj, id, redisDatabase, prop);
-            //            if (subresult.IsValid)
-            //            {
-            //                prop.SetValue(result.Object, subresult.Object);
-            //            }
-            //        }
-            //        catch
-            //        {
-            //            // TODO add something to log this better
-            //            Debug.WriteLine($"Exception handing '{prop.Name}'");
-            //        }
-            //    }
-            //}
-
             return result;
         }
 
@@ -262,44 +186,14 @@ namespace DemgelRedis.ObjectManager
         /// <param name="obj">Object to be saved</param>
         /// <param name="id">Id of the object to be saved</param>
         /// <param name="redisDatabase">RedisDatabase to save too</param>
-        public void SaveObject(object obj, string id, IDatabase redisDatabase)
+        public bool SaveObject(object obj, string id, IDatabase redisDatabase)
         {
-            //var objType = obj.GetType();
-
-            // Handle all complex values, if a handler handles the property then it shouldn't be hashed
-            //foreach (var prop in obj.GetType().GetProperties())
-            //{
-            //    var currentObject = prop.GetValue(obj);
-            //    //var saved = false;
-            //    var handledBy =
-            //        _handlers.Where(x => x.CanHandle(currentObject))
-            //            .Where(handler => handler.Save(currentObject, currentObject.GetType(), redisDatabase, id, prop));
-
-            //    Debug.WriteLineIf(!handledBy.Any(), "Couldn't handle " + prop.Name);
-            //    //{
-            //        //saved = true;
-            //        //break;
-            //    //}
-            //    //if (!saved && currentObject is IRedisObject)
-            //    //{
-            //    //    SaveObject(currentObject, id, redisDatabase);
-            //    //}
-            //}
-
             var handlers =
                     _handlers.Where(x => x.CanHandle(obj));
 
-            var handled = handlers.Where(handler => handler.Save(obj, obj.GetType(), redisDatabase, id, null)).ToArray();
+            var handled = handlers.Where(handler => handler.Save(obj, obj.GetType(), redisDatabase, id)).ToArray();
 
-            // If no other handler could handle this obj, parse it normally and save it.
-            //var redisKey = ParseRedisKey(objType.GetCustomAttributes(), id);
-            //var redisKey = new RedisKeyObject(objType, id);
-
-            //var hashList = ConvertToRedisHash(obj).ToArray();
-
-            //_redisBackup?.UpdateHash(hashList, redisKey);
-            //_redisBackup?.RestoreHash(redisDatabase, redisKey);
-            //redisDatabase.HashSet(redisKey.RedisKey, hashList);
+            return handled.Any();
         }
         // DeleteObjectFromRedis (and backing)
     }   
