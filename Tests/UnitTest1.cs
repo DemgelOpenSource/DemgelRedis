@@ -4,6 +4,7 @@ using System.Linq;
 using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
+using Microsoft.Data.Edm.Library;
 using Microsoft.WindowsAzure.Storage;
 using NUnit.Framework;
 using StackExchange.Redis;
@@ -15,6 +16,7 @@ namespace DemgelRedis.Tests
     {
         private readonly RedisObjectManager _redis =
             new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
+        private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
         public void TestConvertToRedisHash()
@@ -67,9 +69,9 @@ namespace DemgelRedis.Tests
         public void TestRedisListTests()
         {
             // TODO fix this test to actually be a test
-            var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
+            //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", _connection.GetDatabase());
 
             test3.SomeStrings.Add("test9");
             test3.SomeStrings.Add("test1");
@@ -98,6 +100,23 @@ namespace DemgelRedis.Tests
 
             Assert.IsTrue(key2.RedisKey.Equals("TestConvertClassSubSuffix:123:SomeStrings"));
             Assert.IsTrue(key.RedisKey.Equals("TestConvertClassSubSuffix:123"));
+        }
+
+        [Test]
+        public void TestDictionarySupport()
+        {
+            var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
+
+            if (!testDictObject.TestDictionary.ContainsKey("hello"))
+            {
+                testDictObject.TestDictionary.Add("hello", "dick");
+            }
+            else
+            {
+                testDictObject.TestDictionary["hello"] = "Not A Dick";
+            }
+
+            testDictObject.TestDictionary.Remove("hello");
         }
     }
 }

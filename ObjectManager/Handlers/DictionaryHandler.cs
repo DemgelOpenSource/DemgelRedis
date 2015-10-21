@@ -27,6 +27,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         {
             var listKey = new RedisKeyObject(basePropertyInfo, id);
             var targetType = GetTarget(obj).GetType();
+            Type keyType = null;
             Type itemType = null;
 
             if (targetType.GetInterfaces().Any(interfaceType => interfaceType.IsGenericType &&
@@ -34,14 +35,16 @@ namespace DemgelRedis.ObjectManager.Handlers
             {
                 if (targetType.GetGenericArguments().Any())
                 {
-                    itemType = targetType.GetGenericArguments()[0];
+                    keyType = targetType.GetGenericArguments()[0];
+                    itemType = targetType.GetGenericArguments()[1];
                 }
             }
 
-            var method = objType.GetMethod("Add");
+            var method = objType.GetMethod("Add", new []{keyType, itemType});
 
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
+                // TODO this all needs to be changed to handle IRedisObjects in a Dictionary, shouldn't be to hard
                 RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey);
                 var retlist = redisDatabase.ListRange(listKey.RedisKey);
                 foreach (var ret in retlist)
@@ -78,11 +81,11 @@ namespace DemgelRedis.ObjectManager.Handlers
                 throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
             }
 
-            RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey);
-            var retList = redisDatabase.ListRange(listKey.RedisKey);
+            RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, listKey);
+            var retList = redisDatabase.HashGetAll(listKey.RedisKey);
             foreach (var ret in retList)
             {
-                method.Invoke(obj, new[] {(object)ret});
+                method.Invoke(obj, new[] {(string)ret.Name, (object)ret.Value});
             }
             return obj;
         }

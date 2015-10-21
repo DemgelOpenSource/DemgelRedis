@@ -19,6 +19,9 @@ namespace DemgelRedis.ObjectManager.Proxy
             if (methodInfo.Name.StartsWith("Add", StringComparison.Ordinal))
                 return true;
 
+            if (methodInfo.Name.StartsWith("Remove", StringComparison.Ordinal))
+                return true;
+
             return methodInfo.IsSpecialName &&
                    (methodInfo.Name.StartsWith("get_", StringComparison.Ordinal) ||
                     methodInfo.Name.StartsWith("set_", StringComparison.Ordinal));

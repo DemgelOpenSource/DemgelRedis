@@ -45,6 +45,12 @@ namespace DemgelRedis.Tests
         public string Id { get; set; }
         public virtual string test { get; set; }
         public virtual TestConvertClassSubSuffix TestInitite { get; set; }
+    }
 
+    public class TestDictionaryClass : IRedisObject
+    {
+        [RedisIdKey]
+        public string Id { get; set; }
+        public virtual IDictionary<string, RedisValue> TestDictionary { get; set; } = new Dictionary<string, RedisValue>();
     }
 }

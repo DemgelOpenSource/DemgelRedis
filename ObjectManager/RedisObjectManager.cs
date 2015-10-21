@@ -33,6 +33,7 @@ namespace DemgelRedis.ObjectManager
             _handlers = new List<IRedisHandler>
             {
                 new ListHandler(this),
+                new DictionaryHandler(this),
                 new RedisObjectHandler(this, RedisBackup)
             };
 
@@ -96,7 +97,7 @@ namespace DemgelRedis.ObjectManager
         {
             var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null, isTransient);            
             var result = (RetrieveObject(proxy, id, redisDatabase)).Object as T;
-            var changeTrackerInterceptor = (ChangeTrackerInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is ChangeTrackerInterceptor);
+            var changeTrackerInterceptor = (AddSetInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is AddSetInterceptor);
             if (changeTrackerInterceptor != null)
                 changeTrackerInterceptor.Processed = true;
             return result;
@@ -115,7 +116,8 @@ namespace DemgelRedis.ObjectManager
                             Selector = _generalInterceptorSelector
                         },
                         new GeneralInterceptor(id, redisDatabase, this),
-                        new ChangeTrackerInterceptor(redisDatabase, this, RedisBackup, id, isTransient));
+                        new AddSetInterceptor(redisDatabase, this, RedisBackup, id, isTransient),
+                        new RemoveInterceptor(id, redisDatabase, this));
                 }
                 else
                 {
@@ -125,7 +127,8 @@ namespace DemgelRedis.ObjectManager
                             Selector = _generalInterceptorSelector
                         },
                         new GeneralInterceptor(id, redisDatabase, this),
-                        new ChangeTrackerInterceptor(redisDatabase, this, RedisBackup, id, isTransient));
+                        new AddSetInterceptor(redisDatabase, this, RedisBackup, id, isTransient),
+                        new RemoveInterceptor(id, redisDatabase, this));
                 }
             else if (obj == null)
             {
@@ -135,7 +138,8 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, RedisBackup, id, isTransient));
+                    new AddSetInterceptor(redisDatabase, this, RedisBackup, id, isTransient),
+                    new RemoveInterceptor(id, redisDatabase, this));
             }
             else
             {
@@ -145,7 +149,8 @@ namespace DemgelRedis.ObjectManager
                         Selector = _generalInterceptorSelector
                     },
                     new GeneralInterceptor(id, redisDatabase, this),
-                    new ChangeTrackerInterceptor(redisDatabase, this, RedisBackup, id, isTransient));
+                    new AddSetInterceptor(redisDatabase, this, RedisBackup, id, isTransient),
+                    new RemoveInterceptor(id, redisDatabase, this));
             }
 
             return proxy;

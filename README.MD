@@ -9,6 +9,12 @@ This package is no where near ready for use... For Developers only (if intereste
 ### Backing Source
 DemgelRedis BackingSource will backup your Redis Cache to a Backing Datasource such as Azure Tables, Azure DocumentDB, SqlServer, MySql, and will retrieve/restore these objects to the Redis Cache as needed.
 
+These will be found in Different packages:
+
+* DemgelRedis.Backing.Table
+* DemgelRedis.Backing.SqlServer
+* DemgelRedis.Backing.DocumentDB
+
 ### Job Queue
 A Reliable Job Queue on Redis Cache, enabling Cloud/Scalable apps to process jobs and recieve messages without worring about auto scaling projects and load balancing.
 
@@ -26,9 +32,6 @@ DemgelRedis OM will handle some `Relational Operations`, such as matching lists 
 #### Example C# POCO Object
 
 ```c#
-
-[RedisSuffix(Key = "suffix")]
-[RedisPrefix(Key = "prefix")]
 public class ExampleClass : IRedisObject
 {
     public ExampleClass()
@@ -39,8 +42,9 @@ public class ExampleClass : IRedisObject
     [RedisIdKey]
     public string Id { get; set; }
 
-    [RedisPrefix(Key = "listprefix")]
     public virtual IList<RedisValue> SomeList { get; set; }
+
+    public virtual IDictionary<string, RedisValue> SomeDictionary { get; set; }
 
     public virtual DifferentRedisObject RedisObject { get; set; }
 }

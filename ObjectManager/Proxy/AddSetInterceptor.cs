@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
@@ -13,12 +12,15 @@ using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Proxy
 {
-    public class ChangeTrackerInterceptor : IInterceptor
+    public class AddSetInterceptor : IInterceptor
     {
         private readonly IDatabase _database;
         private readonly RedisObjectManager _redisObjectManager;
         private readonly IRedisBackup _redisBackup;
         private readonly string _id;
+
+        private readonly Type _stringType = typeof (string);
+        private readonly Type _guidType = typeof (Guid);
 
         private readonly Dictionary<string, object> _listeners; 
 
@@ -26,7 +28,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         private bool Transient { get; }
         protected internal object ParentProxy { private get; set; }
 
-        public ChangeTrackerInterceptor(
+        public AddSetInterceptor(
             IDatabase redisDatabase, 
             RedisObjectManager redisObjectManager,
             IRedisBackup redisBackup,
@@ -47,36 +49,30 @@ namespace DemgelRedis.ObjectManager.Proxy
             var cAttr =
                    ParentProxy?.GetType().BaseType?
                        .GetProperties()
-                       .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy) ??
+                       .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy)
+                   ??
                    invocation.Proxy;
 
-            if (invocation.Method.Name.StartsWith("Add", StringComparison.Ordinal))
+            var cPropertyInfo = cAttr as PropertyInfo;
+            if (cPropertyInfo != null)
             {
-                var cPropertyInfo = cAttr as PropertyInfo;
-
-                if (cPropertyInfo != null)
+                if (invocation.Method.Name.StartsWith("Add", StringComparison.Ordinal))
                 {
-                    if (cPropertyInfo.PropertyType.Name.StartsWith("IList"))
+                    if (cPropertyInfo.PropertyType.Name.StartsWith("IList", StringComparison.Ordinal))
                     {
                         DoAddListItem(invocation, cPropertyInfo);
                         invocation.Proceed();
                         return;
                     }
 
-                    // This code us currently irrelavent (WIP)
-                    if (cPropertyInfo.PropertyType.Name.StartsWith("IDictionary"))
+                    if (cPropertyInfo.PropertyType.Name.StartsWith("IDictionary", StringComparison.Ordinal))
                     {
-                        // Do Set Dictionary Item
+                        DoAddDictionaryItem(invocation, cPropertyInfo);
                         invocation.Proceed();
                         return;
                     }
                 }
-            }
-            else if (invocation.Method.Name.StartsWith("set_Item") && invocation.Arguments.Length == 2)
-            {
-                var cPropertyInfo = cAttr as PropertyInfo;
-
-                if (cPropertyInfo != null)
+                else if (invocation.Method.Name.StartsWith("set_Item") && invocation.Arguments.Length == 2)
                 {
                     if (cPropertyInfo.PropertyType.Name.StartsWith("IList"))
                     {
@@ -84,8 +80,6 @@ namespace DemgelRedis.ObjectManager.Proxy
                     }
                     else if (cPropertyInfo.PropertyType.Name.StartsWith("IDictionary"))
                     {
-                        // This code is irrelavent (WIP)
-                        // Do Set Dictionary Item
                         DoSetDictionaryItem(invocation, cPropertyInfo);
                     }
                     invocation.Proceed();
@@ -139,16 +133,66 @@ namespace DemgelRedis.ObjectManager.Proxy
             var prop = argumentType.GetProperties()
                 .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
-            if (prop != null && prop.PropertyType == typeof(string))
+            if (prop == null) { return newArgument; }
+
+            if (prop.PropertyType == _stringType)
             {
                 prop.SetValue(newArgument, key.Id);
             }
-            else if (prop != null && prop.PropertyType == typeof(Guid))
+            else if (prop.PropertyType == _guidType)
             {
                 prop.SetValue(newArgument, Guid.Parse(key.Id));
             }
 
             return newArgument;
+        }
+
+        private void DoAddDictionaryItem(IInvocation invocation, PropertyInfo prop)
+        {
+            var hashKey = new RedisKeyObject(prop, _id);
+
+            _redisBackup?.RestoreHash(_database, hashKey);
+
+            // For now limit to Strings as dictionary key, later will will implement any value that
+            // can be converted to String (as in, Guid, string, redisvalue of string type)
+            if (!(invocation.Arguments[0] is string))
+            {
+                throw new InvalidOperationException("Dictionary Key can only be of type String");
+            }
+
+            // Only IRedis Objects and RedisValue can be saved into dictionary (for now)
+            var redisObject = invocation.Arguments[1] as IRedisObject;
+            if (redisObject != null)
+            {
+                RedisKeyObject key;
+                if (!(invocation.Arguments[1] is IProxyTargetAccessor))
+                {
+                    var proxy = CreateProxy(redisObject, out key);
+                    invocation.Arguments[0] = proxy;
+                }
+                else
+                {
+                    key = new RedisKeyObject(redisObject.GetType(), string.Empty);
+                    GenerateId(key, invocation.Arguments[1]);
+                }
+
+                if (!Processed) return;
+                var hashEntry = new HashEntry((string)invocation.Arguments[0], key.RedisKey);
+                _redisBackup?.UpdateHashValue(hashEntry, hashKey);
+                _database.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
+                _redisObjectManager.SaveObject(invocation.Arguments[1], key.Id, _database);
+            }
+            else
+            {
+                if (!(invocation.Arguments[1] is RedisValue))
+                {
+                    throw new InvalidOperationException("Dictionary Value can only be IRedisObject or RedisValue");
+                }
+                var hashEntry = new HashEntry((string) invocation.Arguments[0], (RedisValue) invocation.Arguments[1]);
+
+                _redisBackup?.UpdateHashValue(hashEntry, hashKey);
+                _database.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
+            }
         }
 
         private void DoAddListItem(IInvocation invocation, PropertyInfo prop)
@@ -164,7 +208,6 @@ namespace DemgelRedis.ObjectManager.Proxy
                 RedisKeyObject key;
                 if (!(invocation.Arguments[0] is IProxyTargetAccessor))
                 {
-                    // Create the Proxy 
                     var proxy = CreateProxy(redisObject, out key);
                     invocation.Arguments[0] = proxy;
                 }
@@ -190,7 +233,36 @@ namespace DemgelRedis.ObjectManager.Proxy
 
         private void DoSetDictionaryItem(IInvocation invocation, PropertyInfo prop)
         {
-            var key = new RedisKeyObject(prop, _id);
+            var hashKey = new RedisKeyObject(prop, _id);
+
+            _redisBackup?.RestoreHash(_database, hashKey);
+
+            object key, value;
+
+            // Determine if this is a KeyValuePair or a 2 argument
+            if (invocation.Arguments.Length == 2)
+            {
+                key = invocation.Arguments[0];
+                value = invocation.Arguments[1];
+            }
+            else
+            {
+                // TODO work on setting with KeyValuePair
+                throw new NotImplementedException("KeyValuePair is not Implemented yet");
+            }
+
+            var valueRedis = value as IRedisObject;
+            if (valueRedis != null)
+            {
+                // TODO we are not handling RedisObjects yet
+                throw new NotImplementedException("Not handling RedisObjects yet");
+            }
+            else
+            {
+                var hashValue = new HashEntry((string) key, (RedisValue) value);
+                _redisBackup?.UpdateHashValue(hashValue, hashKey);
+                _database.HashSet(hashKey.RedisKey, hashValue.Name, hashValue.Value);
+            }
         }
 
         private void DoSetListItem(IInvocation invocation, PropertyInfo prop)
@@ -215,7 +287,6 @@ namespace DemgelRedis.ObjectManager.Proxy
                 RedisKeyObject key;
                 if (!(invocation.Arguments[1] is IProxyTargetAccessor))
                 {
-                    // Create the Proxy 
                     var proxy = CreateProxy(redisObject, out key);
                     invocation.Arguments[1] = proxy;
                 }
@@ -246,11 +317,15 @@ namespace DemgelRedis.ObjectManager.Proxy
             var redisIdAttr =
                 argument.GetType().GetProperties().SingleOrDefault(
                     x => x.GetCustomAttributes().Any(a => a is RedisIdKey));
-            var value = redisIdAttr?.GetValue(argument, null);
 
-            if (redisIdAttr != null && redisIdAttr.PropertyType == typeof(string))
+            if (redisIdAttr == null) return; // Throw error
+
+            var value = redisIdAttr.GetValue(argument, null);
+
+            if (redisIdAttr.PropertyType == _stringType)
             {
-                if (((string) value).IsNullOrEmpty())
+                var currentValue = (string) value;
+                if (string.IsNullOrEmpty(currentValue))
                 {
                     var newId = _database.StringIncrement($"demgelcounter:{key.CounterKey}");
                     key.Id = newId.ToString();
@@ -258,20 +333,21 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
                 else
                 {
-                    key.Id = (string) value;
+                    key.Id = currentValue;
                 }
             }
-            else if (redisIdAttr != null && redisIdAttr.PropertyType == typeof(Guid))
+            else if (redisIdAttr.PropertyType == _guidType)
             {
-                if ((Guid) value == new Guid())
+                var guid = (Guid) value;
+                if (guid == Guid.Empty)
                 {
-                    var guid = Guid.NewGuid();
+                    guid = Guid.NewGuid();
                     key.Id = guid.ToString();
                     redisIdAttr.SetValue(argument, guid);
                 }
                 else
                 {
-                    key.Id = ((Guid) value).ToString();
+                    key.Id = guid.ToString();
                 }
             }
             else

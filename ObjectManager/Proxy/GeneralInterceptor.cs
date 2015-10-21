@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,7 +28,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             _retrieved = new Dictionary<string, bool>();
         }
 
-        public async void Intercept(IInvocation invocation)
+        public void Intercept(IInvocation invocation)
         {
             if (!invocation.Method.Name.StartsWith("get_", StringComparison.Ordinal) ||
                 _processing)
@@ -92,12 +91,22 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 var changeTracker = ((IProxyTargetAccessor) value)
                     .GetInterceptors()
-                    .SingleOrDefault(x => x is ChangeTrackerInterceptor) as ChangeTrackerInterceptor;
+                    .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
 
                 if (changeTracker != null)
                 {
                     changeTracker.Processed = true;
                     changeTracker.ParentProxy = invocation.Proxy;
+                }
+
+                var removeInterceptor = ((IProxyTargetAccessor)value)
+                    .GetInterceptors()
+                    .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
+
+                if (removeInterceptor != null)
+                {
+                    removeInterceptor.Processed = true;
+                    removeInterceptor.ParentProxy = invocation.Proxy;
                 }
 
                 _retrieved.Add(invocation.Method.Name, true);

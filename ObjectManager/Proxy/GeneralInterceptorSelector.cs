@@ -9,13 +9,10 @@ namespace DemgelRedis.ObjectManager.Proxy
     {
         public IInterceptor[] SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors)
         {
-            if (IsSetter(method) || IsAdd(method)) return interceptors.Where(i => i is ChangeTrackerInterceptor).ToArray();
+            if (IsRemove(method)) return interceptors.Where(i => i is RemoveInterceptor).ToArray();
+            if (IsSetter(method) || IsAdd(method)) return interceptors.Where(i => i is AddSetInterceptor).ToArray();
             var generalInterceptor = interceptors.SingleOrDefault(i => i is GeneralInterceptor) as GeneralInterceptor;
-            if (generalInterceptor != null)
-            {
-                return new IInterceptor[] {generalInterceptor};
-            }
-            return null;
+            return generalInterceptor != null ? new IInterceptor[] {generalInterceptor} : null;
         }
 
         private bool IsSetter(MethodInfo methodInfo)
@@ -26,6 +23,11 @@ namespace DemgelRedis.ObjectManager.Proxy
         private bool IsAdd(MethodInfo methodInfo)
         {
             return methodInfo.Name.StartsWith("Add", StringComparison.Ordinal);
+        }
+
+        private bool IsRemove(MethodInfo methodInfo)
+        {
+            return methodInfo.Name.StartsWith("Remove", StringComparison.Ordinal);
         }
     }
 }
