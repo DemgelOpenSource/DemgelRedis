@@ -52,5 +52,7 @@ namespace DemgelRedis.Tests
         [RedisIdKey]
         public string Id { get; set; }
         public virtual IDictionary<string, RedisValue> TestDictionary { get; set; } = new Dictionary<string, RedisValue>();
+        [RedisDeleteCascade(Cascade = true)]
+        public virtual IDictionary<string, TestConvertClass> TestConvertClasses { get; set; } = new Dictionary<string, TestConvertClass>(); 
     }
 }

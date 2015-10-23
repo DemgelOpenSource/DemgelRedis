@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
+using DemgelRedis.Common;
 using DemgelRedis.Converters;
 using DemgelRedis.Interfaces;
+using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Handlers;
 using DemgelRedis.ObjectManager.Proxy;
 using StackExchange.Redis;
@@ -18,6 +20,9 @@ namespace DemgelRedis.ObjectManager
         private readonly IList<IRedisHandler> _handlers;
         private readonly GeneralInterceptorSelector _generalInterceptorSelector;
         protected internal readonly IRedisBackup RedisBackup;
+
+        private readonly Type _stringType = typeof(string);
+        private readonly Type _guidType = typeof(Guid);
 
         public RedisObjectManager()
         {
@@ -193,13 +198,64 @@ namespace DemgelRedis.ObjectManager
         /// <param name="redisDatabase">RedisDatabase to save too</param>
         public bool SaveObject(object obj, string id, IDatabase redisDatabase)
         {
-            var handlers =
-                    _handlers.Where(x => x.CanHandle(obj));
+            var handlers = _handlers.Where(x => x.CanHandle(obj));
 
             var handled = handlers.Where(handler => handler.Save(obj, obj.GetType(), redisDatabase, id)).ToArray();
 
             return handled.Any();
         }
-        // DeleteObjectFromRedis (and backing)
+
+        public bool DeleteObject(object obj, string id, IDatabase redisDatabase)
+        {
+            var handlers = _handlers.Where(x => x.CanHandle(obj));
+
+            var handled = handlers.Where(handler => handler.Delete(obj, obj.GetType(), redisDatabase, id)).ToArray();
+
+            return handled.Any();
+        }
+
+        protected internal void GenerateId(IDatabase database, RedisKeyObject key, object argument)
+        {
+            var redisIdAttr =
+                argument.GetType().GetProperties().SingleOrDefault(
+                    x => x.GetCustomAttributes().Any(a => a is RedisIdKey));
+
+            if (redisIdAttr == null) return; // Throw error
+
+            var value = redisIdAttr.GetValue(argument, null);
+
+            if (redisIdAttr.PropertyType == _stringType)
+            {
+                var currentValue = (string)value;
+                if (string.IsNullOrEmpty(currentValue))
+                {
+                    var newId = database.StringIncrement($"demgelcounter:{key.CounterKey}");
+                    key.Id = newId.ToString();
+                    redisIdAttr.SetValue(argument, key.Id);
+                }
+                else
+                {
+                    key.Id = currentValue;
+                }
+            }
+            else if (redisIdAttr.PropertyType == _guidType)
+            {
+                var guid = (Guid)value;
+                if (guid == Guid.Empty)
+                {
+                    guid = Guid.NewGuid();
+                    key.Id = guid.ToString();
+                    redisIdAttr.SetValue(argument, guid);
+                }
+                else
+                {
+                    key.Id = guid.ToString();
+                }
+            }
+            else
+            {
+                throw new ArgumentException("RedisIdKey needs to be either Guid or String");
+            }
+        }
     }   
 }

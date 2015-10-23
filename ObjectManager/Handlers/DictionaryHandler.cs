@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DemgelRedis.Common;
+using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
@@ -25,7 +27,9 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
-            var listKey = new RedisKeyObject(basePropertyInfo, id);
+            var hashKey = new RedisKeyObject(basePropertyInfo, id);
+            RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
+
             var targetType = GetTarget(obj).GetType();
             Type keyType = null;
             Type itemType = null;
@@ -45,10 +49,17 @@ namespace DemgelRedis.ObjectManager.Handlers
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
                 // TODO this all needs to be changed to handle IRedisObjects in a Dictionary, shouldn't be to hard
-                RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey);
-                var retlist = redisDatabase.ListRange(listKey.RedisKey);
+                
+                var retlist = redisDatabase.HashGetAll(hashKey.RedisKey);
                 foreach (var ret in retlist)
                 {
+                    // We need to check to make sure the object exists (Overhead... it happens)
+                    if (!redisDatabase.KeyExists((string) ret.Value))
+                    {
+                        redisDatabase.HashDelete(hashKey.RedisKey, ret.Name);
+                        continue;
+                    }
+
                     var newObj = Activator.CreateInstance(itemType);
                     var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj, false);
                     var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
@@ -56,8 +67,8 @@ namespace DemgelRedis.ObjectManager.Handlers
                     if (redisKeyProp != null)
                     {
                         // Parse the key...
-                        var keyindex1 = ((string) ret).IndexOf(":", StringComparison.Ordinal);
-                        var stringPart1 = ((string) ret).Substring(keyindex1 + 1);
+                        var keyindex1 = ((string)ret.Value).IndexOf(":", StringComparison.Ordinal);
+                        var stringPart1 = ((string)ret.Value).Substring(keyindex1 + 1);
                         var keyindex2 = stringPart1.IndexOf(":", StringComparison.Ordinal);
                         var key = keyindex2 > 0 ? stringPart1.Substring(keyindex2) : stringPart1;
 
@@ -67,10 +78,11 @@ namespace DemgelRedis.ObjectManager.Handlers
                         }
                         else
                         {
-                            redisKeyProp.SetValue(newProxy, Guid.Parse(key));
+                            redisKeyProp.SetValue(newProxy,
+                                Guid.Parse(key));
                         }
                     }
-                    method.Invoke(obj, new[] { newProxy });
+                    method.Invoke(obj, new[] { (string) ret.Name, newProxy });
                 }
                 return obj;
             }
@@ -81,8 +93,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                 throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
             }
 
-            RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, listKey);
-            var retList = redisDatabase.HashGetAll(listKey.RedisKey);
+            var retList = redisDatabase.HashGetAll(hashKey.RedisKey);
             foreach (var ret in retList)
             {
                 method.Invoke(obj, new[] {(string)ret.Name, (object)ret.Value});
@@ -92,8 +103,9 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
+            Debug.WriteLine("Save was called on this object...");
             //var listKey = DemgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
-            var listKey = new RedisKeyObject(basePropertyInfo, id);
+            //var listKey = new RedisKeyObject(basePropertyInfo, id);
 
             // Only handles lists if they are not currently set, lists need to be handled
             // on a per item basis otherwise
@@ -113,13 +125,22 @@ namespace DemgelRedis.ObjectManager.Handlers
             //    throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
             //}
 
-            var trans = redisDatabase.CreateTransaction();
-            foreach (var o in ((IEnumerable<RedisValue>) obj).ToArray())
-            {
-                trans.ListRemoveAsync(listKey.RedisKey, o);
-                trans.ListLeftPushAsync(listKey.RedisKey, o);
-            }
-            trans.Execute();
+            //var trans = redisDatabase.CreateTransaction();
+            //foreach (var o in ((IEnumerable<RedisValue>) obj).ToArray())
+            //{
+            //    trans.ListRemoveAsync(listKey.RedisKey, o);
+            //    trans.ListLeftPushAsync(listKey.RedisKey, o);
+            //}
+            //trans.Execute();
+
+            return true;
+        }
+
+        public override bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
+        {
+            var hashKey = new RedisKeyObject(basePropertyInfo, id);
+
+            redisDatabase.KeyDelete(hashKey.RedisKey);
 
             return true;
         }

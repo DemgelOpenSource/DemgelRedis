@@ -129,5 +129,14 @@ namespace DemgelRedis.ObjectManager.Handlers
 
             return true;
         }
+
+        public override bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
+        {
+            var hashKey = new RedisKeyObject(objType, id);
+
+            redisDatabase.KeyDelete(hashKey.RedisKey);
+
+            return true;
+        }
     }
 }

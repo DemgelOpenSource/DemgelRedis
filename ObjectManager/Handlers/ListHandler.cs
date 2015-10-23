@@ -46,6 +46,14 @@ namespace DemgelRedis.ObjectManager.Handlers
                 var retlist = redisDatabase.ListRange(listKey.RedisKey);
                 foreach (var ret in retlist)
                 {
+                    // Detect if the base object exists in Redis
+                    if (!redisDatabase.KeyExists((string) ret))
+                    {
+                        RedisObjectManager.RedisBackup?.RemoveListItem(redisDatabase, listKey, ret);
+                        redisDatabase.ListRemove(listKey.RedisKey, ret, 1);
+                        continue;
+                    }
+
                     var newObj = Activator.CreateInstance(itemType);
                     var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj, false);
                     var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
@@ -117,6 +125,15 @@ namespace DemgelRedis.ObjectManager.Handlers
                 trans.ListLeftPushAsync(listKey.RedisKey, o);
             }
             trans.Execute();
+
+            return true;
+        }
+
+        public override bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
+        {
+            var listKey = new RedisKeyObject(basePropertyInfo, id);
+
+            redisDatabase.KeyDelete(listKey.RedisKey);
 
             return true;
         }

@@ -87,8 +87,8 @@
     <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />
     <Compile Include="Extensions\RedisValueExtensions.cs" />
+    <Compile Include="ObjectManager\Attributes\RedisDeleteCascade.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />
-    <Compile Include="ObjectManager\Attributes\RedisNoAutoSave.cs" />
     <Compile Include="ObjectManager\Attributes\RedisPrefix.cs" />
     <Compile Include="ObjectManager\Attributes\RedisSuffix.cs" />
     <Compile Include="Converters\GuidConverter.cs" />

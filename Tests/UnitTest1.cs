@@ -73,13 +73,15 @@ namespace DemgelRedis.Tests
 
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", _connection.GetDatabase());
 
-            test3.SomeStrings.Add("test9");
-            test3.SomeStrings.Add("test1");
-            test3.SomeStrings.Add("test5");
+            //test3.SomeStrings.Add("test9");
+            //test3.SomeStrings.Add("test1");
+            //test3.SomeStrings.Add("test5");
 
-            test3.SomeStrings[0] = "something else";
+            //test3.SomeStrings[0] = "something else";
 
-            test3.test = "Hello Redis... lets see if you saved";
+            //test3.test = "Hello Redis... lets see if you saved";
+
+            var t = test3.SomeIntegers;
 
             test3.SomeIntegers.Add(new TestConvertClass());
             //var hello = test3.SomeIntegers[0];
@@ -107,16 +109,28 @@ namespace DemgelRedis.Tests
         {
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
 
-            if (!testDictObject.TestDictionary.ContainsKey("hello"))
+            //if (!testDictObject.TestDictionary.ContainsKey("hello"))
+            //{
+            //    //testDictObject.TestDictionary.Add("hello", "dick");
+            //    testDictObject.TestDictionary.Add(new KeyValuePair<string, RedisValue>("hello", "dick"));
+            //}
+            //else
+            //{
+            //    testDictObject.TestDictionary["hello"] = "Not A Dick";
+            //}
+
+            //testDictObject.TestDictionary.Remove("hello");
+
+            if (!testDictObject.TestConvertClasses.ContainsKey("hello"))
             {
-                testDictObject.TestDictionary.Add("hello", "dick");
+                testDictObject.TestConvertClasses.Add("hello", new TestConvertClass() {TestValue = "test"});
             }
             else
             {
-                testDictObject.TestDictionary["hello"] = "Not A Dick";
+                testDictObject.TestConvertClasses["hello"] = new TestConvertClass() {TestValue = "test2"};
             }
 
-            testDictObject.TestDictionary.Remove("hello");
+            testDictObject.TestConvertClasses.Remove("hello");
         }
     }
 }
