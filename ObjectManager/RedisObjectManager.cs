@@ -85,6 +85,14 @@ namespace DemgelRedis.ObjectManager
             return testObj;
         }
 
+        public T RetrieveObjectProxy<T>(IDatabase redisDatabase)
+            where T : class, IRedisObject, new()
+        {
+            var key = new RedisKeyObject(typeof(T), string.Empty);
+            GenerateId(redisDatabase, key, new T());
+            return RetrieveObjectProxy<T>(key.Id, redisDatabase);
+        }
+
         /// <summary>
         /// Retrieves an object from redis cache by id
         /// 
