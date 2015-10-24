@@ -87,10 +87,12 @@ namespace DemgelRedis.ObjectManager.Proxy
                     _redisObjectManager.DeleteObject(original, objectKey.Id, _database);
                 }
 
+                _redisObjectManager.RedisBackup?.RemoveListItem(listKey, objectKey.RedisKey);
                 _database.ListRemove(listKey.RedisKey, objectKey.RedisKey, 1);
             }
             else
             {
+                _redisObjectManager.RedisBackup?.RemoveListItem(listKey, (RedisValue)original);
                 _database.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
             }
         }
@@ -116,12 +118,14 @@ namespace DemgelRedis.ObjectManager.Proxy
                 if (!(deleteCascade != null && !deleteCascade.Cascade))
                 {
                     var objectKey = new RedisKeyObject(original.GetType(), string.Empty);
+                    _redisObjectManager.RedisBackup?.DeleteHash(objectKey);
                     _redisObjectManager.GenerateId(_database, objectKey, original);
                     _redisObjectManager.DeleteObject(original, objectKey.Id, _database);
                 } 
             }
-            
+
             // Delete the keys
+            _redisObjectManager.RedisBackup?.DeleteHashValue((string) invocation.Arguments[0], hashKey);
             _database.HashDelete(hashKey.RedisKey, (string) invocation.Arguments[0]);
         }
     }

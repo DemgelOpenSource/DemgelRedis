@@ -49,7 +49,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                     // Detect if the base object exists in Redis
                     if (!redisDatabase.KeyExists((string) ret))
                     {
-                        RedisObjectManager.RedisBackup?.RemoveListItem(redisDatabase, listKey, ret);
+                        RedisObjectManager.RedisBackup?.RemoveListItem(listKey, ret);
                         redisDatabase.ListRemove(listKey.RedisKey, ret, 1);
                         continue;
                     }

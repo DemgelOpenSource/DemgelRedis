@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using DemgelRedis.Common;
 using StackExchange.Redis;
 
@@ -22,10 +21,10 @@ namespace DemgelRedis.Interfaces
         string RestoreString(IDatabase redisDatabase, RedisKeyObject key, string table = "string");
 
         List<RedisValue> RestoreList(IDatabase redisDatabase, RedisKeyObject listKey);
-        void DeleteList(IDatabase redisDatabase, RedisKeyObject key);
-        void AddListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue value);
-        void RemoveListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue value);
-        void UpdateListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue oldValue, RedisValue newValue);
+        void DeleteList(RedisKeyObject key);
+        void AddListItem(RedisKeyObject key, RedisValue value);
+        void RemoveListItem(RedisKeyObject key, RedisValue value);
+        void UpdateListItem(RedisKeyObject key, RedisValue oldValue, RedisValue newValue);
 
         void UpdateSet();
         void DeleteSet(string setKey);

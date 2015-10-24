@@ -234,7 +234,7 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
 
                 if (!Processed) return;
-                _redisBackup?.AddListItem(_database, listKey, key.RedisKey);
+                _redisBackup?.AddListItem(listKey, key.RedisKey);
 
                 _database.ListRightPush(listKey.RedisKey, key.RedisKey);
                 _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
@@ -242,7 +242,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             else
             {
                 // TODO to better checks for casting to RedisValue
-                _redisBackup?.AddListItem(_database, listKey, (RedisValue) invocation.Arguments[0]);
+                _redisBackup?.AddListItem(listKey, (RedisValue) invocation.Arguments[0]);
                 _database.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[0]);
             }
         }
@@ -346,7 +346,7 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 if (!Processed) return;
                 // TODO we will need to try to remove the old object
-                _redisBackup?.UpdateListItem(_database, listKey, originalKey.RedisKey, key.RedisKey);
+                _redisBackup?.UpdateListItem(listKey, originalKey.RedisKey, key.RedisKey);
 
                 _database.ListRemove(listKey.RedisKey, originalKey.RedisKey, 1);
                 _database.ListRightPush(listKey.RedisKey, key.RedisKey);
@@ -354,7 +354,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
             else
             {
-                _redisBackup?.UpdateListItem(_database, listKey, (RedisValue) original,
+                _redisBackup?.UpdateListItem(listKey, (RedisValue) original,
                     (RedisValue) invocation.Arguments[1]);
                 _database.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
                 _database.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[1]);

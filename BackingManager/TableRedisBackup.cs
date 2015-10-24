@@ -373,7 +373,7 @@ namespace DemgelRedis.BackingManager
             return listList;
         }
 
-        public void DeleteList(IDatabase redisDatabase, RedisKeyObject key)
+        public void DeleteList(RedisKeyObject key)
         {
             var cloudTable = GetCloudTable(key.Prefix);
 
@@ -407,10 +407,9 @@ namespace DemgelRedis.BackingManager
         /// SHAhash = {c} rowkey (c is count, allowing for mulitple entries)
         /// value = value
         /// </summary>
-        /// <param name="redisDatabase"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public void AddListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue value)
+        public void AddListItem(RedisKeyObject key, RedisValue value)
         {
             var hash = GetSHAHash(value);
 
@@ -450,7 +449,7 @@ namespace DemgelRedis.BackingManager
             table.Execute(operation);
         }
 
-        public void RemoveListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue value)
+        public void RemoveListItem(RedisKeyObject key, RedisValue value)
         {
             var hash = GetSHAHash(value);
 
@@ -467,7 +466,7 @@ namespace DemgelRedis.BackingManager
             table.Execute(operation);
         }
 
-        public void UpdateListItem(IDatabase redisDatabase, RedisKeyObject key, RedisValue oldValue, RedisValue newValue)
+        public void UpdateListItem(RedisKeyObject key, RedisValue oldValue, RedisValue newValue)
         {
             var hash = GetSHAHash(oldValue);
 
@@ -476,9 +475,9 @@ namespace DemgelRedis.BackingManager
             var operation = TableOperation.Retrieve<DynamicTableEntity>(GetPartitionKey(key), hash);
             var result = table.Execute(operation);
 
-            if (result.Result != null) RemoveListItem(redisDatabase, key, oldValue);
+            if (result.Result != null) RemoveListItem(key, oldValue);
 
-            AddListItem(redisDatabase, key, newValue);
+            AddListItem(key, newValue);
         }
 
         public void UpdateSet()
