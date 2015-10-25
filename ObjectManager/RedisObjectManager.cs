@@ -237,7 +237,9 @@ namespace DemgelRedis.ObjectManager
                 var currentValue = (string)value;
                 if (string.IsNullOrEmpty(currentValue))
                 {
+                    RedisBackup.RestoreCounter(database, key);
                     var newId = database.StringIncrement($"demgelcounter:{key.CounterKey}");
+                    RedisBackup.UpdateCounter(database, key);
                     key.Id = newId.ToString();
                     redisIdAttr.SetValue(argument, key.Id);
                 }

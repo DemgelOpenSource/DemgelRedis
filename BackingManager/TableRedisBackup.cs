@@ -329,6 +329,40 @@ namespace DemgelRedis.BackingManager
             return value;
         }
 
+        public void RestoreCounter(IDatabase redisDatabase, RedisKeyObject key, string table = "demgelcounter")
+        {
+            var value = redisDatabase.StringGet($"{table}:{key.CounterKey}");
+            
+            if (!value.IsNullOrEmpty) return;
+
+            var cloudTable = GetCloudTable(table);
+            var operation = TableOperation.Retrieve<DynamicTableEntity>(key.Prefix, key.CounterKey);
+            var result = cloudTable.Execute(operation);
+            var dynamicResult = result.Result as DynamicTableEntity;
+            EntityProperty resultProperty;
+
+            value = dynamicResult != null && dynamicResult.Properties.TryGetValue("value", out resultProperty)
+                ? resultProperty.StringValue
+                : null;
+
+            if (string.IsNullOrEmpty(value)) return;
+            // Assume redis database is most upto date?
+            redisDatabase.StringSet($"{table}:{key.CounterKey}", value, null, When.NotExists);
+        }
+
+        public void UpdateCounter(IDatabase redisDatabase, RedisKeyObject key, string table = "demgelcounter")
+        {
+            var value = redisDatabase.StringGet($"{table}:{key.CounterKey}");
+            if (value.IsNullOrEmpty) return;
+            var cloudTable = GetCloudTable(table);
+
+            var entity = new DynamicTableEntity(key.Prefix, key.CounterKey);
+            entity.Properties.Add("value", new EntityProperty((string)value));
+            var operation = TableOperation.InsertOrReplace(entity);
+
+            cloudTable.Execute(operation);
+        }
+
         public List<RedisValue> RestoreList(IDatabase redisDatabase, RedisKeyObject listKey)
         {
             // Don't bother if a key already exists (Redis first)

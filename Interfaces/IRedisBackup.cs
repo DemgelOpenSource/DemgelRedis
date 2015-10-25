@@ -20,6 +20,9 @@ namespace DemgelRedis.Interfaces
         RedisValue GetString(RedisKeyObject key, string table = "string");
         string RestoreString(IDatabase redisDatabase, RedisKeyObject key, string table = "string");
 
+        void RestoreCounter(IDatabase redisDatabase, RedisKeyObject key, string table = "demgelcounter");
+        void UpdateCounter(IDatabase redisDatabase, RedisKeyObject key, string table = "demgelcounter");
+
         List<RedisValue> RestoreList(IDatabase redisDatabase, RedisKeyObject listKey);
         void DeleteList(RedisKeyObject key);
         void AddListItem(RedisKeyObject key, RedisValue value);
