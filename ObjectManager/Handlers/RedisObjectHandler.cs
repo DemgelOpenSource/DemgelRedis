@@ -12,13 +12,13 @@ namespace DemgelRedis.ObjectManager.Handlers
 {
     public class RedisObjectHandler : RedisHandler
     {
-        private readonly IRedisBackup _redisBackup;
+        //private readonly IRedisBackup _redisBackup;
         private readonly bool _transient = true;
 
         public RedisObjectHandler(RedisObjectManager manager, IRedisBackup redisBackup)
             : base(manager)
         {
-            _redisBackup = redisBackup;
+            //_redisBackup = redisBackup;
         }
 
         public override bool CanHandle(object obj)
@@ -30,15 +30,8 @@ namespace DemgelRedis.ObjectManager.Handlers
         {
             var redisKey = new RedisKeyObject(objType, id);
 
+            RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, redisKey);
             var ret = redisDatabase.HashGetAll(redisKey.RedisKey);
-            if (ret.Length == 0)
-            {
-                // Probably need to try to restore this item
-                if (_redisBackup != null)
-                {
-                    ret = _redisBackup.RestoreHash(redisDatabase, redisKey);
-                }
-            }
 
             // Attempt to set all given properties
             obj = RedisObjectManager.ConvertToObject(obj, ret);
@@ -123,8 +116,8 @@ namespace DemgelRedis.ObjectManager.Handlers
 
             var hashList = RedisObjectManager.ConvertToRedisHash(obj).ToArray();
 
-            _redisBackup?.UpdateHash(hashList, redisKey);
-            _redisBackup?.RestoreHash(redisDatabase, redisKey);
+            RedisObjectManager.RedisBackup?.UpdateHash(hashList, redisKey);
+            RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, redisKey);
             redisDatabase.HashSet(redisKey.RedisKey, hashList);
 
             return true;

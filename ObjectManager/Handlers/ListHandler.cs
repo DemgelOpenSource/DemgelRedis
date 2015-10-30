@@ -46,6 +46,8 @@ namespace DemgelRedis.ObjectManager.Handlers
                 var retlist = redisDatabase.ListRange(listKey.RedisKey);
                 foreach (var ret in retlist)
                 {
+                    var hashKey = new RedisKeyObject(itemType, ParseKey(ret));
+                    RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
                     // Detect if the base object exists in Redis
                     if (!redisDatabase.KeyExists((string) ret))
                     {
@@ -61,12 +63,9 @@ namespace DemgelRedis.ObjectManager.Handlers
                     if (redisKeyProp != null)
                     {
                         // Parse the key...
-                        var keyindex1 = ((string) ret).IndexOf(":", StringComparison.Ordinal);
-                        var stringPart1 = ((string) ret).Substring(keyindex1 + 1);
-                        var keyindex2 = stringPart1.IndexOf(":", StringComparison.Ordinal);
-                        var key = keyindex2 > 0 ? stringPart1.Substring(keyindex2) : stringPart1;
+                        var key = ParseKey(ret);
 
-                        if (redisKeyProp.PropertyType == typeof (string))
+                        if (redisKeyProp.PropertyType == typeof(string))
                         {
                             redisKeyProp.SetValue(newProxy, key);
                         }
@@ -93,6 +92,15 @@ namespace DemgelRedis.ObjectManager.Handlers
                 method.Invoke(obj, new[] {(object)ret});
             }
             return obj;
+        }
+
+        private static string ParseKey(RedisValue ret)
+        {
+            var keyindex1 = ((string)ret).IndexOf(":", StringComparison.Ordinal);
+            var stringPart1 = ((string)ret).Substring(keyindex1 + 1);
+            var keyindex2 = stringPart1.IndexOf(":", StringComparison.Ordinal);
+            var key = keyindex2 > 0 ? stringPart1.Substring(keyindex2) : stringPart1;
+            return key;
         }
 
         public override bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)

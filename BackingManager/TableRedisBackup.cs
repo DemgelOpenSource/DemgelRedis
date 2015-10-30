@@ -124,7 +124,7 @@ namespace DemgelRedis.BackingManager
                 operation.InsertOrReplace(entity);
             }
 
-            cloudTable.ExecuteBatchAsync(operation);
+            cloudTable.ExecuteBatch(operation);
         }
 
         /// <summary>
@@ -220,7 +220,14 @@ namespace DemgelRedis.BackingManager
                     EntityProperty value;
                     if (row.Properties.TryGetValue("value", out value))
                     {
-                        result.Add(new HashEntry(row.RowKey, value.StringValue));
+                        try
+                        {
+                            result.Add(new HashEntry(row.RowKey, value.StringValue));
+                        }
+                        catch
+                        {
+                            result.Add(new HashEntry(row.RowKey, value.BinaryValue));
+                        }
                     }
                 }
 
