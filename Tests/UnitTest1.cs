@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
@@ -81,14 +82,17 @@ namespace DemgelRedis.Tests
 
             //test3.test = "Hello Redis... lets see if you saved";
 
-            var t = test3.SomeIntegers;
+            foreach (var t in test3.SomeIntegers)
+            {
+                Debug.WriteLine(t.TestValue);
+            }
 
             test3.SomeIntegers.Add(new TestConvertClass());
             //var hello = test3.SomeIntegers[0];
             var testClass = new TestConvertClass {TestValue = "Blah Blah Blah"};
             test3.SomeIntegers.Add(testClass);
 
-            test3.test = "This should be changed to this new value...";
+            //test3.test = "This should be changed to this new value...";
         }
 
         [Test]

@@ -20,7 +20,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         private readonly Type _stringType = typeof (string);
         private readonly Type _guidType = typeof (Guid);
 
-        protected internal bool Processed { private get; set; }
+        protected internal bool Processed { get; set; }
         private bool Transient { get; }
         protected internal object ParentProxy { private get; set; }
 

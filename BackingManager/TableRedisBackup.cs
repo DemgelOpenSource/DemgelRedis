@@ -211,7 +211,7 @@ namespace DemgelRedis.BackingManager
 
             var result = new List<HashEntry>();
 
-            var dynamicTableEntities = cloudTable.ExecuteQuerySegmentedAsync(query, null).Result;
+            var dynamicTableEntities = cloudTable.ExecuteQuerySegmented(query, null);
 
             do
             {
@@ -225,7 +225,7 @@ namespace DemgelRedis.BackingManager
                 }
 
                 dynamicTableEntities =
-                    cloudTable.ExecuteQuerySegmentedAsync(query, dynamicTableEntities.ContinuationToken).Result;
+                    cloudTable.ExecuteQuerySegmented(query, dynamicTableEntities.ContinuationToken);
             } while (dynamicTableEntities.ContinuationToken != null);
 
 
