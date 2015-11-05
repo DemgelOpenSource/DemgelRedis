@@ -70,18 +70,22 @@ namespace DemgelRedis.ObjectManager.Handlers
                         if (!prop.PropertyType.IsClass && !prop.PropertyType.IsInterface) continue;
                         try
                         {
-                            var baseObject = prop.GetValue(obj, null);
+                            object baseObject = prop.GetValue(obj, null);
+                            if (baseObject == null)
+                            {
+                                baseObject = Activator.CreateInstance(prop.PropertyType);
+                            }
                             var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, id, redisDatabase, baseObject, _transient);
+                            //var subresult = RedisObjectManager.RetrieveObject(pr, id, redisDatabase, prop).Object;
                             obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            Debug.WriteLine("Error here");
+                            Debug.WriteLine("Error here - really?", e);
                         }
                         continue;
                     }
 
-                    // If value is not set, then recursion
                     // Not sure if this check is really needed, we are getting all new values
                     var value = prop.GetValue(obj, null);
                     if (value != null) continue;

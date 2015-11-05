@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
@@ -18,7 +19,7 @@ namespace DemgelRedis.Converters
             return guid?.ToByteArray() ?? Guid.Empty.ToByteArray();
         }
 
-        public object OnRead(RedisValue value)
+        public object OnRead(RedisValue value, PropertyInfo info)
         {
             Guid guid;
             if (value.IsByteArray()) return new Guid((byte[])value);

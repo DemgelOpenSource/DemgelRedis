@@ -108,8 +108,35 @@ namespace DemgelRedis.ObjectManager.Proxy
                         _database.HashSet(key.RedisKey, ret.Name, ret.Value);
                     }
                 }
-            }
+            } else if (invocation.Arguments[0] is IRedisObject)
+            {
+                var redisObject = (IRedisObject) invocation.Arguments[0];
 
+                RedisKeyObject key;
+                if (!(invocation.Arguments[0] is IProxyTargetAccessor))
+                {
+                    var proxy = CreateProxy(redisObject, out key);
+                    invocation.Arguments[0] = proxy;
+                }
+                else
+                {
+                    key = new RedisKeyObject(redisObject.GetType(), string.Empty);
+                    _redisObjectManager.GenerateId(_database, key, invocation.Arguments[0]);
+                }
+
+                if (!Processed) return;
+                var objectKey = new RedisKeyObject(cAttr.GetType(), _id);
+                // FIX THIS...
+                var property =
+                        invocation.Method.ReflectedType?.GetProperties()
+                            .SingleOrDefault(x => x.SetMethod.Name == invocation.Method.Name);
+                _redisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
+
+                //_database.ListRightPush(listKey.RedisKey, key.RedisKey);
+                _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+
+
+            }
             invocation.Proceed();
         }
 

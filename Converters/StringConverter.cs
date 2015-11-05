@@ -1,4 +1,5 @@
-﻿using DemgelRedis.Interfaces;
+﻿using System.Reflection;
+using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
 namespace DemgelRedis.Converters
@@ -10,7 +11,7 @@ namespace DemgelRedis.Converters
             return (string)prop;
         }
 
-        public object OnRead(RedisValue obj)
+        public object OnRead(RedisValue obj, PropertyInfo info)
         {
             if (obj.IsNullOrEmpty) return "";
             return (string)obj;

@@ -60,7 +60,11 @@ namespace DemgelRedis.Tests
         {
             var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12345", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", connection.GetDatabase());
+
+            Debug.WriteLine("Something" + test3.subTest.test);
+
+            test3.subTest = new TestConvertClassSub() {Id = "someid", test = "something"};
 
             Assert.IsTrue(test3 != null);
         }
@@ -81,6 +85,8 @@ namespace DemgelRedis.Tests
             //test3.SomeStrings[0] = "something else";
 
             //test3.test = "Hello Redis... lets see if you saved";
+
+            var tt = test3.SomeIntegers;
 
             foreach (var t in test3.SomeIntegers)
             {

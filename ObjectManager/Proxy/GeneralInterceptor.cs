@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
+using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
 
@@ -98,16 +99,20 @@ namespace DemgelRedis.ObjectManager.Proxy
                                 redisId1 = _id;
                             }
 
-                            _demgelRedis.RetrieveObject(invocation.Proxy, redisId1, _database, cAttr);
-
                             var changeTracker1 = ((IProxyTargetAccessor) invocation.Proxy)
                                 .GetInterceptors()
                                 .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
 
                             if (changeTracker1 != null)
                             {
-                                changeTracker1.Processed = true;
                                 changeTracker1.ParentProxy = invocation.Proxy;
+                            }
+
+                            _demgelRedis.RetrieveObject(invocation.Proxy, redisId1, _database, cAttr);
+
+                            if (changeTracker1 != null)
+                            {
+                                changeTracker1.Processed = true;
                             }
 
                             var removeInterceptor1 = ((IProxyTargetAccessor) invocation.Proxy)
@@ -120,15 +125,15 @@ namespace DemgelRedis.ObjectManager.Proxy
                                 removeInterceptor1.ParentProxy = invocation.Proxy;
                             }
                         }
+                        invocation.Proceed();
+                        return;
                     }
-                    invocation.Proceed();
-                    return;
                 }
 
                 string redisId;
                 if (invocation.Arguments.Length > 0)
                 {
-                    var id = value.GetType().GetProperties()
+                    var id = value?.GetType().GetProperties()
                             .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
                     var redisvalue = id?.GetValue(value, null);
 
@@ -150,18 +155,32 @@ namespace DemgelRedis.ObjectManager.Proxy
                     redisId = _id;
                 }
 
-                var result = _demgelRedis.RetrieveObject(value, redisId,
-                    _database, cAttr);
+                cAttr?.SetValue(invocation.Proxy, value);
+                value = cAttr?.GetValue(invocation.Proxy, null);
+
+                if (value == null)
+                {
+                    throw new Exception("Object is not valid.");
+                }
 
                 var changeTracker = ((IProxyTargetAccessor) value)
                     .GetInterceptors()
                     .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
 
-                if (changeTracker != null)
-                {
-                    changeTracker.Processed = true;
-                    changeTracker.ParentProxy = invocation.Proxy;
-                }
+                if (changeTracker != null) changeTracker.ParentProxy = invocation.Proxy;
+
+                var result = _demgelRedis.RetrieveObject(value, redisId,
+                    _database, cAttr);
+
+                if (changeTracker != null) changeTracker.Processed = true;
+
+                //cAttr.SetValue(invocation.Proxy, result.Object);
+
+                //if (changeTracker != null)
+                //{
+                //    changeTracker.Processed = true;
+                //    changeTracker.ParentProxy = invocation.Proxy;
+                //}
 
                 var removeInterceptor = ((IProxyTargetAccessor)value)
                     .GetInterceptors()
@@ -174,12 +193,10 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
 
                 _retrieved.Add(invocation.Method.Name, true);
-
-                invocation.ReturnValue = result.Object;
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Debug.WriteLine("Error in GeneralInterceptor: " + e.Message + " --- " + e.StackTrace);
             }
             finally
             {
