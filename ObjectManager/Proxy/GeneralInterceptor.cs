@@ -67,96 +67,54 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }).SingleOrDefault() as PropertyInfo;
 
                 var value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
-                
-                // TODO see if duplicated code is require, if not remove.. or fix...
+
                 // Checks to see if the underlying proxy is processed, if not process it, if it
                 // is ready (id is set)
                 if (!(value is IProxyTargetAccessor))
                 {
-                    var t = ((IProxyTargetAccessor)invocation.Proxy)
-                    .GetInterceptors()
-                    .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
-
-                    if (t != null && !t.Processed)
+                    if (value is IRedisObject)
                     {
-                        var id = ((IProxyTargetAccessor)invocation.Proxy).DynProxyGetTarget().GetType().GetProperties()
-                            .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
-                        var redisvalue = id?.GetValue(invocation.Proxy, null);
-
-                        if (redisvalue != null)
-                        {
-                            string redisId1;
-                            if (id.PropertyType == typeof (string))
-                            {
-                                redisId1 = (string) redisvalue;
-                            }
-                            else if (id.PropertyType == typeof (Guid))
-                            {
-                                redisId1 = (redisvalue as Guid?)?.ToString();
-                            }
-                            else
-                            {
-                                redisId1 = _id;
-                            }
-
-                            var changeTracker1 = ((IProxyTargetAccessor) invocation.Proxy)
-                                .GetInterceptors()
-                                .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
-
-                            if (changeTracker1 != null)
-                            {
-                                changeTracker1.ParentProxy = invocation.Proxy;
-                            }
-
-                            _demgelRedis.RetrieveObject(invocation.Proxy, redisId1, _database, cAttr);
-
-                            if (changeTracker1 != null)
-                            {
-                                changeTracker1.Processed = true;
-                            }
-
-                            var removeInterceptor1 = ((IProxyTargetAccessor) invocation.Proxy)
-                                .GetInterceptors()
-                                .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
-
-                            if (removeInterceptor1 != null)
-                            {
-                                removeInterceptor1.Processed = true;
-                                removeInterceptor1.ParentProxy = invocation.Proxy;
-                            }
-                        }
-                        invocation.Proceed();
+                        //cAttr.SetValue(invocation.Proxy, value);
                         return;
+                    } 
+                    else
+                    {
+                        var t = ((IProxyTargetAccessor)invocation.Proxy)
+                        .GetInterceptors()
+                        .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
+
+                        if (t != null && t.Processed)
+                        {
+                            return;
+                        }
+                        value = invocation.Proxy;
                     }
                 }
 
                 string redisId;
-                if (invocation.Arguments.Length > 0)
-                {
-                    var id = value?.GetType().GetProperties()
-                            .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
-                    var redisvalue = id?.GetValue(value, null);
 
-                    if (id != null && id.PropertyType == typeof (string))
-                    {
-                        redisId = (string) redisvalue;
-                    }
-                    else if (id != null && id.PropertyType == typeof (Guid))
-                    {
-                        redisId = (redisvalue as Guid?)?.ToString();
-                    }
-                    else
-                    {
-                        redisId = _id;
-                    }
+                var id = value?.GetType().GetProperties()
+                        .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+                var redisvalue = id?.GetValue(value, null);
+
+                if (id != null && id.PropertyType == typeof (string))
+                {
+                    redisId = (string) redisvalue;
+                }
+                else if (id != null && id.PropertyType == typeof (Guid))
+                {
+                    redisId = (redisvalue as Guid?)?.ToString();
                 }
                 else
                 {
                     redisId = _id;
                 }
 
-                cAttr?.SetValue(invocation.Proxy, value);
-                value = cAttr?.GetValue(invocation.Proxy, null);
+                // TODO clean this
+                if (redisId == null)
+                {
+                    redisId = _id;
+                }
 
                 if (value == null)
                 {
@@ -169,18 +127,10 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 if (changeTracker != null) changeTracker.ParentProxy = invocation.Proxy;
 
-                var result = _demgelRedis.RetrieveObject(value, redisId,
+                _demgelRedis.RetrieveObject(value, redisId,
                     _database, cAttr);
 
                 if (changeTracker != null) changeTracker.Processed = true;
-
-                //cAttr.SetValue(invocation.Proxy, result.Object);
-
-                //if (changeTracker != null)
-                //{
-                //    changeTracker.Processed = true;
-                //    changeTracker.ParentProxy = invocation.Proxy;
-                //}
 
                 var removeInterceptor = ((IProxyTargetAccessor)value)
                     .GetInterceptors()

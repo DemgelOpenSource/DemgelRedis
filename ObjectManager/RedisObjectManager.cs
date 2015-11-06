@@ -32,15 +32,14 @@ namespace DemgelRedis.ObjectManager
                 {typeof(string), new StringConverter() },
                 {typeof(int), new Int32Converter() },
                 {typeof(float), new FloatConverter() },
-                {typeof(double), new DoubleConverter() },
-                {typeof(IRedisObject), new RedisObjectConverter() }
+                {typeof(double), new DoubleConverter() }
             };
 
             _handlers = new List<IRedisHandler>
             {
                 new ListHandler(this),
                 new DictionaryHandler(this),
-                new RedisObjectHandler(this, RedisBackup)
+                new RedisObjectHandler(this)
             };
 
             _generalInterceptorSelector = new GeneralInterceptorSelector();
@@ -56,7 +55,6 @@ namespace DemgelRedis.ObjectManager
         {
             foreach (var prop in o.GetType().GetProperties())
             {
-                //if (prop.HasAttribute<RedisIdKey>()) continue;
                 var type = prop.PropertyType;
                 ITypeConverter converter;
                 if (!TypeConverters.TryGetValue(type, out converter)) continue;
@@ -71,6 +69,7 @@ namespace DemgelRedis.ObjectManager
             var testObj = obj;
             var hashDict = hashEntries.ToDictionary();
 
+            // TODO reverse this
             foreach (var prop in obj.GetType().GetProperties())
             {
                 RedisValue hashPair;
@@ -78,20 +77,11 @@ namespace DemgelRedis.ObjectManager
 
                 var type = prop.PropertyType;
                 ITypeConverter converter;
-                if (!TypeConverters.TryGetValue(type, out converter))
+                if (TypeConverters.TryGetValue(type, out converter))
                 {
-                    //if (!type.GetInterfaces().Contains(typeof (IRedisObject)))
-                    //{
-                    //    continue;
-                    //}
-                    //TypeConverters.TryGetValue(typeof (IRedisObject), out converter);
-                    //var redisObj = converter.OnRead(hashPair, prop);
-                    //var test = RetrieveObjectProxy(prop.PropertyType, (string)redisObj, redisDatabase, null, false);
-                    //prop.SetValue(testObj, test);
-                    continue;
+                    var value = converter.OnRead(hashPair, prop);
+                    prop.SetValue(testObj, value);
                 }
-                var value = converter.OnRead(hashPair, prop);
-                prop.SetValue(testObj, value);
             }
 
             return testObj;

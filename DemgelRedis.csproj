@@ -86,7 +86,6 @@
     <Compile Include="Converters\FloatConverter.cs" />
     <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />
-    <Compile Include="Converters\RedisObjectConverter.cs" />
     <Compile Include="Extensions\RedisValueExtensions.cs" />
     <Compile Include="ObjectManager\Attributes\RedisDeleteCascade.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />

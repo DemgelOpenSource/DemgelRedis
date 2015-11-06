@@ -120,21 +120,29 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
                 else
                 {
+                    // TODO this is an issue... ID needs to be set
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
                     _redisObjectManager.GenerateId(_database, key, invocation.Arguments[0]);
                 }
 
-                if (!Processed) return;
+                if (!Processed)
+                {
+                    invocation.Proceed();
+                    return;
+                }
                 var objectKey = new RedisKeyObject(cAttr.GetType(), _id);
                 // FIX THIS...
                 var property =
                         invocation.Method.ReflectedType?.GetProperties()
-                            .SingleOrDefault(x => x.SetMethod.Name == invocation.Method.Name);
-                _redisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
+                            .SingleOrDefault(x => x.SetMethod != null && x.SetMethod.Name == invocation.Method.Name);
 
-                //_database.ListRightPush(listKey.RedisKey, key.RedisKey);
-                _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+                if (property != null)
+                {
+                    _redisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
 
+                    _database.HashSet(objectKey.RedisKey, property.Name, key.RedisKey);
+                    _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+                }
 
             }
             invocation.Proceed();
