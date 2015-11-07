@@ -64,7 +64,7 @@ namespace DemgelRedis.Tests
 
             Debug.WriteLine("Something " + test3.subTest.Id + " - " + test3.subTest.test);
 
-            test3.subTest = new TestConvertClassSub() {Id = "someid2", test = "something45"};
+            test3.subTest = new TestConvertClassSub() {Id = "someid3", test = "something46"};
             test3.subTest.TestInitite = new TestConvertClassSubSuffix {Id = "Testing", test = "Test"};
 
             Assert.IsTrue(test3 != null);
@@ -77,7 +77,7 @@ namespace DemgelRedis.Tests
             // TODO fix this test to actually be a test
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("12347", _connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
 
             //test3.SomeStrings.Add("test9");
             //test3.SomeStrings.Add("test1");
@@ -87,17 +87,19 @@ namespace DemgelRedis.Tests
 
             //test3.test = "Hello Redis... lets see if you saved";
 
-            var tt = test3.SomeIntegers;
+            var tt = test3.Subscriptions;
 
-            foreach (var t in test3.SomeIntegers)
+            foreach (var t in test3.Subscriptions)
             {
-                Debug.WriteLine(t.TestValue);
+                Debug.WriteLine(t.Name);
             }
 
-            test3.SomeIntegers.Add(new TestConvertClass());
-            //var hello = test3.SomeIntegers[0];
-            var testClass = new TestConvertClass {TestValue = "Blah Blah Blah"};
-            test3.SomeIntegers.Add(testClass);
+            //test3.SomeIntegers.Add(new TestConvertClass2());
+            ////var hello = test3.SomeIntegers[0];
+            //var testClass = new TestConvertClass2 {TestValue = "Blah Blah Blah"};
+            //test3.SomeIntegers.Add(testClass);
+
+            test3.Subscriptions.Add(new Subscription() { Name = "test Name"});
 
             //test3.test = "This should be changed to this new value...";
         }

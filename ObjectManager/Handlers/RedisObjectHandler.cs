@@ -8,6 +8,7 @@ using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Proxy;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
@@ -115,6 +116,11 @@ namespace DemgelRedis.ObjectManager.Handlers
                             if (!(baseObject is IProxyTargetAccessor))
                             {
                                 var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase, baseObject, _transient);
+                                //var changeme = ((IProxyTargetAccessor) pr).GetInterceptors()
+                                //    .SingleOrDefault(x => x.GetType() == typeof (AddSetInterceptor)) as AddSetInterceptor;
+
+                                //changeme.ParentProxy = obj;
+
                                 obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
                             }
                            

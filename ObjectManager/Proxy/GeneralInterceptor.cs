@@ -68,16 +68,12 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 var value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
 
+                // TODO we really need this?
                 // Checks to see if the underlying proxy is processed, if not process it, if it
                 // is ready (id is set)
                 if (!(value is IProxyTargetAccessor))
                 {
-                    if (value is IRedisObject)
-                    {
-                        //cAttr.SetValue(invocation.Proxy, value);
-                        return;
-                    } 
-                    else
+                    if (invocation.Proxy is IRedisObject)
                     {
                         var t = ((IProxyTargetAccessor)invocation.Proxy)
                         .GetInterceptors()
@@ -87,62 +83,15 @@ namespace DemgelRedis.ObjectManager.Proxy
                         {
                             return;
                         }
-                        value = invocation.Proxy;
+
+                        ProcessProxy(invocation, cAttr, invocation.Proxy);
                     }
-                }
-
-                string redisId;
-
-                var id = value?.GetType().GetProperties()
-                        .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
-                var redisvalue = id?.GetValue(value, null);
-
-                if (id != null && id.PropertyType == typeof (string))
+                } else
                 {
-                    redisId = (string) redisvalue;
+                    ProcessProxy(invocation, cAttr, value);
+
+                    _retrieved.Add(invocation.Method.Name, true);
                 }
-                else if (id != null && id.PropertyType == typeof (Guid))
-                {
-                    redisId = (redisvalue as Guid?)?.ToString();
-                }
-                else
-                {
-                    redisId = _id;
-                }
-
-                // TODO clean this
-                if (redisId == null)
-                {
-                    redisId = _id;
-                }
-
-                if (value == null)
-                {
-                    throw new Exception("Object is not valid.");
-                }
-
-                var changeTracker = ((IProxyTargetAccessor) value)
-                    .GetInterceptors()
-                    .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
-
-                if (changeTracker != null) changeTracker.ParentProxy = invocation.Proxy;
-
-                _demgelRedis.RetrieveObject(value, redisId,
-                    _database, cAttr);
-
-                if (changeTracker != null) changeTracker.Processed = true;
-
-                var removeInterceptor = ((IProxyTargetAccessor)value)
-                    .GetInterceptors()
-                    .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
-
-                if (removeInterceptor != null)
-                {
-                    removeInterceptor.Processed = true;
-                    removeInterceptor.ParentProxy = invocation.Proxy;
-                }
-
-                _retrieved.Add(invocation.Method.Name, true);
             }
             catch (Exception e)
             {
@@ -152,6 +101,61 @@ namespace DemgelRedis.ObjectManager.Proxy
             {
                 _processing = false;
                 invocation.Proceed();
+            }
+        }
+
+        private void ProcessProxy(IInvocation invocation, PropertyInfo cAttr, object value)
+        {
+            string redisId;
+
+            var id = value?.GetType().GetProperties()
+                .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+            var redisvalue = id?.GetValue(value, null);
+
+            if (id != null && id.PropertyType == typeof (string))
+            {
+                redisId = (string) redisvalue;
+            }
+            else if (id != null && id.PropertyType == typeof (Guid))
+            {
+                redisId = (redisvalue as Guid?)?.ToString();
+            }
+            else
+            {
+                redisId = _id;
+            }
+
+            // TODO clean this
+            if (redisId == null)
+            {
+                redisId = _id;
+            }
+
+            if (value == null)
+            {
+                throw new Exception("Object is not valid.");
+            }
+
+            var changeTracker = ((IProxyTargetAccessor) value)
+                .GetInterceptors()
+                .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
+
+            if (changeTracker != null) changeTracker.ParentProxy = invocation.Proxy;
+
+                _demgelRedis.RetrieveObject(value, redisId,
+                    _database, cAttr);
+
+
+            if (changeTracker != null) changeTracker.Processed = true;
+
+            var removeInterceptor = ((IProxyTargetAccessor)value)
+                .GetInterceptors()
+                .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
+
+            if (removeInterceptor != null)
+            {
+                removeInterceptor.Processed = true;
+                removeInterceptor.ParentProxy = invocation.Proxy;
             }
         }
 

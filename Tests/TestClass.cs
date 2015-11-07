@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace DemgelRedis.Tests
@@ -24,6 +25,13 @@ namespace DemgelRedis.Tests
         public virtual string TestValue { get; set; }
     }
 
+    public class TestConvertClass2 : IRedisObject
+    {
+        [RedisIdKey]
+        public string Id { get; set; }
+        public virtual string TestValue { get; set; }
+    }
+
     //[RedisPrefix(Key = "testcase")]
     //[RedisSuffix(Key = "infosuffix")]
     public class TestConvertClassSubSuffix : IRedisObject
@@ -35,7 +43,7 @@ namespace DemgelRedis.Tests
         //[RedisSuffix(Key = "testlist")]
         public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
         //[RedisPrefix(Key = "guidtest")]
-        public virtual IList<TestConvertClass> SomeIntegers { get; set; } = new List<TestConvertClass>(); 
+        public virtual IList<TestConvertClass2> SomeIntegers { get; set; } = new List<TestConvertClass2>(); 
     }
 
     [RedisPrefix(Key = "TestConvertClassSubSuffix")]
@@ -67,5 +75,33 @@ namespace DemgelRedis.Tests
         public virtual IDictionary<string, RedisValue> TestDictionary { get; set; } = new Dictionary<string, RedisValue>();
         [RedisDeleteCascade(Cascade = true)]
         public virtual IDictionary<string, TestConvertClass> TestConvertClasses { get; set; } = new Dictionary<string, TestConvertClass>(); 
+    }
+
+
+    public class RedisUser : IRedisObject
+    {
+        [JsonProperty("id")]
+        [RedisIdKey]
+        public virtual string Id { get; set; }
+        [JsonProperty("displayname")]
+        public virtual string DisplayName { get; set; }
+        //[RedisDeleteCascade(Cascade = false)]
+        public virtual IList<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public class Subscription : IRedisObject
+    {
+        [JsonProperty("id")]
+        [RedisIdKey]
+        public virtual string Id { get; set; }
+        [JsonProperty("name")]
+        public virtual string Name { get; set; }
+        [JsonProperty("slug")]
+        public virtual string Slug { get; set; }
+        [JsonProperty("founder")]
+        [RedisDeleteCascade(Cascade = false)]
+        public virtual RedisUser Founder { get; set; }
+        public virtual IDictionary<string, RedisUser> Members { get; set; } = new Dictionary<string, RedisUser>();
     }
 }

@@ -111,11 +111,11 @@ namespace DemgelRedis.ObjectManager
             where T : class
         {
             var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null, isTransient);            
-            var result = (RetrieveObject(proxy, id, redisDatabase)).Object as T;
-            var changeTrackerInterceptor = (AddSetInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is AddSetInterceptor);
-            if (changeTrackerInterceptor != null)
-                changeTrackerInterceptor.Processed = true;
-            return result;
+            //var result = (RetrieveObject(proxy, id, redisDatabase)).Object as T;
+            //var changeTrackerInterceptor = (AddSetInterceptor) ((result as IProxyTargetAccessor)?.GetInterceptors())?.SingleOrDefault(x => x is AddSetInterceptor);
+            //if (changeTrackerInterceptor != null)
+            //    changeTrackerInterceptor.Processed = true;
+            return proxy as T;
         }
 
         protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, bool isTransient)

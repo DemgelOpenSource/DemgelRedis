@@ -161,6 +161,7 @@ namespace DemgelRedis.BackingManager
 
         public void UpdateHashValue(HashEntry entry, RedisKeyObject hashKey)
         {
+            Debug.WriteLine("Updating Hash...");
             var cloudTable = GetCloudTable(hashKey.Prefix);
 
             var partKey = GetPartitionKey(hashKey);
@@ -241,6 +242,8 @@ namespace DemgelRedis.BackingManager
 
         public HashEntry[] RestoreHash(IDatabase redisDatabase, RedisKeyObject hashKey)
         {
+            if (redisDatabase.KeyExists(hashKey.RedisKey)) return new HashEntry[0];
+            Debug.WriteLine("Restoring Hash..." + hashKey.RedisKey);
             var hashes = GetHash(hashKey);
             if (hashes.Length != 0)
             {

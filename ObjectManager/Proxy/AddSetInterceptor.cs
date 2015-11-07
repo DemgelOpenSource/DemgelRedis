@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
@@ -22,7 +23,17 @@ namespace DemgelRedis.ObjectManager.Proxy
 
         protected internal bool Processed { get; set; }
         private bool Transient { get; }
-        protected internal object ParentProxy { private get; set; }
+
+        private object _parentProxy;
+        protected internal object ParentProxy
+        {
+            private get { return _parentProxy; }
+            set
+            {
+                Debug.WriteLine("Setting parent");
+                _parentProxy = value;
+            }
+        }
 
         public AddSetInterceptor(
             IDatabase redisDatabase, 
