@@ -3,28 +3,28 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
-using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Proxy
 {
     public class GeneralInterceptor : IInterceptor
     {
         private readonly string _id;
-        private readonly IDatabase _database;
-        private readonly RedisObjectManager _demgelRedis;
+        public readonly CommonData CommonData;
 
         private readonly Dictionary<string, bool> _retrieved;
 
+        //public object ParentProxy { get; set; }
+
         private bool _processing;
 
-        public GeneralInterceptor(string id, IDatabase database, RedisObjectManager demgelRedis)
+        public GeneralInterceptor(string id, CommonData data)
         {
             _id = id;
-            _database = database;
-            _demgelRedis = demgelRedis;
+            CommonData = data;
 
             _retrieved = new Dictionary<string, bool>();
         }
@@ -77,9 +77,9 @@ namespace DemgelRedis.ObjectManager.Proxy
                     {
                         var t = ((IProxyTargetAccessor)invocation.Proxy)
                         .GetInterceptors()
-                        .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
+                        .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
 
-                        if (t != null && t.Processed)
+                        if (t.CommonData.Processed)
                         {
                             return;
                         }
@@ -109,7 +109,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             string redisId;
 
             var id = value?.GetType().GetProperties()
-                .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+                .SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
             var redisvalue = id?.GetValue(value, null);
 
             if (id != null && id.PropertyType == typeof (string))
@@ -136,27 +136,30 @@ namespace DemgelRedis.ObjectManager.Proxy
                 throw new Exception("Object is not valid.");
             }
 
-            var changeTracker = ((IProxyTargetAccessor) value)
+            var generalInterceptorOfValue = ((IProxyTargetAccessor)value)
                 .GetInterceptors()
-                .SingleOrDefault(x => x is AddSetInterceptor) as AddSetInterceptor;
+                .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
 
-            if (changeTracker != null) changeTracker.ParentProxy = invocation.Proxy;
+            //if (changeTracker != null)
+            // This is not right, need to set the parent proxy of the VALUE not the current process...
+            generalInterceptorOfValue.CommonData.ParentProxy = invocation.Proxy;
 
-                _demgelRedis.RetrieveObject(value, redisId,
-                    _database, cAttr);
+            generalInterceptorOfValue.CommonData.RedisObjectManager.RetrieveObject(value, redisId,
+                generalInterceptorOfValue.CommonData.RedisDatabase, cAttr);
 
 
-            if (changeTracker != null) changeTracker.Processed = true;
+            //if (changeTracker != null)
+            generalInterceptorOfValue.CommonData.Processed = true;
 
-            var removeInterceptor = ((IProxyTargetAccessor)value)
-                .GetInterceptors()
-                .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
+            //var removeInterceptor = ((IProxyTargetAccessor)value)
+            //    .GetInterceptors()
+            //    .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
 
-            if (removeInterceptor != null)
-            {
-                removeInterceptor.Processed = true;
-                removeInterceptor.ParentProxy = invocation.Proxy;
-            }
+            //if (removeInterceptor != null)
+            //{
+            //    removeInterceptor.Processed = true;
+            //    removeInterceptor.ParentProxy = invocation.Proxy;
+            //}
         }
 
         public bool HasRetrievedObject(MethodInfo methodInfo)

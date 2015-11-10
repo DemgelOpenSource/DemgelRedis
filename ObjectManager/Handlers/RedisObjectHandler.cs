@@ -8,16 +8,12 @@ using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
-using DemgelRedis.ObjectManager.Proxy;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
 {
     public class RedisObjectHandler : RedisHandler
     {
-        //private readonly IRedisBackup _redisBackup;
-        private readonly bool _transient = true;
-
         public RedisObjectHandler(RedisObjectManager manager)
             : base(manager)
         {
@@ -69,66 +65,49 @@ namespace DemgelRedis.ObjectManager.Handlers
                 else
                 {
                     // If value is virtual assume it is lazy
-                    if (prop.GetMethod.IsVirtual)
+                    if (!prop.GetMethod.IsVirtual) continue;
+                    // Create proxies here
+                    if (prop.PropertyType.IsSealed) continue;
+                    if (!prop.PropertyType.IsClass && !prop.PropertyType.IsInterface) continue;
+                    try
                     {
-                        // Create proxies here
-                        if (prop.PropertyType.IsSealed) continue;
-                        if (!prop.PropertyType.IsClass && !prop.PropertyType.IsInterface) continue;
-                        try
+                        var baseObject = prop.GetValue(obj, null) ?? Activator.CreateInstance(prop.PropertyType);
+                        // If the target is an IRedisObject we need to get the ID differently
+                        string objectKey;
+                        if (prop.PropertyType.GetInterfaces().Any(x => x == typeof (IRedisObject)))
                         {
-                            var baseObject = prop.GetValue(obj, null);
-                            if (baseObject == null)
+                            // Try to get the property value from ret
+                            RedisValue propKey;
+                            if (ret.ToDictionary().TryGetValue(prop.Name, out propKey))
                             {
-                                baseObject = Activator.CreateInstance(prop.PropertyType);
-                            }
-                            // If the target is an IRedisObject we need to get the ID differently
-                            string objectKey;
-                            if (prop.PropertyType.GetInterfaces().Any(x => x == typeof (IRedisObject)))
-                            {
-                                // Try to get the property value from ret
-                                RedisValue propKey;
-                                if (ret.ToDictionary().TryGetValue(prop.Name, out propKey))
-                                {
-                                    objectKey = propKey.ParseKey();
-                                }
-                                else
-                                {
-                                    // No key was found (this property has not value)
-                                    continue;
-                                }
+                                objectKey = propKey.ParseKey();
                             }
                             else
                             {
-                                objectKey = id;
+                                // No key was found (this property has no value)
+                                continue;
                             }
-                            // TODO create extension to handle setting RedisIdKey
-                            foreach (var p in baseObject.GetType().GetProperties())
-                            {
-                                foreach (var att in p.GetCustomAttributes())
-                                {
-                                    if (att is RedisIdKey)
-                                    {
-                                        p.SetValue(baseObject, objectKey);
-                                    }
-                                }
-                            }
-
-                            if (!(baseObject is IProxyTargetAccessor))
-                            {
-                                var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase, baseObject, _transient);
-                                //var changeme = ((IProxyTargetAccessor) pr).GetInterceptors()
-                                //    .SingleOrDefault(x => x.GetType() == typeof (AddSetInterceptor)) as AddSetInterceptor;
-
-                                //changeme.ParentProxy = obj;
-
-                                obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
-                            }
-                           
                         }
-                        catch (Exception e)
+                        else
                         {
-                            Debug.WriteLine("Error here - really?" + e);
+                            objectKey = id;
                         }
+
+                        foreach (var p in baseObject.GetType().GetProperties().Where(p => p.HasAttribute<RedisIdKey>()))
+                        {
+                            p.SetValue(baseObject, objectKey);
+                        }
+
+                        if (!(baseObject is IProxyTargetAccessor))
+                        {
+                            var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase, baseObject);
+                            obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
+                        }
+                           
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Error here - really?" + e);
                     }
                 }
             }
@@ -157,6 +136,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         {
             var hashKey = new RedisKeyObject(objType, id);
 
+            // TODO delete from Backup Too?
             redisDatabase.KeyDelete(hashKey.RedisKey);
 
             return true;

@@ -61,7 +61,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                     }
 
                     var newObj = Activator.CreateInstance(itemType);
-                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj, false);
+                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj);
                     var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
                     if (redisKeyProp != null)

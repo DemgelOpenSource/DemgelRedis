@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ namespace DemgelRedis.Tests
     public class TestConvertClass2 : IRedisObject
     {
         [RedisIdKey]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
         public virtual string TestValue { get; set; }
     }
 
@@ -37,7 +38,7 @@ namespace DemgelRedis.Tests
     public class TestConvertClassSubSuffix : IRedisObject
     {
         [RedisIdKey]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
         public virtual string test { get; set; }
         public virtual TestConvertClassSub subTest { get; set; }
         //[RedisSuffix(Key = "testlist")]
@@ -50,7 +51,7 @@ namespace DemgelRedis.Tests
     public class TestConvertClassSubSuffix2 : IRedisObject
     {
         [RedisIdKey]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
         //public virtual string test { get; set; }
         public virtual TestConvertClassSub subTest { get; set; }
         //[RedisSuffix(Key = "testlist")]

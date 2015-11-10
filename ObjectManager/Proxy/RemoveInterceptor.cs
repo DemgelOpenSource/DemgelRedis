@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Xml.Serialization;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
+using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
@@ -17,25 +14,23 @@ namespace DemgelRedis.ObjectManager.Proxy
     public class RemoveInterceptor : IInterceptor
     {
         private readonly string _id;
-        private readonly IDatabase _database;
-        private readonly RedisObjectManager _redisObjectManager;
+        private readonly CommonData _commonData;
 
-        protected internal bool Processed { private get; set; }
-        protected internal object ParentProxy { private get; set; }
+        //protected internal bool Processed { private get; set; }
+        //protected internal object ParentProxy { private get; set; }
 
-        public RemoveInterceptor(string id, IDatabase database, RedisObjectManager redisObjectManager)
+        public RemoveInterceptor(string id, CommonData data)
         {
             _id = id;
-            _database = database;
-            _redisObjectManager = redisObjectManager;
+            _commonData = data;
         }
 
         public void Intercept(IInvocation invocation)
         {
             var cAttr =
-                   ParentProxy?.GetType().BaseType?
+                   _commonData.ParentProxy?.GetType().BaseType?
                        .GetProperties()
-                       .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy)
+                       .SingleOrDefault(x => x.GetValue(_commonData.ParentProxy, null) == invocation.Proxy)
                    ??
                    invocation.Proxy;
 
@@ -80,20 +75,21 @@ namespace DemgelRedis.ObjectManager.Proxy
                 var deleteCascade = propertyInfo.GetCustomAttribute<RedisDeleteCascade>();
 
                 var objectKey = new RedisKeyObject(original.GetType(), string.Empty);
-                _redisObjectManager.GenerateId(_database, objectKey, original);
+                //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, objectKey, original);
+                _commonData.RedisDatabase.GenerateId(objectKey, original, _commonData.RedisObjectManager.RedisBackup);
 
                 if (!(deleteCascade != null && !deleteCascade.Cascade))
                 {    
-                    _redisObjectManager.DeleteObject(original, objectKey.Id, _database);
+                    _commonData.RedisObjectManager.DeleteObject(original, objectKey.Id, _commonData.RedisDatabase);
                 }
 
-                _redisObjectManager.RedisBackup?.RemoveListItem(listKey, objectKey.RedisKey);
-                _database.ListRemove(listKey.RedisKey, objectKey.RedisKey, 1);
+                _commonData.RedisObjectManager.RedisBackup?.RemoveListItem(listKey, objectKey.RedisKey);
+                _commonData.RedisDatabase.ListRemove(listKey.RedisKey, objectKey.RedisKey, 1);
             }
             else
             {
-                _redisObjectManager.RedisBackup?.RemoveListItem(listKey, (RedisValue)original);
-                _database.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
+                _commonData.RedisObjectManager.RedisBackup?.RemoveListItem(listKey, (RedisValue)original);
+                _commonData.RedisDatabase.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
             }
         }
 
@@ -118,15 +114,16 @@ namespace DemgelRedis.ObjectManager.Proxy
                 if (!(deleteCascade != null && !deleteCascade.Cascade))
                 {
                     var objectKey = new RedisKeyObject(original.GetType(), string.Empty);
-                    _redisObjectManager.RedisBackup?.DeleteHash(objectKey);
-                    _redisObjectManager.GenerateId(_database, objectKey, original);
-                    _redisObjectManager.DeleteObject(original, objectKey.Id, _database);
+                    _commonData.RedisObjectManager.RedisBackup?.DeleteHash(objectKey);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, objectKey, original);
+                    _commonData.RedisDatabase.GenerateId(objectKey, original, _commonData.RedisObjectManager.RedisBackup);
+                    _commonData.RedisObjectManager.DeleteObject(original, objectKey.Id, _commonData.RedisDatabase);
                 } 
             }
 
             // Delete the keys
-            _redisObjectManager.RedisBackup?.DeleteHashValue((string) invocation.Arguments[0], hashKey);
-            _database.HashDelete(hashKey.RedisKey, (string) invocation.Arguments[0]);
+            _commonData.RedisObjectManager.RedisBackup?.DeleteHashValue((string) invocation.Arguments[0], hashKey);
+            _commonData.RedisDatabase.HashDelete(hashKey.RedisKey, (string) invocation.Arguments[0]);
         }
     }
 }

@@ -3,8 +3,10 @@ using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
+using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
@@ -13,49 +15,39 @@ namespace DemgelRedis.ObjectManager.Proxy
 {
     public class AddSetInterceptor : IInterceptor
     {
-        private readonly IDatabase _database;
-        private readonly RedisObjectManager _redisObjectManager;
-        private readonly IRedisBackup _redisBackup;
         private readonly string _id;
+        private readonly CommonData _commonData;
 
         private readonly Type _stringType = typeof (string);
         private readonly Type _guidType = typeof (Guid);
 
-        protected internal bool Processed { get; set; }
-        private bool Transient { get; }
+        //protected internal bool Processed { get; set; }
 
-        private object _parentProxy;
-        protected internal object ParentProxy
-        {
-            private get { return _parentProxy; }
-            set
-            {
-                Debug.WriteLine("Setting parent");
-                _parentProxy = value;
-            }
-        }
+        //private object _parentProxy;
+        //protected internal object ParentProxy
+        //{
+        //    private get { return _parentProxy; }
+        //    set
+        //    {
+        //        Debug.WriteLine("Setting parent");
+        //        _parentProxy = value;
+        //    }
+        //}
 
         public AddSetInterceptor(
-            IDatabase redisDatabase, 
-            RedisObjectManager redisObjectManager,
-            IRedisBackup redisBackup,
             string id,
-            bool transient)
+            CommonData data)
         {
-            _database = redisDatabase;
-            _redisObjectManager = redisObjectManager;
-            _redisBackup = redisBackup;
             _id = id;
-
-            Transient = transient;
+            _commonData = data;
         }
 
         public void Intercept(IInvocation invocation)
         {
             var cAttr =
-                   ParentProxy?.GetType().BaseType?
+                   _commonData.ParentProxy?.GetType().BaseType?
                        .GetProperties()
-                       .SingleOrDefault(x => x.GetValue(ParentProxy, null) == invocation.Proxy)
+                       .SingleOrDefault(x => x.GetValue(_commonData.ParentProxy, null) == invocation.Proxy)
                    ??
                    invocation.Proxy;
 
@@ -96,7 +88,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             // We cannot process IRedisObjects here, if we are trying to set a Proxies object
             // With a new IRedisObject, we need to handle that differently
             if (!(invocation.Arguments[0] is IRedisObject)
-                && Processed)
+                && _commonData.Processed)
             {
                 if (cAttr.GetType().GetInterfaces().Contains(typeof(IRedisObject)))
                 {
@@ -109,14 +101,14 @@ namespace DemgelRedis.ObjectManager.Proxy
                             .SingleOrDefault(x => x.SetMethod.Name == invocation.Method.Name);
 
                     ITypeConverter converter;
-                    if (property != null && _redisObjectManager.TypeConverters.TryGetValue(property.PropertyType, out converter))
+                    if (property != null && _commonData.RedisObjectManager.TypeConverters.TryGetValue(property.PropertyType, out converter))
                     {
                         var ret = new HashEntry(property.Name, converter.ToWrite(invocation.Arguments[0]));
 
-                        _redisBackup?.RestoreHash(_database, key);
-                        _redisBackup?.UpdateHashValue(ret, key);
+                        _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, key);
+                        _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(ret, key);
                         
-                        _database.HashSet(key.RedisKey, ret.Name, ret.Value);
+                        _commonData.RedisDatabase.HashSet(key.RedisKey, ret.Name, ret.Value);
                     }
                 }
             } else if (invocation.Arguments[0] is IRedisObject)
@@ -127,16 +119,18 @@ namespace DemgelRedis.ObjectManager.Proxy
                 if (!(invocation.Arguments[0] is IProxyTargetAccessor))
                 {
                     var proxy = CreateProxy(redisObject, out key);
+                    
                     invocation.Arguments[0] = proxy;
                 }
                 else
                 {
                     // TODO this is an issue... ID needs to be set
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
-                    _redisObjectManager.GenerateId(_database, key, invocation.Arguments[0]);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, invocation.Arguments[0]);
+                    _commonData.RedisDatabase.GenerateId(key, invocation.Arguments[0], _commonData.RedisObjectManager.RedisBackup);
                 }
 
-                if (!Processed)
+                if (!_commonData.Processed)
                 {
                     invocation.Proceed();
                     return;
@@ -149,10 +143,10 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 if (property != null)
                 {
-                    _redisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
+                    _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
 
-                    _database.HashSet(objectKey.RedisKey, property.Name, key.RedisKey);
-                    _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+                    _commonData.RedisDatabase.HashSet(objectKey.RedisKey, property.Name, key.RedisKey);
+                    _commonData.RedisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _commonData.RedisDatabase);
                 }
 
             }
@@ -164,9 +158,10 @@ namespace DemgelRedis.ObjectManager.Proxy
             var argumentType = argument.GetType();
             key = new RedisKeyObject(argumentType, string.Empty);
 
-            _redisObjectManager.GenerateId(_database, key, argument);
+            //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, argument);
+            _commonData.RedisDatabase.GenerateId(key, argument, _commonData.RedisObjectManager.RedisBackup);
 
-            var newArgument = _redisObjectManager.RetrieveObjectProxy(argumentType, key.Id, _database, argument, Transient);
+            var newArgument = _commonData.RedisObjectManager.RetrieveObjectProxy(argumentType, key.Id, _commonData.RedisDatabase, argument);
 
             var prop = argumentType.GetProperties()
                 .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
@@ -189,7 +184,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         {
             var hashKey = new RedisKeyObject(prop, _id);
 
-            _redisBackup?.RestoreHash(_database, hashKey);
+            _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, hashKey);
 
             // For now limit to Strings as dictionary key, later will will implement any value that
             // can be converted to String (as in, Guid, string, redisvalue of string type)
@@ -235,14 +230,15 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
-                    _redisObjectManager.GenerateId(_database, key, dictValue);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, dictValue);
+                    _commonData.RedisDatabase.GenerateId(key, dictValue, _commonData.RedisObjectManager.RedisBackup);
                 }
 
-                if (!Processed) return;
+                if (!_commonData.Processed) return;
                 var hashEntry = new HashEntry((string)dictKey, key.RedisKey);
-                _redisBackup?.UpdateHashValue(hashEntry, hashKey);
-                _database.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
-                _redisObjectManager.SaveObject(dictValue, key.Id, _database);
+                _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
+                _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
+                _commonData.RedisObjectManager.SaveObject(dictValue, key.Id, _commonData.RedisDatabase);
             }
             else
             {
@@ -252,8 +248,8 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
                 var hashEntry = new HashEntry((string) dictKey, (RedisValue) dictValue);
 
-                _redisBackup?.UpdateHashValue(hashEntry, hashKey);
-                _database.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
+                _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
+                _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
             }
         }
 
@@ -262,7 +258,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             var listKey = new RedisKeyObject(prop, _id);
 
             // Make sure the list is Restored
-            _redisBackup?.RestoreList(_database, listKey);
+            _commonData.RedisObjectManager.RedisBackup?.RestoreList(_commonData.RedisDatabase, listKey);
 
             var redisObject = invocation.Arguments[0] as IRedisObject;
             if (redisObject != null)
@@ -276,20 +272,21 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
-                    _redisObjectManager.GenerateId(_database, key, invocation.Arguments[0]);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, invocation.Arguments[0]);
+                    _commonData.RedisDatabase.GenerateId(key, invocation.Arguments[0], _commonData.RedisObjectManager.RedisBackup);
                 }
 
-                if (!Processed) return;
-                _redisBackup?.AddListItem(listKey, key.RedisKey);
+                if (!_commonData.Processed) return;
+                _commonData.RedisObjectManager.RedisBackup?.AddListItem(listKey, key.RedisKey);
 
-                _database.ListRightPush(listKey.RedisKey, key.RedisKey);
-                _redisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _database);
+                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, key.RedisKey);
+                _commonData.RedisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _commonData.RedisDatabase);
             }
             else
             {
                 // TODO to better checks for casting to RedisValue
-                _redisBackup?.AddListItem(listKey, (RedisValue) invocation.Arguments[0]);
-                _database.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[0]);
+                _commonData.RedisObjectManager.RedisBackup?.AddListItem(listKey, (RedisValue) invocation.Arguments[0]);
+                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[0]);
             }
         }
 
@@ -297,7 +294,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         {
             var hashKey = new RedisKeyObject(prop, _id);
 
-            _redisBackup?.RestoreHash(_database, hashKey);
+            _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, hashKey);
 
             // We will need the Original value no matter what
             var accessor = (IProxyTargetAccessor)invocation.Proxy;
@@ -340,22 +337,23 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(valueRedis.GetType(), string.Empty);
-                    _redisObjectManager.GenerateId(_database, key, dictValue);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, dictValue);
+                    _commonData.RedisDatabase.GenerateId(key, dictValue, _commonData.RedisObjectManager.RedisBackup);
                 }
 
-                if (!Processed) return;
+                if (!_commonData.Processed) return;
                 // TODO we will need to try to remove the old RedisObject
                 var hashEntry = new HashEntry((string)dictKey, key.RedisKey);
-                _redisBackup?.UpdateHashValue(hashEntry, hashKey);
+                _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
 
-                _database.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
-                _redisObjectManager.SaveObject(dictValue, key.Id, _database);
+                _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
+                _commonData.RedisObjectManager.SaveObject(dictValue, key.Id, _commonData.RedisDatabase);
             }
             else
             {
                 var hashValue = new HashEntry((string) dictKey, (RedisValue) dictValue);
-                _redisBackup?.UpdateHashValue(hashValue, hashKey);
-                _database.HashSet(hashKey.RedisKey, hashValue.Name, hashValue.Value);
+                _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashValue, hashKey);
+                _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashValue.Name, hashValue.Value);
             }
         }
 
@@ -364,7 +362,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             var listKey = new RedisKeyObject(prop, _id);
 
             // Make sure the list is Restored
-            _redisBackup?.RestoreList(_database, listKey);
+            _commonData.RedisObjectManager.RedisBackup?.RestoreList(_commonData.RedisDatabase, listKey);
 
             // We will need the Original value no matter what
             var accessor = (IProxyTargetAccessor)invocation.Proxy;
@@ -376,7 +374,8 @@ namespace DemgelRedis.ObjectManager.Proxy
             if (redisObject != null)
             {
                 var originalKey = new RedisKeyObject(original.GetType(), string.Empty);
-                _redisObjectManager.GenerateId(_database, originalKey, original);
+                //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, originalKey, original);
+                _commonData.RedisDatabase.GenerateId(originalKey, original, _commonData.RedisObjectManager.RedisBackup);
 
                 RedisKeyObject key;
                 if (!(invocation.Arguments[1] is IProxyTargetAccessor))
@@ -387,23 +386,24 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
-                    _redisObjectManager.GenerateId(_database, key, invocation.Arguments[1]);
+                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, invocation.Arguments[1]);
+                    _commonData.RedisDatabase.GenerateId(key, invocation.Arguments[1], _commonData.RedisObjectManager.RedisBackup);
                 }
 
-                if (!Processed) return;
+                if (!_commonData.Processed) return;
                 // TODO we will need to try to remove the old object
-                _redisBackup?.UpdateListItem(listKey, originalKey.RedisKey, key.RedisKey);
+                _commonData.RedisObjectManager.RedisBackup?.UpdateListItem(listKey, originalKey.RedisKey, key.RedisKey);
 
-                _database.ListRemove(listKey.RedisKey, originalKey.RedisKey, 1);
-                _database.ListRightPush(listKey.RedisKey, key.RedisKey);
-                _redisObjectManager.SaveObject(invocation.Arguments[1], key.Id, _database);
+                _commonData.RedisDatabase.ListRemove(listKey.RedisKey, originalKey.RedisKey, 1);
+                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, key.RedisKey);
+                _commonData.RedisObjectManager.SaveObject(invocation.Arguments[1], key.Id, _commonData.RedisDatabase);
             }
             else
             {
-                _redisBackup?.UpdateListItem(listKey, (RedisValue) original,
+                _commonData.RedisObjectManager.RedisBackup?.UpdateListItem(listKey, (RedisValue) original,
                     (RedisValue) invocation.Arguments[1]);
-                _database.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
-                _database.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[1]);
+                _commonData.RedisDatabase.ListRemove(listKey.RedisKey, (RedisValue) original, 1);
+                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[1]);
             }
         }
     }
