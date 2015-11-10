@@ -84,19 +84,19 @@ namespace DemgelRedis.ObjectManager.Proxy
                             return;
                         }
 
-                        ProcessProxy(invocation, cAttr, invocation.Proxy);
+                        CommonData.ProcessProxy(invocation.Proxy, cAttr, invocation.Proxy);
 
                         value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
 
                         if (value is IProxyTargetAccessor)
                         {
-                            ProcessProxy(invocation, cAttr, value);
+                            CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
                             _retrieved.Add(invocation.Method.Name, true);
                         }
                     }
                 } else
                 {
-                    ProcessProxy(invocation, cAttr, value);
+                    CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
 
                     _retrieved.Add(invocation.Method.Name, true);
                 }
@@ -112,63 +112,49 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
         }
 
-        private void ProcessProxy(IInvocation invocation, PropertyInfo cAttr, object value)
-        {
-            string redisId;
+        //private void ProcessProxy(object parentProxy, PropertyInfo cAttr, object value)
+        //{
+        //    string redisId;
 
-            var id = value?.GetType().GetProperties()
-                .SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
-            var redisvalue = id?.GetValue(value, null);
+        //    var id = value?.GetType().GetProperties()
+        //        .SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
+        //    var redisvalue = id?.GetValue(value, null);
 
-            if (id != null && id.PropertyType == typeof (string))
-            {
-                redisId = (string) redisvalue;
-            }
-            else if (id != null && id.PropertyType == typeof (Guid))
-            {
-                redisId = (redisvalue as Guid?)?.ToString();
-            }
-            else
-            {
-                redisId = _id;
-            }
+        //    if (id != null && id.PropertyType == typeof (string))
+        //    {
+        //        redisId = (string) redisvalue;
+        //    }
+        //    else if (id != null && id.PropertyType == typeof (Guid))
+        //    {
+        //        redisId = (redisvalue as Guid?)?.ToString();
+        //    }
+        //    else
+        //    {
+        //        redisId = _id;
+        //    }
 
-            // TODO clean this
-            if (redisId == null)
-            {
-                redisId = _id;
-            }
+        //    // TODO clean this
+        //    if (redisId == null)
+        //    {
+        //        redisId = _id;
+        //    }
 
-            if (value == null)
-            {
-                throw new Exception("Object is not valid.");
-            }
+        //    if (value == null)
+        //    {
+        //        throw new Exception("Object is not valid.");
+        //    }
 
-            var generalInterceptorOfValue = ((IProxyTargetAccessor)value)
-                .GetInterceptors()
-                .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
+        //    var generalInterceptorOfValue = ((IProxyTargetAccessor)value)
+        //        .GetInterceptors()
+        //        .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
 
-            //if (changeTracker != null)
-            // This is not right, need to set the parent proxy of the VALUE not the current process...
-            generalInterceptorOfValue.CommonData.ParentProxy = invocation.Proxy;
+        //    generalInterceptorOfValue.CommonData.ParentProxy = parentProxy;
 
-            generalInterceptorOfValue.CommonData.RedisObjectManager.RetrieveObject(value, redisId,
-                generalInterceptorOfValue.CommonData.RedisDatabase, cAttr);
+        //    generalInterceptorOfValue.CommonData.RedisObjectManager.RetrieveObject(value, redisId,
+        //        generalInterceptorOfValue.CommonData.RedisDatabase, cAttr);
 
-
-            //if (changeTracker != null)
-            generalInterceptorOfValue.CommonData.Processed = true;
-
-            //var removeInterceptor = ((IProxyTargetAccessor)value)
-            //    .GetInterceptors()
-            //    .SingleOrDefault(x => x is RemoveInterceptor) as RemoveInterceptor;
-
-            //if (removeInterceptor != null)
-            //{
-            //    removeInterceptor.Processed = true;
-            //    removeInterceptor.ParentProxy = invocation.Proxy;
-            //}
-        }
+        //    generalInterceptorOfValue.CommonData.Processed = true;
+        //}
 
         public bool HasRetrievedObject(MethodInfo methodInfo)
         {

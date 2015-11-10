@@ -58,11 +58,11 @@ namespace DemgelRedis.Tests
         [Ignore]
         public void TestRedisRetrieveObject()
         {
-            var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
+            //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", connection.GetDatabase());
+            var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _connection.GetDatabase());
 
-            var t = test3.subTest;
+            //var t = test3.subTest;
 
             Debug.WriteLine("Something " + test3.subTest.Id + " - " + test3.subTest.test);
 
@@ -81,6 +81,7 @@ namespace DemgelRedis.Tests
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            test3.DisplayName = "test";
 
             //test3.SomeStrings.Add("test9");
             //test3.SomeStrings.Add("test1");
@@ -101,8 +102,12 @@ namespace DemgelRedis.Tests
             ////var hello = test3.SomeIntegers[0];
             //var testClass = new TestConvertClass2 {TestValue = "Blah Blah Blah"};
             //test3.SomeIntegers.Add(testClass);
-
-            //test3.Subscriptions.Add(new Subscription() { Name = "test Name"});
+            //var newsub = new Subscription() {Name = "test Name"};
+            var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
+            //newsub.Id = "105";
+            newsub.Name = "hello";
+            test3.Subscriptions.Add(newsub);
+            test3.SomeStrings.Add(" a string");
 
             //test3.test = "This should be changed to this new value...";
         }

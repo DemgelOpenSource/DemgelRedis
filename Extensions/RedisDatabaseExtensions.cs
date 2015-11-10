@@ -16,6 +16,14 @@ namespace DemgelRedis.Extensions
                 argument.GetType().GetProperties().SingleOrDefault(
                     x => x.HasAttribute<RedisIdKey>());
 
+            // This is a TEST will fix later
+            if (redisIdAttr == null)
+            {
+                redisIdAttr =
+                argument.GetType().BaseType?.GetProperties().SingleOrDefault(
+                    x => x.HasAttribute<RedisIdKey>());
+            }
+
             if (redisIdAttr == null) return; // Throw error
 
             var value = redisIdAttr.GetValue(argument, null);

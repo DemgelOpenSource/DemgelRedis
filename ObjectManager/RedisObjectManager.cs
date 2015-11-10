@@ -7,8 +7,10 @@ using DemgelRedis.Common;
 using DemgelRedis.Converters;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
+using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Handlers;
 using DemgelRedis.ObjectManager.Proxy;
+using DemgelRedis.Tests;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager
@@ -82,12 +84,19 @@ namespace DemgelRedis.ObjectManager
         }
 
         public T RetrieveObjectProxy<T>(IDatabase redisDatabase)
-            where T : class, IRedisObject, new()
+            where T : class, new()
         {
             var key = new RedisKeyObject(typeof(T), string.Empty);
-            redisDatabase.GenerateId(key, new T(), RedisBackup);
-            //GenerateId(redisDatabase, key, new T());
-            return RetrieveObjectProxy<T>(key.Id, redisDatabase);
+            var obj = new T();
+            redisDatabase.GenerateId(key, obj, RedisBackup);
+            var proxy = RetrieveObjectProxy(typeof(T), key.Id, redisDatabase, obj) as T;
+
+            //var t = ((IProxyTargetAccessor)proxy)
+            //            .GetInterceptors()
+            //            .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
+            //t.CommonData.ProcessProxy(null, null, proxy);
+
+            return proxy;
         }
 
         /// <summary>
@@ -113,46 +122,72 @@ namespace DemgelRedis.ObjectManager
             var commonData = new CommonData
             {
                 RedisDatabase = redisDatabase,
-                RedisObjectManager = this
+                RedisObjectManager = this,
+                Id = id
             };
 
             var general = new GeneralInterceptor(id, commonData);
             var addset = new AddSetInterceptor(id, commonData);
             var remove = new RemoveInterceptor(id, commonData);
 
+            object proxy;
             if (!type.IsInterface)
             {
                 if (obj != null)
                 {
-                    return _generator.CreateClassProxyWithTarget(type, obj,
+                    proxy = _generator.CreateClassProxyWithTarget(type, obj,
                         new ProxyGenerationOptions(new GeneralProxyGenerationHook())
                         {
                             Selector = _generalInterceptorSelector
                         },
                         general, addset, remove);
                 }
-                return _generator.CreateClassProxy(type,
-                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                    {
-                        Selector = _generalInterceptorSelector
-                    },
-                    general, addset, remove);
-            }
-            if (obj == null)
-            {
-                return _generator.CreateInterfaceProxyWithoutTarget(type,
-                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                    {
-                        Selector = _generalInterceptorSelector
-                    },
-                    general, addset, remove);
-            }
-            return _generator.CreateInterfaceProxyWithTarget(type, obj,
-                new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                else
                 {
-                    Selector = _generalInterceptorSelector
-                },
-                general, addset, remove);
+                    proxy = _generator.CreateClassProxy(type,
+                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                        {
+                            Selector = _generalInterceptorSelector
+                        },
+                        general, addset, remove);
+                }
+            }
+            else
+            {
+                if (obj == null)
+                {
+                    proxy = _generator.CreateInterfaceProxyWithoutTarget(type,
+                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                        {
+                            Selector = _generalInterceptorSelector
+                        },
+                        general, addset, remove);
+                }
+                else
+                {
+                    proxy = _generator.CreateInterfaceProxyWithTarget(type, obj,
+                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                        {
+                            Selector = _generalInterceptorSelector
+                        },
+                        general, addset, remove);
+                }
+            }
+            var prop = type.GetProperties()
+                .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+
+            if (prop == null) { return proxy; }
+
+            if (prop.PropertyType == typeof(string))
+            {
+                prop.SetValue(proxy, id);
+            }
+            else if (prop.PropertyType == typeof(Guid))
+            {
+                prop.SetValue(proxy, Guid.Parse(id));
+            }
+
+            return proxy;
         }
 
         /// <summary>
@@ -193,51 +228,5 @@ namespace DemgelRedis.ObjectManager
                 .Where(handler => handler.Delete(obj, obj.GetType(), redisDatabase, id))
                 .ToArray().Any();
         }
-
-        //protected internal void GenerateId(IDatabase database, RedisKeyObject key, object argument)
-        //{
-        //    var redisIdAttr =
-        //        argument.GetType().GetProperties().SingleOrDefault(
-        //            x => x.GetCustomAttributes().Any(a => a is RedisIdKey));
-
-        //    if (redisIdAttr == null) return; // Throw error
-
-        //    var value = redisIdAttr.GetValue(argument, null);
-
-        //    if (redisIdAttr.PropertyType == _stringType)
-        //    {
-        //        var currentValue = (string)value;
-        //        if (string.IsNullOrEmpty(currentValue))
-        //        {
-        //            RedisBackup.RestoreCounter(database, key);
-        //            var newId = database.StringIncrement($"demgelcounter:{key.CounterKey}");
-        //            RedisBackup.UpdateCounter(database, key);
-        //            key.Id = newId.ToString();
-        //            redisIdAttr.SetValue(argument, key.Id);
-        //        }
-        //        else
-        //        {
-        //            key.Id = currentValue;
-        //        }
-        //    }
-        //    else if (redisIdAttr.PropertyType == _guidType)
-        //    {
-        //        var guid = (Guid)value;
-        //        if (guid == Guid.Empty)
-        //        {
-        //            guid = Guid.NewGuid();
-        //            key.Id = guid.ToString();
-        //            redisIdAttr.SetValue(argument, guid);
-        //        }
-        //        else
-        //        {
-        //            key.Id = guid.ToString();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        throw new ArgumentException("RedisIdKey needs to be either Guid or String");
-        //    }
-        //}
     }   
 }

@@ -88,6 +88,7 @@ namespace DemgelRedis.Tests
         public virtual string DisplayName { get; set; }
         //[RedisDeleteCascade(Cascade = false)]
         public virtual IList<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>(); 
     }
 
     [JsonObject(MemberSerialization.OptIn)]

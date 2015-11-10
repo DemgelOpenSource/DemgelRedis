@@ -88,8 +88,13 @@ namespace DemgelRedis.ObjectManager.Proxy
             // We cannot process IRedisObjects here, if we are trying to set a Proxies object
             // With a new IRedisObject, we need to handle that differently
             if (!(invocation.Arguments[0] is IRedisObject)
-                && _commonData.Processed)
+                /*&& _commonData.Processed*/ && !_commonData.Processing)
             {
+                if (!_commonData.Processed)
+                {
+                    _commonData.ProcessProxy(null, null, invocation.Proxy);
+                } 
+
                 if (cAttr.GetType().GetInterfaces().Contains(typeof(IRedisObject)))
                 {
                     // This is a single item within an IRedisObject... it will be saved as a hash
@@ -163,19 +168,19 @@ namespace DemgelRedis.ObjectManager.Proxy
 
             var newArgument = _commonData.RedisObjectManager.RetrieveObjectProxy(argumentType, key.Id, _commonData.RedisDatabase, argument);
 
-            var prop = argumentType.GetProperties()
-                .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+            //var prop = argumentType.GetProperties()
+            //    .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
-            if (prop == null) { return newArgument; }
+            //if (prop == null) { return newArgument; }
 
-            if (prop.PropertyType == _stringType)
-            {
-                prop.SetValue(newArgument, key.Id);
-            }
-            else if (prop.PropertyType == _guidType)
-            {
-                prop.SetValue(newArgument, Guid.Parse(key.Id));
-            }
+            //if (prop.PropertyType == _stringType)
+            //{
+            //    prop.SetValue(newArgument, key.Id);
+            //}
+            //else if (prop.PropertyType == _guidType)
+            //{
+            //    prop.SetValue(newArgument, Guid.Parse(key.Id));
+            //}
 
             return newArgument;
         }
@@ -253,12 +258,19 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
         }
 
+        private bool _restored;
+
         private void DoAddListItem(IInvocation invocation, PropertyInfo prop)
         {
             var listKey = new RedisKeyObject(prop, _id);
 
             // Make sure the list is Restored
-            _commonData.RedisObjectManager.RedisBackup?.RestoreList(_commonData.RedisDatabase, listKey);
+            // we need to make sure to do this as a object variable to check for key existance
+            if (!_restored)
+            {
+                _commonData.RedisObjectManager.RedisBackup?.RestoreList(_commonData.RedisDatabase, listKey);
+                _restored = true;
+            }
 
             var redisObject = invocation.Arguments[0] as IRedisObject;
             if (redisObject != null)
@@ -272,7 +284,6 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(redisObject.GetType(), string.Empty);
-                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, invocation.Arguments[0]);
                     _commonData.RedisDatabase.GenerateId(key, invocation.Arguments[0], _commonData.RedisObjectManager.RedisBackup);
                 }
 
@@ -284,6 +295,8 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
             else
             {
+                if (!_commonData.Processed) return;
+
                 // TODO to better checks for casting to RedisValue
                 _commonData.RedisObjectManager.RedisBackup?.AddListItem(listKey, (RedisValue) invocation.Arguments[0]);
                 _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, (RedisValue) invocation.Arguments[0]);
@@ -337,7 +350,6 @@ namespace DemgelRedis.ObjectManager.Proxy
                 else
                 {
                     key = new RedisKeyObject(valueRedis.GetType(), string.Empty);
-                    //_commonData.RedisObjectManager.GenerateId(_commonData.RedisDatabase, key, dictValue);
                     _commonData.RedisDatabase.GenerateId(key, dictValue, _commonData.RedisObjectManager.RedisBackup);
                 }
 
