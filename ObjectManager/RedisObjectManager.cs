@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Converters;
@@ -54,12 +55,44 @@ namespace DemgelRedis.ObjectManager
         {
             foreach (var prop in o.GetType().GetProperties())
             {
+                HashEntry entry;
                 var type = prop.PropertyType;
-                ITypeConverter converter;
-                if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                var ret = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
-                if (ret.Value.IsNull) continue;
-                yield return ret;
+                if (prop.PropertyType.GetInterfaces().Any(x => x == typeof(IRedisObject)))
+                {
+                    var redisObject = prop.GetValue(o, null);
+                    var redisIdAttr =
+                        redisObject.GetType().GetProperties().SingleOrDefault(
+                            x => x.HasAttribute<RedisIdKey>());
+
+                    // This is a TEST will fix later
+                    if (redisIdAttr == null)
+                    {
+                        redisIdAttr =
+                            redisObject.GetType().BaseType?.GetProperties().SingleOrDefault(
+                                x => x.HasAttribute<RedisIdKey>());
+                    }
+
+                    if (redisIdAttr != null)
+                    {
+                        var value = redisIdAttr.GetValue(redisObject, null);
+                        var key = new RedisKeyObject(redisObject.GetType(), (string) value);
+                        entry = new HashEntry(prop.Name, key.RedisKey);
+                    }
+                    else
+                    {
+                        entry = new HashEntry();
+                    }
+
+                }
+                else
+                {
+                    ITypeConverter converter;
+                    if (!TypeConverters.TryGetValue(type, out converter)) continue;
+                    entry = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
+                }
+ 
+                if (entry.Value.IsNull) continue;
+                yield return entry;
             }
         }
 

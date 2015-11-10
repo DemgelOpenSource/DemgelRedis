@@ -69,6 +69,7 @@ namespace DemgelRedis.Tests
             //test3.subTest = new TestConvertClassSub() {Id = "someid5", test = "something68"};
             test3.subTest.test = "do this again";
             test3.subTest.TestInitite = new TestConvertClassSubSuffix {Id = "Testing", test = "Test"};
+            test3.subTest.TestInitite.subTest = test3.subTest;
 
             Assert.IsTrue(test3 != null);
         }
@@ -81,6 +82,7 @@ namespace DemgelRedis.Tests
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            var test4 = _redis.RetrieveObjectProxy<RedisUser>("4", _connection.GetDatabase());
             test3.DisplayName = "test";
 
             //test3.SomeStrings.Add("test9");
@@ -95,7 +97,11 @@ namespace DemgelRedis.Tests
 
             foreach (var t in test3.Subscriptions)
             {
-                Debug.WriteLine(t.Name);
+                if (t.Founder == null)
+                {
+                    t.Founder = test4;
+                }
+                Debug.WriteLine(t.Name + " --- " + t.Founder?.Id);
             }
 
             //test3.SomeIntegers.Add(new TestConvertClass2());
@@ -106,8 +112,8 @@ namespace DemgelRedis.Tests
             var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
             //newsub.Id = "105";
             newsub.Name = "hello";
+            newsub.Founder = test3;
             test3.Subscriptions.Add(newsub);
-            test3.SomeStrings.Add(" a string");
 
             //test3.test = "This should be changed to this new value...";
         }
