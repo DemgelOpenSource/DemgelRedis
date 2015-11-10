@@ -90,7 +90,7 @@ namespace DemgelRedis.Tests
 
             //test3.test = "Hello Redis... lets see if you saved";
 
-            var tt = test3.Subscriptions;
+            //var tt = test3.Subscriptions;
 
             foreach (var t in test3.Subscriptions)
             {
@@ -102,7 +102,7 @@ namespace DemgelRedis.Tests
             //var testClass = new TestConvertClass2 {TestValue = "Blah Blah Blah"};
             //test3.SomeIntegers.Add(testClass);
 
-            test3.Subscriptions.Add(new Subscription() { Name = "test Name"});
+            //test3.Subscriptions.Add(new Subscription() { Name = "test Name"});
 
             //test3.test = "This should be changed to this new value...";
         }

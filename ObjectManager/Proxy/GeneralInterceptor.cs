@@ -85,6 +85,14 @@ namespace DemgelRedis.ObjectManager.Proxy
                         }
 
                         ProcessProxy(invocation, cAttr, invocation.Proxy);
+
+                        value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
+
+                        if (value is IProxyTargetAccessor)
+                        {
+                            ProcessProxy(invocation, cAttr, value);
+                            _retrieved.Add(invocation.Method.Name, true);
+                        }
                     }
                 } else
                 {
