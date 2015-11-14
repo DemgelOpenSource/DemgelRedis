@@ -81,9 +81,9 @@ namespace DemgelRedis.Tests
             // TODO fix this test to actually be a test
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
-            var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
-            var test4 = _redis.RetrieveObjectProxy<RedisUser>("4", _connection.GetDatabase());
-            test3.DisplayName = "test";
+            //var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            //var test4 = _redis.RetrieveObjectProxy<RedisUser>("4", _connection.GetDatabase());
+            //test3.DisplayName = "test";
 
             //test3.SomeStrings.Add("test9");
             //test3.SomeStrings.Add("test1");
@@ -95,7 +95,21 @@ namespace DemgelRedis.Tests
 
             //var tt = test3.Subscriptions;
 
-            foreach (var t in test3.Subscriptions)
+            //foreach (var t in test3.Subscriptions)
+            //{
+            //    if (t.Founder == null)
+            //    {
+            //        t.Founder = test3;
+            //    }
+            //    Debug.WriteLine(t.Name + " --- " + t.Founder?.Id + " --- " + t.Founder.DisplayName);
+            //}
+
+            //test3.Subscriptions = null;
+            //test3.SomeStrings = null;
+
+            var watch = Stopwatch.StartNew();
+            var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            foreach (var t in test4.Subscriptions)
             {
                 if (t.Founder == null)
                 {
@@ -103,6 +117,7 @@ namespace DemgelRedis.Tests
                 }
                 Debug.WriteLine(t.Name + " --- " + t.Founder?.Id);
             }
+            Debug.Write("New Time is: " + watch.ElapsedMilliseconds);
 
             //test3.SomeIntegers.Add(new TestConvertClass2());
             ////var hello = test3.SomeIntegers[0];
@@ -112,8 +127,9 @@ namespace DemgelRedis.Tests
             var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
             //newsub.Id = "105";
             newsub.Name = "hello";
-            newsub.Founder = test3;
-            test3.Subscriptions.Add(newsub);
+            newsub.Founder = test4;
+            newsub.Members.Add(test4.Id, test4);
+            test4.Subscriptions.Add(newsub);
 
             //test3.test = "This should be changed to this new value...";
         }

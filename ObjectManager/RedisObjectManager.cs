@@ -18,7 +18,7 @@ namespace DemgelRedis.ObjectManager
 {
     public class RedisObjectManager
     {
-        private readonly ProxyGenerator _generator = new ProxyGenerator();
+        private /*readonly*/ ProxyGenerator _generator = new ProxyGenerator();
         protected internal readonly Dictionary<Type, ITypeConverter> TypeConverters;
         private readonly IList<IRedisHandler> _handlers;
         private readonly GeneralInterceptorSelector _generalInterceptorSelector;
@@ -62,21 +62,22 @@ namespace DemgelRedis.ObjectManager
                     var redisObject = prop.GetValue(o, null);
                     var redisIdAttr =
                         redisObject.GetType().GetProperties().SingleOrDefault(
-                            x => x.HasAttribute<RedisIdKey>());
-
-                    // This is a TEST will fix later
-                    if (redisIdAttr == null)
-                    {
-                        redisIdAttr =
-                            redisObject.GetType().BaseType?.GetProperties().SingleOrDefault(
+                            x => x.HasAttribute<RedisIdKey>()) ??
+                        redisObject.GetType().BaseType?.GetProperties().SingleOrDefault(
                                 x => x.HasAttribute<RedisIdKey>());
-                    }
 
                     if (redisIdAttr != null)
                     {
                         var value = redisIdAttr.GetValue(redisObject, null);
-                        var key = new RedisKeyObject(redisObject.GetType(), (string) value);
-                        entry = new HashEntry(prop.Name, key.RedisKey);
+                        if (value == null)
+                        {
+                            entry = new HashEntry();
+                        }
+                        else
+                        {
+                            var key = new RedisKeyObject(redisObject.GetType(), (string) value);
+                            entry = new HashEntry(prop.Name, key.RedisKey);
+                        }
                     }
                     else
                     {
@@ -124,11 +125,6 @@ namespace DemgelRedis.ObjectManager
             redisDatabase.GenerateId(key, obj, RedisBackup);
             var proxy = RetrieveObjectProxy(typeof(T), key.Id, redisDatabase, obj) as T;
 
-            //var t = ((IProxyTargetAccessor)proxy)
-            //            .GetInterceptors()
-            //            .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
-            //t.CommonData.ProcessProxy(null, null, proxy);
-
             return proxy;
         }
 
@@ -144,9 +140,24 @@ namespace DemgelRedis.ObjectManager
         /// <param name="redisDatabase"></param>
         /// <returns></returns>
         public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
-            where T : class
+            where T : class, new()
         {
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, null);            
+            // We are going to start setting the ID here of the base Object
+            var obj = new T();
+            foreach (PropertyInfo prop in obj.GetType().GetProperties().Where(prop => prop.HasAttribute<RedisIdKey>()))
+            {
+                if (prop.PropertyType.IsAssignableFrom(typeof (Guid)))
+                {
+                    prop.SetValue(obj, Guid.Parse(id));
+                } else if (prop.PropertyType.IsAssignableFrom(typeof(string)))
+                {
+                    prop.SetValue(obj, id);
+                } else
+                {
+                    throw new Exception("Id can only be of type String or Guid");
+                }
+            }
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, obj);            
             return proxy as T;
         }
 
@@ -159,7 +170,7 @@ namespace DemgelRedis.ObjectManager
                 Id = id
             };
 
-            var general = new GeneralInterceptor(id, commonData);
+            var general = new GeneralInterceptor(commonData);
             var addset = new AddSetInterceptor(id, commonData);
             var remove = new RemoveInterceptor(id, commonData);
 
@@ -206,19 +217,19 @@ namespace DemgelRedis.ObjectManager
                         general, addset, remove);
                 }
             }
-            var prop = type.GetProperties()
-                .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+            //var prop = type.GetProperties()
+            //    .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
-            if (prop == null) { return proxy; }
+            //if (prop == null) { return proxy; }
 
-            if (prop.PropertyType == typeof(string))
-            {
-                prop.SetValue(proxy, id);
-            }
-            else if (prop.PropertyType == typeof(Guid))
-            {
-                prop.SetValue(proxy, Guid.Parse(id));
-            }
+            //if (prop.PropertyType == typeof(string))
+            //{
+            //    prop.SetValue(proxy, id);
+            //}
+            //else if (prop.PropertyType == typeof(Guid))
+            //{
+            //    prop.SetValue(proxy, Guid.Parse(id));
+            //}
 
             return proxy;
         }

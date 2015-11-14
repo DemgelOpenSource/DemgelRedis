@@ -3,27 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using DemgelRedis.Interfaces;
-using DemgelRedis.ObjectManager.Attributes;
 
 namespace DemgelRedis.ObjectManager.Proxy
 {
     public class GeneralInterceptor : IInterceptor
     {
-        private readonly string _id;
         public readonly CommonData CommonData;
 
         private readonly Dictionary<string, bool> _retrieved;
 
         //public object ParentProxy { get; set; }
 
-        private bool _processing;
+        //private bool _processing;
 
-        public GeneralInterceptor(string id, CommonData data)
+        public GeneralInterceptor(CommonData data)
         {
-            _id = id;
             CommonData = data;
 
             _retrieved = new Dictionary<string, bool>();
@@ -32,7 +28,7 @@ namespace DemgelRedis.ObjectManager.Proxy
         public void Intercept(IInvocation invocation)
         {
             if (!invocation.Method.Name.StartsWith("get_", StringComparison.Ordinal) ||
-                _processing)
+                CommonData.Processing)
             {
                 try
                 {
@@ -56,7 +52,8 @@ namespace DemgelRedis.ObjectManager.Proxy
                 }
             }
 
-            _processing = true;
+            
+            CommonData.Processing = true;
 
             try
             {
@@ -79,27 +76,25 @@ namespace DemgelRedis.ObjectManager.Proxy
                         .GetInterceptors()
                         .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
 
-                        if (t.CommonData.Processed)
+                        if (t != null && !t.CommonData.Processed)
                         {
-                            return;
+                            CommonData.ProcessProxy(invocation.Proxy, cAttr, invocation.Proxy);
                         }
-
-                        CommonData.ProcessProxy(invocation.Proxy, cAttr, invocation.Proxy);
 
                         value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
-
-                        if (value is IProxyTargetAccessor)
-                        {
-                            CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
-                            _retrieved.Add(invocation.Method.Name, true);
-                        }
                     }
-                } else
-                {
-                    CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
-
-                    _retrieved.Add(invocation.Method.Name, true);
                 }
+
+                if (!(value is IProxyTargetAccessor)) return;
+
+                var a = ((IProxyTargetAccessor) value)
+                    .GetInterceptors()
+                    .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
+
+                if (a != null && a.CommonData.Processed) return;
+
+                CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
+                _retrieved.Add(invocation.Method.Name, true);
             }
             catch (Exception e)
             {
@@ -107,59 +102,9 @@ namespace DemgelRedis.ObjectManager.Proxy
             }
             finally
             {
-                _processing = false;
+                CommonData.Processing = false;
                 invocation.Proceed();
             }
-        }
-
-        //private void ProcessProxy(object parentProxy, PropertyInfo cAttr, object value)
-        //{
-        //    string redisId;
-
-        //    var id = value?.GetType().GetProperties()
-        //        .SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
-        //    var redisvalue = id?.GetValue(value, null);
-
-        //    if (id != null && id.PropertyType == typeof (string))
-        //    {
-        //        redisId = (string) redisvalue;
-        //    }
-        //    else if (id != null && id.PropertyType == typeof (Guid))
-        //    {
-        //        redisId = (redisvalue as Guid?)?.ToString();
-        //    }
-        //    else
-        //    {
-        //        redisId = _id;
-        //    }
-
-        //    // TODO clean this
-        //    if (redisId == null)
-        //    {
-        //        redisId = _id;
-        //    }
-
-        //    if (value == null)
-        //    {
-        //        throw new Exception("Object is not valid.");
-        //    }
-
-        //    var generalInterceptorOfValue = ((IProxyTargetAccessor)value)
-        //        .GetInterceptors()
-        //        .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
-
-        //    generalInterceptorOfValue.CommonData.ParentProxy = parentProxy;
-
-        //    generalInterceptorOfValue.CommonData.RedisObjectManager.RetrieveObject(value, redisId,
-        //        generalInterceptorOfValue.CommonData.RedisDatabase, cAttr);
-
-        //    generalInterceptorOfValue.CommonData.Processed = true;
-        //}
-
-        public bool HasRetrievedObject(MethodInfo methodInfo)
-        {
-            bool ret;
-            return _retrieved.TryGetValue(methodInfo.Name, out ret) && ret;
         }
 
         public bool ResetObject(MethodInfo methodInfo)

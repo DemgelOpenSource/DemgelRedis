@@ -19,7 +19,10 @@ namespace DemgelRedis.ObjectManager.Proxy
 
         public void ProcessProxy(object parentProxy, PropertyInfo cAttr, object value)
         {
-            Processing = true;
+            var t = ((IProxyTargetAccessor)value)
+                       .GetInterceptors()
+                       .SingleOrDefault(x => x is GeneralInterceptor) as GeneralInterceptor;
+            t.CommonData.Processing = true;
             string redisId;
 
             var id = value?.GetType().GetProperties()
@@ -60,7 +63,8 @@ namespace DemgelRedis.ObjectManager.Proxy
                 generalInterceptorOfValue.CommonData.RedisDatabase, cAttr);
 
             generalInterceptorOfValue.CommonData.Processed = true;
-            Processing = false;
+            t.CommonData.Processing = false;
+            //Processing = false;
         }
     }
 }
