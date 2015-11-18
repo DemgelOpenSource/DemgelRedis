@@ -4,16 +4,27 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Proxy;
+using DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor;
+using DemgelRedis.ObjectManager.Proxy.Selectors;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
 {
     public class DictionaryHandler : RedisHandler
     {
+        private readonly DictionarySelector _dictionarySelector;
+
+        public DictionaryHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
+        {
+            _dictionarySelector = new DictionarySelector();
+        }
+
         /// <summary>
         /// Need to pass in the Proxy object of the list/enumerable
         /// </summary>
@@ -25,7 +36,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return targetObject is IDictionary;
         }
 
-        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
+        public override object Read<T>(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
         {
             var hashKey = new RedisKeyObject(basePropertyInfo, id);
             RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
@@ -104,35 +115,6 @@ namespace DemgelRedis.ObjectManager.Handlers
         public override bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
             Debug.WriteLine("Save was called on this object...");
-            //var listKey = DemgelRedis.ParseRedisKey(basePropertyInfo.GetCustomAttributes(), id);
-            //var listKey = new RedisKeyObject(basePropertyInfo, id);
-
-            // Only handles lists if they are not currently set, lists need to be handled
-            // on a per item basis otherwise
-            //if (redisDatabase.KeyExists(listKey)) return true;
-
-            //Type itemType = null;
-
-            //if (objType.GetInterfaces().Any(interfaceType => interfaceType.IsGenericType &&
-            //          interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-            //{
-            //    itemType = objType.GetGenericArguments()[0];
-            //}
-
-            //if (itemType != typeof(RedisValue))
-            //{
-            //    // Try to process each entry as a proxy, or fail
-            //    throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
-            //}
-
-            //var trans = redisDatabase.CreateTransaction();
-            //foreach (var o in ((IEnumerable<RedisValue>) obj).ToArray())
-            //{
-            //    trans.ListRemoveAsync(listKey.RedisKey, o);
-            //    trans.ListLeftPushAsync(listKey.RedisKey, o);
-            //}
-            //trans.Execute();
-
             return true;
         }
 
@@ -145,8 +127,34 @@ namespace DemgelRedis.ObjectManager.Handlers
             return true;
         }
 
-        public DictionaryHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
+        public override object BuildProxy(ProxyGenerator generator, Type objType, CommonData data, object baseObj)
         {
+            if (!objType.IsInterface)
+            {
+                throw new Exception("Dictionary can only be created from IDictionary Interface");
+            }
+
+            object proxy;
+
+            if (baseObj == null)
+            {
+                proxy = generator.CreateInterfaceProxyWithoutTarget(objType,
+                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                    {
+                        Selector = _dictionarySelector
+                    },
+                    new GeneralGetInterceptor(data), new DictionaryAddInterceptor(data), new DictionarySetInterceptor(data), new DictionaryRemoveInterceptor(data));
+            }
+            else
+            {
+                proxy = generator.CreateInterfaceProxyWithTarget(objType, baseObj,
+                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                    {
+                        Selector = _dictionarySelector
+                    },
+                    new GeneralGetInterceptor(data), new DictionaryAddInterceptor(data), new DictionarySetInterceptor(data), new DictionaryRemoveInterceptor(data));
+            }
+            return proxy;
         }
     }
 }

@@ -1,18 +1,30 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Proxy;
+using DemgelRedis.ObjectManager.Proxy.ListInterceptor;
+using DemgelRedis.ObjectManager.Proxy.Selectors;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Handlers
 {
     public class ListHandler : RedisHandler
     {
+        private readonly ListSelector _listSelector;
+
+        public ListHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
+        {
+            _listSelector = new ListSelector();
+        }
+
         /// <summary>
         /// Need to pass in the Proxy object of the list/enumerable
         /// </summary>
@@ -24,7 +36,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return targetObject is IList;
         }
 
-        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
+        public override object Read<T>(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
         {
             var listKey = new RedisKeyObject(basePropertyInfo, id);
             var targetType = GetTarget(obj).GetType();
@@ -40,11 +52,23 @@ namespace DemgelRedis.ObjectManager.Handlers
             }
 
             var method = objType.GetMethod("Add");
+            var clearMethod = objType.GetMethod("Clear");
 
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
                 RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey);
-                var retlist = redisDatabase.ListRange(listKey.RedisKey);
+                clearMethod.Invoke(obj, new object[] {});
+                RedisValue[] retlist;
+                if (limits != null)
+                {
+                    retlist = redisDatabase.ListRange(listKey.RedisKey, limits.StartLimit,
+                        (limits.TakeLimit - 1) <= 0 ? -1 : limits.TakeLimit - 1);
+                }
+                else
+                {
+                    retlist = redisDatabase.ListRange(listKey.RedisKey);
+                }
+
                 foreach (var ret in retlist)
                 {
                     var hashKey = new RedisKeyObject(itemType, ret.ParseKey());
@@ -119,8 +143,38 @@ namespace DemgelRedis.ObjectManager.Handlers
             return true;
         }
 
-        public ListHandler(RedisObjectManager demgelRedis) : base(demgelRedis)
+        public override object BuildProxy(ProxyGenerator generator, Type objType, CommonData data, object baseObj)
         {
+            if (!objType.IsInterface)
+            {
+                throw new Exception("Lists can only be created from IList Interface");
+            }
+
+            object proxy;
+
+            if (baseObj == null)
+            {
+                proxy = generator.CreateInterfaceProxyWithoutTarget(objType,
+                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                    {
+                        Selector = _listSelector
+                    },
+                    new GeneralGetInterceptor(data), new ListAddInterceptor(data), new ListSetInterceptor(data), new ListRemoveInterceptor(data));
+            }
+            else
+            {
+                proxy = generator.CreateInterfaceProxyWithTarget(objType, baseObj,
+                    new ProxyGenerationOptions(new GeneralProxyGenerationHook())
+                    {
+                        Selector = _listSelector
+                    },
+                    new GeneralGetInterceptor(data),
+                    new ListAddInterceptor(data),
+                    new ListSetInterceptor(data),
+                    new ListRemoveInterceptor(data));
+            }
+
+            return proxy;
         }
     }
 }

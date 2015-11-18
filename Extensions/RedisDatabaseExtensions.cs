@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Castle.Core.Internal;
+using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using DemgelRedis.ObjectManager.Proxy;
 using StackExchange.Redis;
 
 namespace DemgelRedis.Extensions
@@ -26,7 +28,22 @@ namespace DemgelRedis.Extensions
 
             if (redisIdAttr == null) return; // Throw error
 
-            var value = redisIdAttr.GetValue(argument, null);
+            object value;
+            if (argument is IProxyTargetAccessor)
+            {
+                var generalInterceptor =
+                    ((IProxyTargetAccessor) argument).GetInterceptors().SingleOrDefault(x => x is GeneralGetInterceptor)
+                        as GeneralGetInterceptor;
+                if (generalInterceptor == null)
+                {
+                    throw new Exception("Interceptor cannot be null");
+                }
+                value = generalInterceptor.GetId();
+            }
+            else
+            {
+                value = redisIdAttr.GetValue(argument, null);
+            }
 
             if (redisIdAttr.PropertyType == typeof(string))
             {

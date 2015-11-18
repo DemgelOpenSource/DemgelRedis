@@ -90,7 +90,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             {
                 if (!_commonData.Processed)
                 {
-                    _commonData.ProcessProxy(null, null, invocation.Proxy);
+                    //_commonData.ProcessProxy(null, null, invocation.Proxy);
                 } 
 
                 if (cAttr.GetType().GetInterfaces().Contains(typeof(IRedisObject)))

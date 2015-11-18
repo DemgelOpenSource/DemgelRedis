@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
-using Microsoft.Data.Edm.Library;
-using Microsoft.WindowsAzure.Storage;
 using NUnit.Framework;
 using StackExchange.Redis;
+using DemgelRedis.Extensions;
 
 namespace DemgelRedis.Tests
 {
@@ -16,7 +14,7 @@ namespace DemgelRedis.Tests
     public class UnitTest1
     {
         private readonly RedisObjectManager _redis =
-            new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
+            new RedisObjectManager(/*new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount)*/);
         private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
@@ -61,75 +59,70 @@ namespace DemgelRedis.Tests
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
             var test3 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _connection.GetDatabase());
-
             //var t = test3.subTest;
 
             Debug.WriteLine("Something " + test3.subTest.Id + " - " + test3.subTest.test);
 
             //test3.subTest = new TestConvertClassSub() {Id = "someid5", test = "something68"};
-            test3.subTest.test = "do this again";
-            test3.subTest.TestInitite = new TestConvertClassSubSuffix {Id = "Testing", test = "Test"};
-            test3.subTest.TestInitite.subTest = test3.subTest;
+            test3.subTest.TestInitite.test = "do this again - and again";
+            //test3.subTest.TestInitite = new TestConvertClassSubSuffix {Id = "Testing", test = "Test"};
+            //test3.subTest.TestInitite.subTest = test3.subTest;
 
             Assert.IsTrue(test3 != null);
+        }
+
+        [Test]
+        public void AllNewTests()
+        {
+            var test = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+
+            Debug.WriteLine(test.DisplayName);
         }
 
         [Test]
         [Ignore]
         public void TestRedisListTests()
         {
-            // TODO fix this test to actually be a test
-            //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
-
-            //var test3 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
-            //var test4 = _redis.RetrieveObjectProxy<RedisUser>("4", _connection.GetDatabase());
-            //test3.DisplayName = "test";
-
-            //test3.SomeStrings.Add("test9");
-            //test3.SomeStrings.Add("test1");
-            //test3.SomeStrings.Add("test5");
-
-            //test3.SomeStrings[0] = "something else";
-
-            //test3.test = "Hello Redis... lets see if you saved";
-
-            //var tt = test3.Subscriptions;
-
-            //foreach (var t in test3.Subscriptions)
-            //{
-            //    if (t.Founder == null)
-            //    {
-            //        t.Founder = test3;
-            //    }
-            //    Debug.WriteLine(t.Name + " --- " + t.Founder?.Id + " --- " + t.Founder.DisplayName);
-            //}
-
-            //test3.Subscriptions = null;
-            //test3.SomeStrings = null;
-
-            var watch = Stopwatch.StartNew();
             var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
-            foreach (var t in test4.Subscriptions)
+            var watch = Stopwatch.StartNew();
+            
+            Debug.WriteLine($"There are {test4.Subscriptions.FullCount()} in this list.");
+            foreach (var t in test4.Subscriptions.Limit().Start(2).TakeLimit(20).ExecuteLimit())
             {
                 if (t.Founder == null)
                 {
                     t.Founder = test4;
                 }
-                Debug.WriteLine(t.Name + " --- " + t.Founder?.Id);
+                Debug.WriteLine(t.Id + " --- " + t.Name + " --- " + t.Founder?.Id);
             }
             Debug.Write("New Time is: " + watch.ElapsedMilliseconds);
 
+            //var watch2 = Stopwatch.StartNew();
+            //var test5 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            //foreach (var t in test5.Subscriptions)
+            //{
+            //    if (t.Founder == null)
+            //    {
+            //        t.Founder = test4;
+            //    }
+            //    Debug.WriteLine(t.Name + " --- " + t.Founder?.Id);
+            //}
+            //Debug.Write("New Time is: " + watch2.ElapsedMilliseconds);
+
+            //var i = test4.Subscriptions[2];
+            //test4.Subscriptions.Remove(i);
             //test3.SomeIntegers.Add(new TestConvertClass2());
             ////var hello = test3.SomeIntegers[0];
             //var testClass = new TestConvertClass2 {TestValue = "Blah Blah Blah"};
             //test3.SomeIntegers.Add(testClass);
-            //var newsub = new Subscription() {Name = "test Name"};
-            var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
+            var newsub = new Subscription() {Name = "test Name"};
+            //var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
             //newsub.Id = "105";
-            newsub.Name = "hello";
+            //newsub.Name = "hello";
             newsub.Founder = test4;
-            newsub.Members.Add(test4.Id, test4);
             test4.Subscriptions.Add(newsub);
+            //newsub.Members.Add(test4.Id, test4);
+            
 
             //test3.test = "This should be changed to this new value...";
         }

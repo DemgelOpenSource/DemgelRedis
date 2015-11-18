@@ -27,6 +27,7 @@ namespace DemgelRedis.ObjectManager.Proxy
 
         public void Intercept(IInvocation invocation)
         {
+            invocation.Proceed();
             if (!invocation.Method.Name.StartsWith("get_", StringComparison.Ordinal) ||
                 CommonData.Processing)
             {
@@ -78,7 +79,7 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                         if (t != null && !t.CommonData.Processed)
                         {
-                            CommonData.ProcessProxy(invocation.Proxy, cAttr, invocation.Proxy);
+                            //CommonData.ProcessProxy(invocation.Proxy, cAttr, invocation.Proxy);
                         }
 
                         value = cAttr?.GetValue(invocation.Proxy, invocation.Arguments);
@@ -93,7 +94,7 @@ namespace DemgelRedis.ObjectManager.Proxy
 
                 if (a != null && a.CommonData.Processed) return;
 
-                CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
+                //CommonData.ProcessProxy(invocation.Proxy, cAttr, value);
                 _retrieved.Add(invocation.Method.Name, true);
             }
             catch (Exception e)

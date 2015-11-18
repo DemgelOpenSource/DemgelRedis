@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Castle.DynamicProxy;
 
@@ -20,6 +21,9 @@ namespace DemgelRedis.ObjectManager.Proxy
                 return true;
 
             if (methodInfo.Name.StartsWith("Remove", StringComparison.Ordinal))
+                return true;
+
+            if (methodInfo.Name.StartsWith("get_Count", StringComparison.Ordinal))
                 return true;
 
             return methodInfo.IsSpecialName &&

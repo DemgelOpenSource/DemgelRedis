@@ -11,17 +11,15 @@ using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Handlers;
 using DemgelRedis.ObjectManager.Proxy;
-using DemgelRedis.Tests;
 using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager
 {
     public class RedisObjectManager
     {
-        private /*readonly*/ ProxyGenerator _generator = new ProxyGenerator();
+        private readonly ProxyGenerator _generator = new ProxyGenerator();
         protected internal readonly Dictionary<Type, ITypeConverter> TypeConverters;
         private readonly IList<IRedisHandler> _handlers;
-        private readonly GeneralInterceptorSelector _generalInterceptorSelector;
         protected internal readonly IRedisBackup RedisBackup;
 
         public RedisObjectManager()
@@ -41,8 +39,6 @@ namespace DemgelRedis.ObjectManager
                 new DictionaryHandler(this),
                 new RedisObjectHandler(this)
             };
-
-            _generalInterceptorSelector = new GeneralInterceptorSelector();
         }
 
         public RedisObjectManager(IRedisBackup redisBackup)
@@ -161,75 +157,26 @@ namespace DemgelRedis.ObjectManager
             return proxy as T;
         }
 
-        protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj)
+        protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, object parentProxy = null)
         {
             var commonData = new CommonData
             {
                 RedisDatabase = redisDatabase,
                 RedisObjectManager = this,
-                Id = id
+                Id = id,
+                Created = false
             };
 
-            var general = new GeneralInterceptor(commonData);
-            var addset = new AddSetInterceptor(id, commonData);
-            var remove = new RemoveInterceptor(id, commonData);
+            var handler = _handlers.SingleOrDefault(x => x.CanHandle(obj));
 
-            object proxy;
-            if (!type.IsInterface)
+            var proxy = handler?.BuildProxy(_generator, type, commonData, obj);
+
+            if (proxy == null)
             {
-                if (obj != null)
-                {
-                    proxy = _generator.CreateClassProxyWithTarget(type, obj,
-                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                        {
-                            Selector = _generalInterceptorSelector
-                        },
-                        general, addset, remove);
-                }
-                else
-                {
-                    proxy = _generator.CreateClassProxy(type,
-                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                        {
-                            Selector = _generalInterceptorSelector
-                        },
-                        general, addset, remove);
-                }
+                throw new Exception("Generated Proxy is Null");
             }
-            else
-            {
-                if (obj == null)
-                {
-                    proxy = _generator.CreateInterfaceProxyWithoutTarget(type,
-                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                        {
-                            Selector = _generalInterceptorSelector
-                        },
-                        general, addset, remove);
-                }
-                else
-                {
-                    proxy = _generator.CreateInterfaceProxyWithTarget(type, obj,
-                        new ProxyGenerationOptions(new GeneralProxyGenerationHook())
-                        {
-                            Selector = _generalInterceptorSelector
-                        },
-                        general, addset, remove);
-                }
-            }
-            //var prop = type.GetProperties()
-            //    .SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
-
-            //if (prop == null) { return proxy; }
-
-            //if (prop.PropertyType == typeof(string))
-            //{
-            //    prop.SetValue(proxy, id);
-            //}
-            //else if (prop.PropertyType == typeof(Guid))
-            //{
-            //    prop.SetValue(proxy, Guid.Parse(id));
-            //}
+            commonData.Created = true;
+            commonData.ParentProxy = parentProxy;
 
             return proxy;
         }
@@ -241,15 +188,16 @@ namespace DemgelRedis.ObjectManager
         /// <param name="id"></param>
         /// <param name="redisDatabase"></param>
         /// <param name="basePropertyInfo">Optional PropertyInfo, only required is calling IEnumerable</param>
+        /// <param name="limits"></param>
         /// <returns></returns>
-        protected internal void RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo = null)
+        protected internal void RetrieveObject<T>(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
         {
             var objType = obj.GetType();
 
             // We might not be dealing with a Hash all the time.. maybe a set? or List?
             foreach (var handler in _handlers.Where(x => x.CanHandle(obj)))
             {
-                handler.Read(obj, objType, redisDatabase, id, basePropertyInfo);
+                handler.Read(obj, objType, redisDatabase, id, basePropertyInfo, limits);
             }
         }
 
