@@ -34,17 +34,12 @@ DemgelRedis OM will handle some `Relational Operations`, such as matching lists 
 ```c#
 public class ExampleClass : IRedisObject
 {
-    public ExampleClass()
-    {
-        SomeList = new List<RedisValue>();
-    }
-
     [RedisIdKey]
     public string Id { get; set; }
 
-    public virtual IList<RedisValue> SomeList { get; set; }
+    public virtual IList<RedisValue> SomeList { get; set; } = new List<RedisValue>();
 
-    public virtual IDictionary<string, RedisValue> SomeDictionary { get; set; }
+    public virtual IDictionary<string, RedisValue> SomeDictionary { get; set; } = new Dictionary<string, RedisValue>();
 
     public virtual DifferentRedisObject RedisObject { get; set; }
 }

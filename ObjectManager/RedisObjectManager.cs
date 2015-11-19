@@ -190,7 +190,7 @@ namespace DemgelRedis.ObjectManager
         /// <param name="basePropertyInfo">Optional PropertyInfo, only required is calling IEnumerable</param>
         /// <param name="limits"></param>
         /// <returns></returns>
-        protected internal void RetrieveObject<T>(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
+        protected internal void RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo, ILimitObject limits = null)
         {
             var objType = obj.GetType();
 

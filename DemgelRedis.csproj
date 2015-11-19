@@ -86,10 +86,12 @@
     <Compile Include="Converters\FloatConverter.cs" />
     <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
     <Compile Include="Extensions\ProxyTargetAccessorExtensions.cs" />
     <Compile Include="Extensions\RedisDatabaseExtensions.cs" />
+    <Compile Include="Extensions\RedisObjectExtensions.cs" />
     <Compile Include="Extensions\RedisValueExtensions.cs" />
     <Compile Include="ObjectManager\Attributes\RedisDeleteCascade.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />
@@ -106,10 +108,10 @@
     <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionarySetInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\GeneralGetInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\ListInterceptor\ListAddInterceptor.cs" />
+    <Compile Include="ObjectManager\Proxy\ListInterceptor\ListGetInteceptor.cs" />
     <Compile Include="ObjectManager\Proxy\ListInterceptor\ListRemoveInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\ListInterceptor\ListSetInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\RedisObjectInterceptor\RedisObjectSetInterceptor.cs" />
-    <Compile Include="ObjectManager\Proxy\RemoveInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\Selectors\DictionarySelector.cs" />
     <Compile Include="ObjectManager\Proxy\Selectors\ListSelector.cs" />
     <Compile Include="ObjectManager\Proxy\Selectors\RedisObjectSelector.cs" />
@@ -124,9 +126,6 @@
     <Compile Include="Interfaces\IRedisObject.cs" />
     <Compile Include="Interfaces\ITypeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ObjectManager\Proxy\AddSetInterceptor.cs" />
-    <Compile Include="ObjectManager\Proxy\GeneralInterceptor.cs" />
-    <Compile Include="ObjectManager\Proxy\GeneralInterceptorSelector.cs" />
     <Compile Include="ObjectManager\Proxy\GeneralProxyGenerationHook.cs" />
     <Compile Include="JobQueue\RedisJobQueue.cs" />
     <Compile Include="JobQueue\RedisValueDictionary.cs" />

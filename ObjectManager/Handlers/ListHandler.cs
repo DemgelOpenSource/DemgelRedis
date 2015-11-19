@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
@@ -36,9 +35,10 @@ namespace DemgelRedis.ObjectManager.Handlers
             return targetObject is IList;
         }
 
-        public override object Read<T>(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
+        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, ILimitObject limits = null)
         {
             var listKey = new RedisKeyObject(basePropertyInfo, id);
+            
             var targetType = GetTarget(obj).GetType();
             Type itemType = null;
 
@@ -62,7 +62,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                 if (limits != null)
                 {
                     retlist = redisDatabase.ListRange(listKey.RedisKey, limits.StartLimit,
-                        (limits.TakeLimit - 1) <= 0 ? -1 : limits.TakeLimit - 1);
+                        (limits.TakeLimit - 1) <= 0 ? -1 : limits.TakeLimit - 1 + limits.StartLimit);
                 }
                 else
                 {

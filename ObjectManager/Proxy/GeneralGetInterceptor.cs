@@ -26,7 +26,7 @@ namespace DemgelRedis.ObjectManager.Proxy
             {
                 _commonData.Processing = true;
                 // Process the proxy (do a retrieveObject)
-                _commonData.RedisObjectManager.RetrieveObject<object>(invocation.Proxy, _commonData.Id, _commonData.RedisDatabase, null);
+                _commonData.RedisObjectManager.RetrieveObject(invocation.Proxy, _commonData.Id, _commonData.RedisDatabase, null);
                 _commonData.Processed = true;
                 _commonData.Processing = false;
             }

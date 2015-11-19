@@ -87,16 +87,22 @@ namespace DemgelRedis.Tests
             var watch = Stopwatch.StartNew();
             
             Debug.WriteLine($"There are {test4.Subscriptions.FullCount()} in this list.");
-            foreach (var t in test4.Subscriptions.Limit().Start(2).TakeLimit(20).ExecuteLimit())
+            foreach (var t in test4.Subscriptions.Limit(3, 50))
             {
                 if (t.Founder == null)
                 {
                     t.Founder = test4;
+                    
                 }
                 Debug.WriteLine(t.Id + " --- " + t.Name + " --- " + t.Founder?.Id);
+
+                foreach (var dict in t.Members.Limit(0, 10))
+                {
+                    Debug.WriteLine("    THERE WAS A USER: " + dict.Value.DisplayName);
+                }
             }
             Debug.Write("New Time is: " + watch.ElapsedMilliseconds);
-
+            //test4.Subscriptions[4].Name = "Some new Name";
             //var watch2 = Stopwatch.StartNew();
             //var test5 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
             //foreach (var t in test5.Subscriptions)
@@ -115,12 +121,12 @@ namespace DemgelRedis.Tests
             ////var hello = test3.SomeIntegers[0];
             //var testClass = new TestConvertClass2 {TestValue = "Blah Blah Blah"};
             //test3.SomeIntegers.Add(testClass);
-            var newsub = new Subscription() {Name = "test Name"};
+            //var newsub = new Subscription() {Name = "test Name"};
             //var newsub = _redis.RetrieveObjectProxy<Subscription>(_connection.GetDatabase());
-            //newsub.Id = "105";
+            ////newsub.Id = "105";
             //newsub.Name = "hello";
-            newsub.Founder = test4;
-            test4.Subscriptions.Add(newsub);
+            //newsub.Founder = test4;
+            //test4.Subscriptions.Add(newsub);
             //newsub.Members.Add(test4.Id, test4);
             
 

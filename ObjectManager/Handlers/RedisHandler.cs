@@ -23,7 +23,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         }
 
         public abstract bool CanHandle(object obj);
-        public abstract object Read<T>(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject<T> limits = null);
+        public abstract object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, ILimitObject limits = null);
         public abstract bool Save(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null);
         public abstract bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null);
         public abstract object BuildProxy(ProxyGenerator generator, Type objType, CommonData data, object baseObj);

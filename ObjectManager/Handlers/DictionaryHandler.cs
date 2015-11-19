@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Extensions;
@@ -36,7 +37,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return targetObject is IDictionary;
         }
 
-        public override object Read<T>(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject<T> limits = null)
+        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, ILimitObject limits = null)
         {
             var hashKey = new RedisKeyObject(basePropertyInfo, id);
             RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
@@ -60,8 +61,37 @@ namespace DemgelRedis.ObjectManager.Handlers
             if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
             {
                 // TODO this all needs to be changed to handle IRedisObjects in a Dictionary, shouldn't be to hard
-                
-                var retlist = redisDatabase.HashGetAll(hashKey.RedisKey);
+                List<HashEntry> retlist;
+
+                if (limits != null)
+                {
+                    if (limits.KeyLimit != null && !limits.KeyLimit.IsNullOrEmpty())
+                    {
+                        retlist = new List<HashEntry>();
+                        foreach (var item in limits.KeyLimit)
+                        {
+                            var ret = redisDatabase.HashGet(hashKey.RedisKey, (string) item);
+                            if (!ret.IsNullOrEmpty)
+                            {
+                                retlist.Add(new HashEntry((string) item, ret));
+                            }
+                        }
+                    } else if (limits.StartLimit != 0 || limits.TakeLimit != 0)
+                    {
+                        retlist =
+                            redisDatabase.HashScan(hashKey.RedisKey, default(RedisValue), limits.TakeLimit,
+                                limits.StartLimit).ToList();
+                    }
+                    else
+                    {
+                        retlist = new List<HashEntry>();
+                    }
+                }
+                else
+                {
+                    retlist = redisDatabase.HashGetAll(hashKey.RedisKey).ToList();
+                }
+
                 foreach (var ret in retlist)
                 {
                     // We need to check to make sure the object exists (Overhead... it happens)
@@ -71,8 +101,24 @@ namespace DemgelRedis.ObjectManager.Handlers
                         continue;
                     }
 
+                    var key = ret.Value.ParseKey();
+
                     var newObj = Activator.CreateInstance(itemType);
-                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, id, redisDatabase, newObj);
+                    var keyProp = newObj.GetType().GetProperties().SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
+                    if (keyProp == null) throw new Exception("RedisObjects need to have a RedisIdKey property.");
+                    if (keyProp.PropertyType.IsAssignableFrom(typeof(string)))
+                    {
+                        keyProp.SetValue(newObj, key);
+                    } else if (keyProp.PropertyType.IsAssignableFrom(typeof (Guid)))
+                    {
+                        keyProp.SetValue(newObj, Guid.Parse(key));
+                    }
+                    else
+                    {
+                        throw new Exception("RedisIdKey can only be of type String or Guid");
+                    }
+
+                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, key, redisDatabase, newObj);
                     //var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
                     //if (redisKeyProp != null)

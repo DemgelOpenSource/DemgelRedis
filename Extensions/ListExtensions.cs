@@ -27,7 +27,7 @@ namespace DemgelRedis.Extensions
             // Get the Common data
             var commonData = accessor.GetCommonData();
             commonData.Processing = true;
-            commonData.RedisObjectManager.RetrieveObject<T>(list, commonData.Id, commonData.RedisDatabase, accessor.GetTargetPropertyInfo());
+            commonData.RedisObjectManager.RetrieveObject(list, commonData.Id, commonData.RedisDatabase, accessor.GetTargetPropertyInfo());
             commonData.Processing = false;
             return list;
         }
@@ -35,6 +35,18 @@ namespace DemgelRedis.Extensions
         public static LimitObject<T> Limit<T>(this IList<T> list)
         {
             return new LimitObject<T> {LimitedObject = list};
+        }
+
+        public static IList<T> Limit<T>(this IList<T> dictionary, int start, int take)
+        {
+            var limits = new LimitObject<T>
+            {
+                LimitedObject = dictionary,
+                StartLimit = start,
+                TakeLimit = take
+            };
+
+            return limits.ExecuteLimit();
         }
 
         public static LimitObject<T> Start<T>(this LimitObject<T> limits, int startCount)
