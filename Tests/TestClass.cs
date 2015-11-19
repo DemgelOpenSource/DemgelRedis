@@ -72,10 +72,10 @@ namespace DemgelRedis.Tests
     public class TestDictionaryClass : IRedisObject
     {
         [RedisIdKey]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
         public virtual IDictionary<string, RedisValue> TestDictionary { get; set; } = new Dictionary<string, RedisValue>();
         [RedisDeleteCascade(Cascade = true)]
-        public virtual IDictionary<string, TestConvertClass> TestConvertClasses { get; set; } = new Dictionary<string, TestConvertClass>(); 
+        public virtual IDictionary<string, TestConvertClass2> TestConvertClasses { get; set; } = new Dictionary<string, TestConvertClass2>(); 
     }
 
 

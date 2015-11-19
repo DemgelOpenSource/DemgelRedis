@@ -43,6 +43,8 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
             // Delete the keys
             _commonData.RedisObjectManager.RedisBackup?.DeleteHashValue((string)invocation.Arguments[0], hashKey);
             _commonData.RedisDatabase.HashDelete(hashKey.RedisKey, (string)invocation.Arguments[0]);
+
+            invocation.Proceed();
         }
     }
 }

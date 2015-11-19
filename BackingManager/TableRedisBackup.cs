@@ -86,7 +86,7 @@ namespace DemgelRedis.BackingManager
             }
 
             table = Client.GetTableReference(tableName);
-            table.CreateIfNotExistsAsync().Wait();
+            table.CreateIfNotExists();
 
             lock (_lock)
             {

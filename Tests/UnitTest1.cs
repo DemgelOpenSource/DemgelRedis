@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
 using NUnit.Framework;
 using StackExchange.Redis;
 using DemgelRedis.Extensions;
+using Microsoft.WindowsAzure.Storage;
 
 namespace DemgelRedis.Tests
 {
@@ -14,7 +16,7 @@ namespace DemgelRedis.Tests
     public class UnitTest1
     {
         private readonly RedisObjectManager _redis =
-            new RedisObjectManager(/*new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount)*/);
+            new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
         private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
@@ -80,7 +82,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        [Ignore("Can't reliably test on CI remote server.")]
+        //[Ignore("Can't reliably test on CI remote server.")]
         public void TestRedisListTests()
         {
             var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
@@ -165,11 +167,11 @@ namespace DemgelRedis.Tests
 
             if (!testDictObject.TestConvertClasses.ContainsKey("hello"))
             {
-                testDictObject.TestConvertClasses.Add("hello", new TestConvertClass() {TestValue = "test"});
+                testDictObject.TestConvertClasses.Add("hello", new TestConvertClass2() {TestValue = "test"});
             }
             else
             {
-                testDictObject.TestConvertClasses["hello"] = new TestConvertClass() {TestValue = "test2"};
+                testDictObject.TestConvertClasses["hello"] = new TestConvertClass2() {TestValue = "test2"};
             }
 
             testDictObject.TestConvertClasses.Remove("hello");
