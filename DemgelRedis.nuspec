@@ -7,13 +7,19 @@
     <authors>tenowg (Craig Russell)</authors>
     <owners>DemgelOpenSource</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Redis Object Manager</description>
+    <description>
+      Redis Object Manager
+      
+      Convert C# objects to Redis Cache values, and rebuild those objects.
+      
+      Works with optional Backing Datasources such as Azure Tables, or DocumentDB
+    </description>
     <copyright>Copyright ©  2015</copyright>
     <dependencies>
       <dependency id="Castle.Core" version="3.3.3" />
-      <dependency id="NUnit" version="2.6.4" />
-      <dependency id="StackExchange.Redis" version="1.0.481" />
-      <dependency id="WindowsAzure.Storage" version="5.0.0" />
+      <dependency id="NUnit" version="3.0.0" />
+      <dependency id="StackExchange.Redis.StrongName" version="1.0.488" />
+      <dependency id="WindowsAzure.Storage" version="6.1.0" />
     </dependencies>
   </metadata>
 </package>

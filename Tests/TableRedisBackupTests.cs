@@ -14,7 +14,7 @@ namespace DemgelRedis.Tests
     {
         private readonly TableRedisBackup _tableRedisBackup =  new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount);
         [Test]
-        [Ignore]
+        [Ignore("Can't reliably test on remote server")]
         public void UpdateHashTest()
         {
             var hashes = new List<HashEntry>

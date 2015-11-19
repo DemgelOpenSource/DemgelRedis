@@ -53,7 +53,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Can't reliably test on remote CI server")]
         public void TestRedisRetrieveObject()
         {
             //var connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
@@ -80,7 +80,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Can't reliably test on CI remote server.")]
         public void TestRedisListTests()
         {
             var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
