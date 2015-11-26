@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Castle.Components.DictionaryAdapter;
+﻿using System.Collections.Generic;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
+using StackExchange.Redis;
 
 namespace DemgelRedis.Extensions
 {
@@ -17,6 +16,7 @@ namespace DemgelRedis.Extensions
 
             // Get the Common data
             var commonData = accessor.GetCommonData();
+            dictionary.RestoreDictionary();
             var key = new RedisKeyObject(accessor.GetTargetPropertyInfo(), commonData.Id);
             return (int)commonData.RedisDatabase.HashLength(key.RedisKey);
         }
@@ -34,9 +34,17 @@ namespace DemgelRedis.Extensions
             return dictionary;
         }
 
-        public static LimitObject<TKey, TValue> Limit<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        public static bool KeyExists<TValue>(this IDictionary<RedisValue, TValue> dictionary, RedisValue key)
         {
-            return new LimitObject<TKey, TValue> { LimitedObject = dictionary };
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var accessor = dictionary as IProxyTargetAccessor;
+            if (accessor == null) return dictionary.ContainsKey(key);
+
+            // Get the Common data
+            var commonData = accessor.GetCommonData();
+            dictionary.RestoreDictionary();
+            var hashKey = new RedisKeyObject(accessor.GetTargetPropertyInfo(), commonData.Id);
+            return commonData.RedisDatabase.HashExists(hashKey.RedisKey, key);
         }
 
         /// <summary>
@@ -73,19 +81,17 @@ namespace DemgelRedis.Extensions
             return limits.ExecuteLimit();
         }
 
-        public static LimitObject<TKey, TValue> Start<TKey, TValue>(this LimitObject<TKey, TValue> limits, int startCount)
+        public static IDictionary<TKey, TValue> RestoreDictionary<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary)
         {
-            limits.StartLimit = startCount;
-            return limits;
-        }
+            var limits = new LimitObject<TKey, TValue>
+            {
+                LimitedObject = dictionary,
+                RestoreOnly = true
+            };
 
-        
-
-        public static LimitObject<TKey, TValue> TakeLimit<TKey, TValue>(this LimitObject<TKey, TValue> limits, int takeCount)
-        {
-            limits.TakeLimit = takeCount;
-            return limits;
-        }
+            return limits.ExecuteLimit();
+        } 
 
         public static IDictionary<TKey, TValue> ExecuteLimit<TKey, TValue>(this LimitObject<TKey, TValue> limits)
         {

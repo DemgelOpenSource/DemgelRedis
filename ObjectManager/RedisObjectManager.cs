@@ -194,7 +194,6 @@ namespace DemgelRedis.ObjectManager
         {
             var objType = obj.GetType();
 
-            // We might not be dealing with a Hash all the time.. maybe a set? or List?
             foreach (var handler in _handlers.Where(x => x.CanHandle(obj)))
             {
                 handler.Read(obj, objType, redisDatabase, id, basePropertyInfo, limits);

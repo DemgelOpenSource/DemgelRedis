@@ -42,6 +42,11 @@ namespace DemgelRedis.ObjectManager.Handlers
             var hashKey = new RedisKeyObject(basePropertyInfo, id);
             RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
 
+            if (limits != null && limits.RestoreOnly)
+            {
+                return obj;
+            }
+
             var targetType = GetTarget(obj).GetType();
             Type keyType = null;
             Type itemType = null;
@@ -119,26 +124,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                     }
 
                     var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, key, redisDatabase, newObj);
-                    //var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
 
-                    //if (redisKeyProp != null)
-                    //{
-                    //    // Parse the key...
-                    //    var keyindex1 = ((string)ret.Value).IndexOf(":", StringComparison.Ordinal);
-                    //    var stringPart1 = ((string)ret.Value).Substring(keyindex1 + 1);
-                    //    var keyindex2 = stringPart1.IndexOf(":", StringComparison.Ordinal);
-                    //    var key = keyindex2 > 0 ? stringPart1.Substring(keyindex2) : stringPart1;
-
-                    //    if (redisKeyProp.PropertyType == typeof (string))
-                    //    {
-                    //        redisKeyProp.SetValue(newProxy, key);
-                    //    }
-                    //    else
-                    //    {
-                    //        redisKeyProp.SetValue(newProxy,
-                    //            Guid.Parse(key));
-                    //    }
-                    //}
                     method.Invoke(obj, new[] { (string) ret.Name, newProxy });
                 }
                 return obj;
