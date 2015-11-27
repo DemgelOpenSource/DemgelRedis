@@ -155,26 +155,16 @@ namespace DemgelRedis.Tests
         {
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
 
-            //if (!testDictObject.TestDictionary.ContainsKey("hello"))
+            //testDictObject.TestDictionary.Remove("hello");
+
+            //if (!testDictObject.TestConvertClasses.ContainsKey("hello"))
             //{
-            //    //testDictObject.TestDictionary.Add("hello", "dick");
-            //    testDictObject.TestDictionary.Add(new KeyValuePair<string, RedisValue>("hello", "dick"));
+            //    testDictObject.TestConvertClasses.Add("hello", new TestConvertClass2() { TestValue = "test" });
             //}
             //else
             //{
-            //    testDictObject.TestDictionary["hello"] = "Not A Dick";
+            //    testDictObject.TestConvertClasses["hello"] = new TestConvertClass2() { TestValue = "test2" };
             //}
-
-            //testDictObject.TestDictionary.Remove("hello");
-
-            if (!testDictObject.TestConvertClasses.ContainsKey("hello"))
-            {
-                testDictObject.TestConvertClasses.Add("hello", new TestConvertClass2() {TestValue = "test"});
-            }
-            else
-            {
-                testDictObject.TestConvertClasses["hello"] = new TestConvertClass2() {TestValue = "test2"};
-            }
 
             testDictObject.TestConvertClasses.Remove("hello");
         }

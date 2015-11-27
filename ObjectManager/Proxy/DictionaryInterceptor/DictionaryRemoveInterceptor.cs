@@ -24,7 +24,9 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
 
             var accessor = (IProxyTargetAccessor)invocation.Proxy;
             var original = (accessor.DynProxyGetTarget() as IDictionary)?[invocation.Arguments[0]];
-            if (original == null) return;
+
+            // Removed null check and return... should remove from rediscache
+
             // 1 Figure out if this is removing a IRedisObject
             if (original is IRedisObject)
             {
@@ -44,6 +46,7 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
             _commonData.RedisObjectManager.RedisBackup?.DeleteHashValue((string)invocation.Arguments[0], hashKey);
             _commonData.RedisDatabase.HashDelete(hashKey.RedisKey, (string)invocation.Arguments[0]);
 
+            
             invocation.Proceed();
         }
     }
