@@ -16,7 +16,7 @@ namespace DemgelRedis.Tests
     public class UnitTest1
     {
         private readonly RedisObjectManager _redis =
-            new RedisObjectManager(new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount));
+            new RedisObjectManager(/*new TableRedisBackup(CloudStorageAccount.DevelopmentStorageAccount)*/);
         private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
@@ -77,6 +77,8 @@ namespace DemgelRedis.Tests
         public void AllNewTests()
         {
             var test = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            //var t = test.DisplayName;
+            test.DisplayName = "New Name2";
 
             Debug.WriteLine(test.DisplayName);
         }

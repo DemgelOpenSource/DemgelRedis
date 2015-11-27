@@ -37,8 +37,8 @@ namespace DemgelRedis.ObjectManager.Proxy.RedisObjectInterceptor
                     redisObject = proxy as IRedisObject;
                 }
 
-                if (!_commonData.Processed)
-                {
+                if (!_commonData.Processed )
+                { 
                     invocation.Proceed();
                     return;
                 }
@@ -61,8 +61,16 @@ namespace DemgelRedis.ObjectManager.Proxy.RedisObjectInterceptor
             {
                 if (!_commonData.Processed)
                 {
-                    invocation.Proceed();
-                    return;
+                    if (_commonData.Processing)
+                    {
+                        invocation.Proceed();
+                        return;
+                    }
+                    _commonData.Processing = true;
+                    // Process the proxy (do a retrieveObject)
+                    _commonData.RedisObjectManager.RetrieveObject(invocation.Proxy, _commonData.Id, _commonData.RedisDatabase, null);
+                    _commonData.Processed = true;
+                    _commonData.Processing = false;
                 }
                 // Set the individual item
                 var property =
