@@ -29,6 +29,7 @@ namespace DemgelRedis.Extensions
             // Get the Common data
             var commonData = accessor.GetCommonData();
             commonData.Processing = true;
+            dictionary.Clear();
             commonData.RedisObjectManager.RetrieveObject(dictionary, commonData.Id, commonData.RedisDatabase, accessor.GetTargetPropertyInfo());
             commonData.Processing = false;
             return dictionary;

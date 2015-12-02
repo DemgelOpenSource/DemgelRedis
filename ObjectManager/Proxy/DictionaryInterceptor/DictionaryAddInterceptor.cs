@@ -48,7 +48,7 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 throw new NullReferenceException("Key or Value cannot be null");
             }
 
-            if (!(dictKey is string))
+            if (!(dictKey is string) && !(dictKey is RedisValue))
             {
                 throw new InvalidOperationException("Dictionary Key can only be of type String");
             }
@@ -75,7 +75,17 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                     invocation.Proceed();
                     return;
                 }
-                var hashEntry = new HashEntry((string)dictKey, key.RedisKey);
+
+                HashEntry hashEntry;
+                if (dictKey is RedisValue)
+                {
+                    hashEntry = new HashEntry((RedisValue) dictKey, key.RedisKey);
+                }
+                else
+                {
+                    hashEntry = new HashEntry((string) dictKey, key.RedisKey);
+                }
+
                 _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
                 _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);
                 _commonData.RedisObjectManager.SaveObject(dictValue, key.Id, _commonData.RedisDatabase);

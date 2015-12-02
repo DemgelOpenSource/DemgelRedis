@@ -91,6 +91,19 @@ namespace DemgelRedis.ObjectManager
                 if (entry.Value.IsNull) continue;
                 yield return entry;
             }
+
+            HashEntry typeEntry;
+            // Need to start recording the type
+            if (o is IProxyTargetAccessor)
+            {
+                var acessor = (IProxyTargetAccessor) o;
+                typeEntry = new HashEntry("Type", acessor.DynProxyGetTarget().GetType().ToString());
+            }
+            else
+            {
+                typeEntry = new HashEntry("Type", o.GetType().ToString());
+            }
+            yield return typeEntry;
         }
 
         public object ConvertToObject(object obj, HashEntry[] hashEntries)

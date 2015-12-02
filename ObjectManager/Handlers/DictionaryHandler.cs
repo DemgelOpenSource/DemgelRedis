@@ -63,7 +63,9 @@ namespace DemgelRedis.ObjectManager.Handlers
 
             var method = objType.GetMethod("Add", new []{keyType, itemType});
 
-            if (itemType != null && itemType.GetInterfaces().Contains(typeof(IRedisObject)))
+            // TODO working on this...
+
+            if (itemType != null && (itemType.GetInterfaces().Contains(typeof(IRedisObject)) || typeof(IRedisObject) == itemType))
             {
                 // TODO this all needs to be changed to handle IRedisObjects in a Dictionary, shouldn't be to hard
                 List<HashEntry> retlist;
@@ -108,7 +110,25 @@ namespace DemgelRedis.ObjectManager.Handlers
 
                     var key = ret.Value.ParseKey();
 
-                    var newObj = Activator.CreateInstance(itemType);
+                    Type finalItemType;
+                    if (itemType.IsInterface)
+                    {
+                        // TODO Get the item type from the RedisHash
+                        //finalItemType = itemType;
+                        var typeHash = redisDatabase.HashGet((string)ret.Value, "Type");
+                        finalItemType = Type.GetType(typeHash);
+                    }
+                    else
+                    {
+                        finalItemType = itemType;
+                    }
+
+                    if (finalItemType == null)
+                    {
+                        throw new Exception("Type was not saved with object... this is fatal");    
+                    }
+
+                    var newObj = Activator.CreateInstance(finalItemType);
                     var keyProp = newObj.GetType().GetProperties().SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
                     if (keyProp == null) throw new Exception("RedisObjects need to have a RedisIdKey property.");
                     if (keyProp.PropertyType.IsAssignableFrom(typeof(string)))
@@ -123,9 +143,9 @@ namespace DemgelRedis.ObjectManager.Handlers
                         throw new Exception("RedisIdKey can only be of type String or Guid");
                     }
 
-                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, key, redisDatabase, newObj);
+                    var newProxy = RedisObjectManager.RetrieveObjectProxy(finalItemType, key, redisDatabase, newObj);
 
-                    method.Invoke(obj, new[] { (string) ret.Name, newProxy });
+                    method.Invoke(obj, new[] { Convert.ChangeType(ret.Name, keyType), newProxy });
                 }
                 return obj;
             }

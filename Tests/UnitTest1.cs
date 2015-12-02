@@ -20,6 +20,7 @@ namespace DemgelRedis.Tests
         private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
+        //[Ignore("don't run")]
         public void TestConvertToRedisHash()
         {
             //var demgelRedis = new DemgelRedis();
@@ -32,7 +33,7 @@ namespace DemgelRedis.Tests
 
             var ret = _redis.ConvertToRedisHash(test).ToList();
 
-            Assert.IsTrue(ret.Count == 5);
+            Assert.IsTrue(ret.Count == 6);
         }
 
         [Test]
@@ -157,16 +158,18 @@ namespace DemgelRedis.Tests
 
             //testDictObject.TestDictionary.Remove("hello");
 
-            //if (!testDictObject.TestConvertClasses.ContainsKey("hello"))
-            //{
-            //    testDictObject.TestConvertClasses.Add("hello", new TestConvertClass2() { TestValue = "test" });
-            //}
-            //else
-            //{
-            //    testDictObject.TestConvertClasses["hello"] = new TestConvertClass2() { TestValue = "test2" };
-            //}
+            if (!testDictObject.TestingInterface.KeyExists("hello"))
+            {
+                testDictObject.TestingInterface.Add("hello", new TestInterface { test = "test" });
+            }
+            else
+            {
+                testDictObject.TestingInterface["hello"] = new TestInterface { test = "test2" };
+            }
+            var t = testDictObject.TestingInterface.FullDictionary();
+            Debug.WriteLine(t["hello"].test);
 
-            testDictObject.TestConvertClasses.Remove("hello");
+            //testDictObject.TestConvertClasses.Remove("hello");
         }
     }
 }
