@@ -184,7 +184,7 @@ namespace DemgelRedis.Tests
         {
             var testSet = _redis.RetrieveObjectProxy<TestSetOpertions>("666", _connection.GetDatabase());
 
-            var t = testSet.TestSet.FullSet();
+            var t = testSet.TestSet.Limit(DateTime.MinValue, DateTime.MaxValue, 4, 2);
 
             //var ttt = new TestSet {Id = "667", SomeDate = DateTime.Now + TimeSpan.FromDays(2), SomeString = "testString2"};
             //t.Add(new TestSet { Id = "667", SomeDate = DateTime.UtcNow, SomeString = "testString2" });

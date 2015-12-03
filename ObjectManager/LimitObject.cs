@@ -9,6 +9,7 @@ namespace DemgelRedis.ObjectManager
         public long StartLimit { get; set; }
         public long TakeLimit { get; set; }
         public long EndLimit { get; set; }
+        public long SkipLimit { get; set; }
         public IList<object> KeyLimit { get; set; }
         public bool RestoreOnly { get; set; } = false;
         public Order Order { get; set; }
@@ -20,6 +21,7 @@ namespace DemgelRedis.ObjectManager
         public long StartLimit { get; set; }
         public long TakeLimit { get; set; }
         public long EndLimit { get; set; }
+        public long SkipLimit { get; set; }
         public IList<object> KeyLimit { get; set; }
         public bool RestoreOnly { get; set; } = false;
         public Order Order { get; set; }
@@ -31,6 +33,7 @@ namespace DemgelRedis.ObjectManager
         long StartLimit { get; set; }
         long TakeLimit { get; set; }
         long EndLimit { get; set; }
+        long SkipLimit { get; set; }
         IList<object> KeyLimit { get; set; }
         bool RestoreOnly { get; set; }
         Order Order { get; set; }

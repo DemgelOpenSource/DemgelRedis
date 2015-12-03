@@ -40,7 +40,7 @@ namespace DemgelRedis.Extensions
             return set;
         }
 
-        public static ISet<T> Limit<T>(this ISet<T> set, int start, int end, long take = -1, Order order = Order.Ascending)
+        public static ISet<T> Limit<T>(this ISet<T> set, int start, int end, long take = -1, long skip = 0, Order order = Order.Ascending)
         {
             var limits = new LimitObject<T>
             {
@@ -48,13 +48,14 @@ namespace DemgelRedis.Extensions
                 StartLimit = start,
                 EndLimit = end,
                 TakeLimit = take,
+                SkipLimit = skip,
                 Order = order
             };
             set.Clear();
             return limits.ExecuteLimitSet();
         }
 
-        public static ISet<T> Limit<T>(this ISet<T> set, long start, long end, long take = -1, Order order = Order.Ascending)
+        public static ISet<T> Limit<T>(this ISet<T> set, long start, long end, long take = -1, long skip = 0, Order order = Order.Ascending)
         {
             var limits = new LimitObject<T>
             {
@@ -62,13 +63,14 @@ namespace DemgelRedis.Extensions
                 StartLimit = start,
                 EndLimit = end,
                 TakeLimit = take,
+                SkipLimit = skip,
                 Order = order
             };
             set.Clear();
             return limits.ExecuteLimitSet();
         }
 
-        public static ISet<T> Limit<T>(this ISet<T> set, DateTime start, TimeSpan end, long take = -1, Order order = Order.Ascending)
+        public static ISet<T> Limit<T>(this ISet<T> set, DateTime start, TimeSpan end, long take = -1, long skip = 0, Order order = Order.Ascending)
         {
             var limits = new LimitObject<T>
             {
@@ -76,13 +78,14 @@ namespace DemgelRedis.Extensions
                 StartLimit = start.GetMillisecondsSinceEpoch(),
                 EndLimit = (start + end).GetMillisecondsSinceEpoch(),
                 TakeLimit = take,
+                SkipLimit = skip,
                 Order = order
             };
             set.Clear();
             return limits.ExecuteLimitSet();
         }
 
-        public static ISet<T> Limit<T>(this ISet<T> set, DateTime start, DateTime end, long take = -1, Order order = Order.Ascending)
+        public static ISet<T> Limit<T>(this ISet<T> set, DateTime start, DateTime end, long take = -1, long skip = 0, Order order = Order.Ascending)
         {
             var limits = new LimitObject<T>
             {
@@ -90,6 +93,7 @@ namespace DemgelRedis.Extensions
                 StartLimit = start.GetMillisecondsSinceEpoch(),
                 EndLimit = end.GetMillisecondsSinceEpoch(),
                 TakeLimit = take,
+                SkipLimit = skip,
                 Order = order
             };
             set.Clear();
