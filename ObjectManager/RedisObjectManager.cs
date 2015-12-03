@@ -30,7 +30,8 @@ namespace DemgelRedis.ObjectManager
                 {typeof(string), new StringConverter() },
                 {typeof(int), new Int32Converter() },
                 {typeof(float), new FloatConverter() },
-                {typeof(double), new DoubleConverter() }
+                {typeof(double), new DoubleConverter() },
+                {typeof(DateTime), new DateTimeConverter() }
             };
 
             _handlers = new List<IRedisHandler>

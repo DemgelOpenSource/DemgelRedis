@@ -83,6 +83,8 @@
   <ItemGroup>
     <Compile Include="BackingManager\ListTableEntry.cs" />
     <Compile Include="Common\RedisKeyObject.cs" />
+    <Compile Include="Converters\DateTimeConverter.cs" />
+    <Compile Include="Converters\LongConverter.cs" />
     <Compile Include="Converters\FloatConverter.cs" />
     <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />

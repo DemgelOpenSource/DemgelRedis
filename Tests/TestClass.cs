@@ -11,11 +11,12 @@ namespace DemgelRedis.Tests
 
     public class TestClass : IRedisObject
     {
-        public Guid TestGuid { get; set; }
-        public string TestString { get; set; }
-        public int TestInt { get; set; }
-        public float TestFloat { get; set; }
-        public double TestDouble { get; set; }
+        public virtual Guid TestGuid { get; set; }
+        public virtual string TestString { get; set; }
+        public virtual int TestInt { get; set; }
+        public virtual float TestFloat { get; set; }
+        public virtual double TestDouble { get; set; }
+        public virtual DateTime TestDateTime { get; set; }
     }
 
     //[RedisPrefix(Key = "testcase")]

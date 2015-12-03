@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
@@ -33,7 +34,7 @@ namespace DemgelRedis.Tests
 
             var ret = _redis.ConvertToRedisHash(test).ToList();
 
-            Assert.IsTrue(ret.Count == 6);
+            Assert.IsTrue(ret.Count == 7);
         }
 
         [Test]
@@ -45,7 +46,8 @@ namespace DemgelRedis.Tests
                 new HashEntry("TestString", "SomeTest"),
                 new HashEntry("TestInt", "123234"),
                 new HashEntry("TestFloat", "76234233234.323"),
-                new HashEntry("TestDouble", "32342938283982.234232")
+                new HashEntry("TestDouble", "32342938283982.234232"),
+                new HashEntry("TestDateTime", new DateTime(1980, 6, 2).ToString(CultureInfo.InvariantCulture))
             };
 
             var ret = _redis.ConvertToObject(new TestClass(), hashList.ToArray());
