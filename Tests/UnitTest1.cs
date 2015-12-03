@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
@@ -21,7 +22,7 @@ namespace DemgelRedis.Tests
         private readonly IConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS"));
 
         [Test]
-        //[Ignore("don't run")]
+        [Ignore("don't run")]
         public void TestConvertToRedisHash()
         {
             //var demgelRedis = new DemgelRedis();
@@ -38,6 +39,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        [Ignore("don't run")]
         public void TestRedisHashToObject()
         {
             var hashList = new List<HashEntry>
@@ -77,6 +79,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        [Ignore("don't run")]
         public void AllNewTests()
         {
             var test = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
@@ -87,7 +90,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        //[Ignore("Can't reliably test on CI remote server.")]
+        [Ignore("Can't reliably test on CI remote server.")]
         public void TestRedisListTests()
         {
             var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
@@ -141,6 +144,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        [Ignore("dont run")]
         public void TestRedisKey()
         {
             var type = typeof (TestConvertClassSubSuffix);
@@ -154,6 +158,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        [Ignore("don't run")]
         public void TestDictionarySupport()
         {
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
@@ -172,6 +177,25 @@ namespace DemgelRedis.Tests
             Debug.WriteLine(t["hello"].test);
 
             //testDictObject.TestConvertClasses.Remove("hello");
+        }
+
+        [Test]
+        public void TestSetSupport()
+        {
+            var testSet = _redis.RetrieveObjectProxy<TestSetOpertions>("666", _connection.GetDatabase());
+
+            var t = testSet.TestSet.FullSet();
+
+            //var ttt = new TestSet {Id = "667", SomeDate = DateTime.Now + TimeSpan.FromDays(2), SomeString = "testString2"};
+            //t.Add(new TestSet { Id = "667", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.Add(new TestSet { Id = "668", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.Add(new TestSet { Id = "669", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.Add(new TestSet { Id = "670", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.Add(new TestSet { Id = "671", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.Add(new TestSet { Id = "672", SomeDate = DateTime.UtcNow, SomeString = "testString2" });
+            //t.First().SomeDate = DateTime.Now;
+
+            //t.Remove(ttt);
         }
     }
 }

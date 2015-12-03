@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using Newtonsoft.Json;
@@ -119,5 +120,21 @@ namespace DemgelRedis.Tests
         [RedisDeleteCascade(Cascade = false)]
         public virtual RedisUser Founder { get; set; }
         public virtual IDictionary<string, RedisUser> Members { get; set; } = new Dictionary<string, RedisUser>();
+    }
+
+    public class TestSetOpertions : IRedisObject
+    {
+        [RedisIdKey]
+        public virtual string Id { get; set; }
+        public virtual ISet<TestSet> TestSet { get; set; } = new RedisSortedSet<TestSet>(); 
+    }
+
+    public class TestSet : IRedisObject
+    {
+        [RedisIdKey]
+        public virtual string Id { get; set; }
+        public virtual string SomeString { get; set; }
+        [RedisSetOrderKey]
+        public virtual DateTime SomeDate { get; set; }
     }
 }

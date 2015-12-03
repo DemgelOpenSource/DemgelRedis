@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="BackingManager\ListTableEntry.cs" />
     <Compile Include="Common\RedisKeyObject.cs" />
+    <Compile Include="Common\RedisSortedSet.cs" />
     <Compile Include="Converters\DateTimeConverter.cs" />
     <Compile Include="Converters\LongConverter.cs" />
     <Compile Include="Converters\FloatConverter.cs" />
@@ -95,7 +96,9 @@
     <Compile Include="Extensions\RedisDatabaseExtensions.cs" />
     <Compile Include="Extensions\RedisObjectExtensions.cs" />
     <Compile Include="Extensions\RedisValueExtensions.cs" />
+    <Compile Include="Extensions\SetExtensions.cs" />
     <Compile Include="ObjectManager\Attributes\RedisDeleteCascade.cs" />
+    <Compile Include="ObjectManager\Attributes\RedisSetOrderKey.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />
     <Compile Include="ObjectManager\Attributes\RedisPrefix.cs" />
     <Compile Include="ObjectManager\Attributes\RedisSuffix.cs" />
@@ -103,6 +106,7 @@
     <Compile Include="Converters\StringConverter.cs" />
     <Compile Include="ObjectManager\Handlers\DictionaryHandler.cs" />
     <Compile Include="ObjectManager\Handlers\RedisObjectHandler.cs" />
+    <Compile Include="ObjectManager\Handlers\SetHandler.cs" />
     <Compile Include="ObjectManager\LimitObject.cs" />
     <Compile Include="ObjectManager\Proxy\CommonData.cs" />
     <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionaryAddInterceptor.cs" />
@@ -118,6 +122,8 @@
     <Compile Include="ObjectManager\Proxy\Selectors\ListSelector.cs" />
     <Compile Include="ObjectManager\Proxy\Selectors\RedisObjectSelector.cs" />
     <Compile Include="ObjectManager\Proxy\Selectors\SetSelector.cs" />
+    <Compile Include="ObjectManager\Proxy\SetInterceptor\SetAddInterceptor.cs" />
+    <Compile Include="ObjectManager\Proxy\SetInterceptor\SetRemoveInterceptor.cs" />
     <Compile Include="ObjectManager\RedisObjectManager.cs" />
     <Compile Include="ObjectManager\DemgelRedisResult.cs" />
     <Compile Include="Events\JobReceivedEventArgs.cs" />
@@ -146,9 +152,7 @@
   <ItemGroup>
     <Content Include="LICENSE.TXT" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ObjectManager\Proxy\SetInterceptor\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

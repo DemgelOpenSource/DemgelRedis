@@ -109,7 +109,19 @@ namespace DemgelRedis.ObjectManager.Handlers
         {
             var redisKey = new RedisKeyObject(objType, id);
 
+            CommonData data = null;
+            if (obj is IProxyTargetAccessor)
+            {
+                data = ((IProxyTargetAccessor) obj).GetCommonData();
+                data.Processing = true;
+            }
+
             var hashList = RedisObjectManager.ConvertToRedisHash(obj).ToArray();
+
+            if (data != null)
+            {
+                data.Processing = false;
+            }
 
             RedisObjectManager.RedisBackup?.UpdateHash(hashList, redisKey);
             RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, redisKey);

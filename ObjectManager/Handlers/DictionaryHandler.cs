@@ -86,7 +86,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                     } else if (limits.StartLimit != 0 || limits.TakeLimit != 0)
                     {
                         retlist =
-                            redisDatabase.HashScan(hashKey.RedisKey, default(RedisValue), limits.TakeLimit,
+                            redisDatabase.HashScan(hashKey.RedisKey, default(RedisValue), (int)limits.TakeLimit,
                                 limits.StartLimit).ToList();
                     }
                     else

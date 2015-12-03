@@ -38,6 +38,7 @@ namespace DemgelRedis.ObjectManager
             {
                 new ListHandler(this),
                 new DictionaryHandler(this),
+                new SetHandler(this),
                 new RedisObjectHandler(this)
             };
         }
@@ -154,19 +155,27 @@ namespace DemgelRedis.ObjectManager
         {
             // We are going to start setting the ID here of the base Object
             var obj = new T();
-            foreach (PropertyInfo prop in obj.GetType().GetProperties().Where(prop => prop.HasAttribute<RedisIdKey>()))
+
+            var prop = obj.GetType().GetProperties().SingleOrDefault(p => p.HasAttribute<RedisIdKey>());
+
+            if (prop == null)
             {
-                if (prop.PropertyType.IsAssignableFrom(typeof (Guid)))
-                {
-                    prop.SetValue(obj, Guid.Parse(id));
-                } else if (prop.PropertyType.IsAssignableFrom(typeof(string)))
-                {
-                    prop.SetValue(obj, id);
-                } else
-                {
-                    throw new Exception("Id can only be of type String or Guid");
-                }
+                throw new Exception("RedisIDkey Attribute is required on one property");
             }
+
+            if (prop.PropertyType.IsAssignableFrom(typeof (Guid)))
+            {
+                prop.SetValue(obj, Guid.Parse(id));
+            }
+            else if (prop.PropertyType.IsAssignableFrom(typeof (string)))
+            {
+                prop.SetValue(obj, id);
+            }
+            else
+            {
+                throw new Exception("Id can only be of type String or Guid");
+            }
+
             var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, obj);            
             return proxy as T;
         }

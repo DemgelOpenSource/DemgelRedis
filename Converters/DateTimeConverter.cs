@@ -10,7 +10,7 @@ namespace DemgelRedis.Converters
     {
         public RedisValue ToWrite(object prop)
         {
-            return ((DateTime) prop).ToString(CultureInfo.InvariantCulture);
+            return ((DateTime) prop).ToString("o", CultureInfo.InvariantCulture);
         }
 
         public object OnRead(RedisValue obj, PropertyInfo info)

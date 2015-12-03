@@ -32,11 +32,6 @@ namespace DemgelRedis.Extensions
             return list;
         }
 
-        public static LimitObject<T> Limit<T>(this IList<T> list)
-        {
-            return new LimitObject<T> {LimitedObject = list};
-        }
-
         public static IList<T> Limit<T>(this IList<T> dictionary, int start, int take)
         {
             var limits = new LimitObject<T>
@@ -46,22 +41,10 @@ namespace DemgelRedis.Extensions
                 TakeLimit = take
             };
 
-            return limits.ExecuteLimit();
+            return limits.ExecuteLimitList();
         }
 
-        public static LimitObject<T> Start<T>(this LimitObject<T> limits, int startCount)
-        {
-            limits.StartLimit = startCount;
-            return limits;
-        }
-
-        public static LimitObject<T> TakeLimit<T>(this LimitObject<T> limits, int takeCount)
-        {
-            limits.TakeLimit = takeCount;
-            return limits;
-        }
-
-        public static IList<T> ExecuteLimit<T>(this LimitObject<T> limits)
+        internal static IList<T> ExecuteLimitList<T>(this LimitObject<T> limits)
         {
             var accessor = limits.LimitedObject as IProxyTargetAccessor;
             if (accessor == null) return limits.LimitedObject as IList<T>;
