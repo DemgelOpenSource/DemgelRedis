@@ -3,39 +3,23 @@ using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager
 {
-    public class LimitObject<T> : ILimitObject
+    public class LimitObject<T> : LimitObject
     {
-        public object LimitedObject { get; set; }
-        public long StartLimit { get; set; }
-        public long TakeLimit { get; set; }
-        public long EndLimit { get; set; }
-        public long SkipLimit { get; set; }
-        public IList<object> KeyLimit { get; set; }
-        public bool RestoreOnly { get; set; } = false;
-        public Order Order { get; set; }
     }
 
-    public class LimitObject<TKey, TValue> : ILimitObject
+    public class LimitObject<TKey, TValue> : LimitObject
     {
-        public object LimitedObject { get; set; }
-        public long StartLimit { get; set; }
-        public long TakeLimit { get; set; }
-        public long EndLimit { get; set; }
-        public long SkipLimit { get; set; }
-        public IList<object> KeyLimit { get; set; }
-        public bool RestoreOnly { get; set; } = false;
-        public Order Order { get; set; }
     }
 
-    public interface ILimitObject
+    public abstract class LimitObject
     {
-        object LimitedObject { get; set; }
-        long StartLimit { get; set; }
-        long TakeLimit { get; set; }
-        long EndLimit { get; set; }
-        long SkipLimit { get; set; }
-        IList<object> KeyLimit { get; set; }
-        bool RestoreOnly { get; set; }
-        Order Order { get; set; }
+        protected internal object LimitedObject { get; set; }
+        protected internal long StartLimit { get; set; }
+        protected internal long TakeLimit { get; set; }
+        protected internal long EndLimit { get; set; }
+        protected internal long SkipLimit { get; set; }
+        protected internal IList<object> KeyLimit { get; set; }
+        protected internal bool RestoreOnly { get; set; }
+        protected internal Order Order { get; set; }
     }
 }

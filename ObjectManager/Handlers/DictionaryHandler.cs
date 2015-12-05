@@ -37,7 +37,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return targetObject is IDictionary;
         }
 
-        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, ILimitObject limits = null)
+        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject limits = null)
         {
             var hashKey = new RedisKeyObject(basePropertyInfo, id);
             RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
@@ -150,16 +150,12 @@ namespace DemgelRedis.ObjectManager.Handlers
                 return obj;
             }
 
-            if (itemType != typeof (RedisValue))
-            {
-                // Try to process each entry as a proxy, or fail
-                throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
-            }
-
             var retList = redisDatabase.HashGetAll(hashKey.RedisKey);
             foreach (var ret in retList)
             {
-                method.Invoke(obj, new[] {(string)ret.Name, (object)ret.Value});
+                var convertedKey = RedisObjectManager.ConvertFromRedisValue(keyType, ret.Name);
+                var convertedValue = RedisObjectManager.ConvertFromRedisValue(itemType, ret.Value);
+                method.Invoke(obj, new[] {convertedKey, convertedValue});
             }
             return obj;
         }

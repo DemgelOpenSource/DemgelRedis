@@ -31,6 +31,7 @@ namespace DemgelRedis.ObjectManager
                 {typeof(int), new Int32Converter() },
                 {typeof(float), new FloatConverter() },
                 {typeof(double), new DoubleConverter() },
+                {typeof(long), new LongConverter() },
                 {typeof(DateTime), new DateTimeConverter() }
             };
 
@@ -85,9 +86,10 @@ namespace DemgelRedis.ObjectManager
                 }
                 else
                 {
-                    ITypeConverter converter;
-                    if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                    entry = new HashEntry(prop.Name, converter.ToWrite(prop.GetValue(o, null)));
+                    //ITypeConverter converter;
+                    //if (!TypeConverters.TryGetValue(type, out converter)) continue;
+                    //var obj = ConvertToRedisValue(prop.GetValue(o, null));
+                    entry = new HashEntry(prop.Name, ConvertToRedisValue(prop.GetValue(o, null)));
                 }
  
                 if (entry.Value.IsNull) continue;
@@ -110,7 +112,7 @@ namespace DemgelRedis.ObjectManager
 
         public object ConvertToObject(object obj, HashEntry[] hashEntries)
         {
-            var testObj = obj;
+            //var testObj = obj;
             var hashDict = hashEntries.ToDictionary();
 
             foreach (var prop in obj.GetType().GetProperties())
@@ -119,13 +121,14 @@ namespace DemgelRedis.ObjectManager
                 if (!hashDict.TryGetValue(prop.Name, out hashPair)) continue;
 
                 var type = prop.PropertyType;
-                ITypeConverter converter;
-                if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                var value = converter.OnRead(hashPair, prop);
-                prop.SetValue(testObj, value);
+                var value = ConvertFromRedisValue(type, hashPair);
+                //ITypeConverter converter;
+                //if (!TypeConverters.TryGetValue(type, out converter)) continue;
+                //var value = converter.OnRead(hashPair);
+                prop.SetValue(obj, value);
             }
 
-            return testObj;
+            return obj;
         }
 
         public T RetrieveObjectProxy<T>(IDatabase redisDatabase)
@@ -213,7 +216,7 @@ namespace DemgelRedis.ObjectManager
         /// <param name="basePropertyInfo">Optional PropertyInfo, only required is calling IEnumerable</param>
         /// <param name="limits"></param>
         /// <returns></returns>
-        protected internal void RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo, ILimitObject limits = null)
+        protected internal void RetrieveObject(object obj, string id, IDatabase redisDatabase, PropertyInfo basePropertyInfo, LimitObject limits = null)
         {
             var objType = obj.GetType();
 
@@ -241,6 +244,30 @@ namespace DemgelRedis.ObjectManager
             return _handlers.Where(x => x.CanHandle(obj))
                 .Where(handler => handler.Delete(obj, obj.GetType(), redisDatabase, id))
                 .ToArray().Any();
+        }
+
+        public RedisValue ConvertToRedisValue(object value)
+        {
+            ITypeConverter converter;
+            if (!TypeConverters.TryGetValue(value.GetType(),
+                        out converter))
+            {
+                throw new Exception("No converter Found for type of " + value.GetType());
+            }
+
+            return converter.ToWrite(value);
+        }
+
+        public object ConvertFromRedisValue(Type type, RedisValue value)
+        {
+            ITypeConverter converter;
+            if (!TypeConverters.TryGetValue(type,
+                        out converter))
+            {
+                throw new Exception("No converter Found for type of " + type);
+            }
+
+            return converter.OnRead(value);
         }
     }   
 }

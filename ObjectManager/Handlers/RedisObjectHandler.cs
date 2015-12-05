@@ -30,7 +30,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             return obj is IRedisObject;
         }
 
-        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, ILimitObject limits = null)
+        public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo, LimitObject limits = null)
         {
             if (id == null)
             {

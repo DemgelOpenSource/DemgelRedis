@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Reflection;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
+using StackExchange.Redis;
 
 namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
 {
@@ -42,9 +44,20 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
             }
 
+            // TODO We need to start using type converters here
+            RedisValue value;
+            if (!(invocation.Arguments[0] is RedisValue))
+            {
+                value = _commonData.RedisObjectManager.ConvertToRedisValue(invocation.Arguments[0]);
+            }
+            else
+            {
+                value = (RedisValue)invocation.Arguments[0];
+            }
+
             // Delete the keys
-            _commonData.RedisObjectManager.RedisBackup?.DeleteHashValue((string)invocation.Arguments[0], hashKey);
-            _commonData.RedisDatabase.HashDelete(hashKey.RedisKey, (string)invocation.Arguments[0]);
+            _commonData.RedisObjectManager.RedisBackup?.DeleteHashValue(value, hashKey);
+            _commonData.RedisDatabase.HashDelete(hashKey.RedisKey, value);
 
             
             invocation.Proceed();

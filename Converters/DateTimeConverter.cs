@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Reflection;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
@@ -13,7 +12,7 @@ namespace DemgelRedis.Converters
             return ((DateTime) prop).ToString("o", CultureInfo.InvariantCulture);
         }
 
-        public object OnRead(RedisValue obj, PropertyInfo info)
+        public object OnRead(RedisValue obj)
         {
             DateTime dateTime;
             if(obj.IsNullOrEmpty) return new DateTime();

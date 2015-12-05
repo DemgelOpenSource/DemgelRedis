@@ -33,7 +33,7 @@ namespace DemgelRedis.ObjectManager.Handlers
         }
 
         public override object Read(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo,
-            ILimitObject limits = null)
+            LimitObject limits = null)
         {
             var setKey = new RedisKeyObject(basePropertyInfo, id);
 

@@ -48,10 +48,11 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 throw new NullReferenceException("Key or Value cannot be null");
             }
 
-            if (!(dictKey is string) && !(dictKey is RedisValue))
-            {
-                throw new InvalidOperationException("Dictionary Key can only be of type String");
-            }
+            // TODO this will go away - yay use converters to force RedisValue
+            //if (!(dictKey is string) && !(dictKey is RedisValue))
+            //{
+            //    throw new InvalidOperationException("Dictionary Key can only be of type String");
+            //}
 
             // Only IRedis Objects and RedisValue can be saved into dictionary (for now)
             var redisObject = dictValue as IRedisObject;
@@ -83,7 +84,8 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
                 else
                 {
-                    hashEntry = new HashEntry((string) dictKey, key.RedisKey);
+                    var redisKey = _commonData.RedisObjectManager.ConvertToRedisValue(dictKey);
+                    hashEntry = new HashEntry(redisKey, key.RedisKey);
                 }
 
                 _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
@@ -92,16 +94,34 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
             }
             else
             {
-                if (!(dictValue is RedisValue))
-                {
-                    throw new InvalidOperationException("Dictionary Value can only be IRedisObject or RedisValue");
-                }
                 if (_commonData.Processing)
                 {
                     invocation.Proceed();
                     return;
                 }
-                var hashEntry = new HashEntry((string)dictKey, (RedisValue)dictValue);
+
+                // Converter can get rid of this too
+                RedisValue newDictValue;
+                if (!(dictValue is RedisValue))
+                {
+                    newDictValue = _commonData.RedisObjectManager.ConvertToRedisValue(dictValue);
+                    //throw new InvalidOperationException("Dictionary Value can only be IRedisObject or RedisValue");
+                }
+                else
+                {
+                    newDictValue = (RedisValue)dictValue;
+                }
+
+                HashEntry hashEntry;
+                if (dictKey is RedisValue)
+                {
+                    hashEntry = new HashEntry((RedisValue) dictKey, newDictValue);
+                }
+                else
+                {
+                    var redisKey = _commonData.RedisObjectManager.ConvertToRedisValue(dictKey);
+                    hashEntry = new HashEntry(redisKey, newDictValue);
+                }
 
                 _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(hashEntry, hashKey);
                 _commonData.RedisDatabase.HashSet(hashKey.RedisKey, hashEntry.Name, hashEntry.Value);

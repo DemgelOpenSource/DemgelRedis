@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Reflection;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
 
 namespace DemgelRedis.Converters
 {
-    public class LogConverter : ITypeConverter
+    public class LongConverter : ITypeConverter
     {
         public RedisValue ToWrite(object prop)
         {
             return (long) prop;
         }
 
-        public object OnRead(RedisValue obj, PropertyInfo info)
+        public object OnRead(RedisValue obj)
         {
             long value;
             if (long.TryParse(obj, out value))

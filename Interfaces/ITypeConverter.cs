@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace DemgelRedis.Interfaces
 {
@@ -14,6 +13,6 @@ namespace DemgelRedis.Interfaces
         /// Reading from redis into an object you expect
         /// </summary>
         /// <returns></returns>
-        object OnRead(RedisValue obj, PropertyInfo info);
+        object OnRead(RedisValue obj);
     }
 }

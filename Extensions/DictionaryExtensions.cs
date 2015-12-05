@@ -35,7 +35,7 @@ namespace DemgelRedis.Extensions
             return dictionary;
         }
 
-        public static bool KeyExists<TValue>(this IDictionary<RedisValue, TValue> dictionary, RedisValue key)
+        public static bool KeyExists<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
             var accessor = dictionary as IProxyTargetAccessor;
@@ -45,7 +45,8 @@ namespace DemgelRedis.Extensions
             var commonData = accessor.GetCommonData();
             dictionary.RestoreDictionary();
             var hashKey = new RedisKeyObject(accessor.GetTargetPropertyInfo(), commonData.Id);
-            return commonData.RedisDatabase.HashExists(hashKey.RedisKey, key);
+            var value = commonData.RedisObjectManager.ConvertToRedisValue(key);
+            return commonData.RedisDatabase.HashExists(hashKey.RedisKey, value);
         }
 
         /// <summary>

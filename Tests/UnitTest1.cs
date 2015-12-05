@@ -158,28 +158,29 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        [Ignore("don't run")]
+        //[Ignore("don't run")]
         public void TestDictionarySupport()
         {
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
 
             //testDictObject.TestDictionary.Remove("hello");
 
-            if (!testDictObject.TestingInterface.KeyExists("hello"))
+            if (!testDictObject.TestDictionaryWithInt.KeyExists(15))
             {
-                testDictObject.TestingInterface.Add("hello", new TestInterface { test = "test" });
+                testDictObject.TestDictionaryWithInt.Add(15, "test");
             }
             else
             {
-                testDictObject.TestingInterface["hello"] = new TestInterface { test = "test2" };
+                testDictObject.TestDictionaryWithInt[15] = "test";
             }
-            var t = testDictObject.TestingInterface.FullDictionary();
-            Debug.WriteLine(t["hello"].test);
+            var t = testDictObject.TestDictionaryWithInt.FullDictionary();
+            //Debug.WriteLine(t["hello"]);
 
-            //testDictObject.TestConvertClasses.Remove("hello");
+            testDictObject.TestDictionaryWithInt.Remove(15);
         }
 
         [Test]
+        [Ignore("don't run")]
         public void TestSetSupport()
         {
             var testSet = _redis.RetrieveObjectProxy<TestSetOpertions>("666", _connection.GetDatabase());
