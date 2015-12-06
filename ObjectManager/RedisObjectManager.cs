@@ -92,7 +92,7 @@ namespace DemgelRedis.ObjectManager
                     RedisValue obj;
                     entry = TryConvertToRedisValue(prop.GetValue(o, null), out obj) 
                         ? new HashEntry(prop.Name, obj) 
-                        : new HashEntry(prop.Name, RedisValue.Null);
+                        : new HashEntry();
                 }
 
                 if (entry.Value.IsNull) continue;
@@ -248,6 +248,12 @@ namespace DemgelRedis.ObjectManager
 
         public bool TryConvertToRedisValue(object value, out RedisValue convertedRedisValue)
         {
+            if (value is RedisValue)
+            {
+                convertedRedisValue = (RedisValue)value;
+                return true;
+            }
+
             ITypeConverter converter;
             if (!TypeConverters.TryGetValue(value.GetType(),
                         out converter))
@@ -262,6 +268,12 @@ namespace DemgelRedis.ObjectManager
 
         public bool TryConvertFromRedisValue(Type type, RedisValue value, out object convertedValue)
         {
+            if (type.Name.StartsWith("RedisValue", StringComparison.Ordinal))
+            {
+                convertedValue = value;
+                return true;
+            }
+
             ITypeConverter converter;
             if (!TypeConverters.TryGetValue(type,
                         out converter))

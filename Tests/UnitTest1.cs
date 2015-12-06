@@ -10,6 +10,8 @@ using DemgelRedis.ObjectManager;
 using NUnit.Framework;
 using StackExchange.Redis;
 using DemgelRedis.Extensions;
+using DemgelRedis.Interfaces;
+using DemgelRedis.ObjectManager.Attributes;
 using Microsoft.WindowsAzure.Storage;
 
 namespace DemgelRedis.Tests
@@ -89,29 +91,44 @@ namespace DemgelRedis.Tests
             Debug.WriteLine(test.DisplayName);
         }
 
+
+        public class SubscriptionLookups : IRedisObject
+        {
+            [RedisIdKey]
+            public virtual string Id { get; set; } = "subscriptionlookupTest";
+            [RedisDeleteCascade(Cascade = false)]
+            public virtual IDictionary<RedisValue, Subscription> Slugs { get; set; } = new Dictionary<RedisValue, Subscription>();
+            [RedisDeleteCascade(Cascade = false)]
+            public virtual IDictionary<RedisValue, string> Modules { get; set; } = new Dictionary<RedisValue, string>();
+        }
+
         [Test]
-        [Ignore("Can't reliably test on CI remote server.")]
+        //[Ignore("Can't reliably test on CI remote server.")]
         public void TestRedisListTests()
         {
-            var test4 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
+            var test4 = _redis.RetrieveObjectProxy<SubscriptionLookups>(_connection.GetDatabase());
             var watch = Stopwatch.StartNew();
-            
-            Debug.WriteLine($"There are {test4.Subscriptions.FullCount()} in this list.");
-            foreach (var t in test4.Subscriptions.Limit(3, 50))
-            {
-                if (t.Founder == null)
-                {
-                    t.Founder = test4;
-                    
-                }
-                Debug.WriteLine(t.Id + " --- " + t.Name + " --- " + t.Founder?.Id);
 
-                foreach (var dict in t.Members.Limit(0, 10))
-                {
-                    Debug.WriteLine("    THERE WAS A USER: " + dict.Value.DisplayName);
-                }
-            }
-            Debug.Write("New Time is: " + watch.ElapsedMilliseconds);
+            var tt = test4.Modules.FullDictionary();
+
+            //tt.Add("test", "test");
+            
+            //Debug.WriteLine($"There are {test4.Subscriptions.FullCount()} in this list.");
+            //foreach (var t in test4.Subscriptions.Limit(3, 50))
+            //{
+            //    if (t.Founder == null)
+            //    {
+            //        t.Founder = test4;
+                    
+            //    }
+            //    Debug.WriteLine(t.Id + " --- " + t.Name + " --- " + t.Founder?.Id);
+
+            //    foreach (var dict in t.Members.Limit(0, 10))
+            //    {
+            //        Debug.WriteLine("    THERE WAS A USER: " + dict.Value.DisplayName);
+            //    }
+            //}
+            //Debug.Write("New Time is: " + watch.ElapsedMilliseconds);
             //test4.Subscriptions[4].Name = "Some new Name";
             //var watch2 = Stopwatch.StartNew();
             //var test5 = _redis.RetrieveObjectProxy<RedisUser>("3", _connection.GetDatabase());
@@ -158,7 +175,7 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        //[Ignore("don't run")]
+        [Ignore("don't run")]
         public void TestDictionarySupport()
         {
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("12345737", _connection.GetDatabase());
