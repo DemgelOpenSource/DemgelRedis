@@ -113,8 +113,6 @@ namespace DemgelRedis.ObjectManager.Handlers
                     Type finalItemType;
                     if (itemType.IsInterface)
                     {
-                        // TODO Get the item type from the RedisHash
-                        //finalItemType = itemType;
                         var typeHash = redisDatabase.HashGet((string)ret.Value, "Type");
                         finalItemType = Type.GetType(typeHash);
                     }
@@ -153,8 +151,15 @@ namespace DemgelRedis.ObjectManager.Handlers
             var retList = redisDatabase.HashGetAll(hashKey.RedisKey);
             foreach (var ret in retList)
             {
-                var convertedKey = RedisObjectManager.ConvertFromRedisValue(keyType, ret.Name);
-                var convertedValue = RedisObjectManager.ConvertFromRedisValue(itemType, ret.Value);
+                object convertedKey;
+                object convertedValue;
+
+                if (!RedisObjectManager.TryConvertFromRedisValue(keyType, ret.Name, out convertedKey)
+                    || !RedisObjectManager.TryConvertFromRedisValue(itemType, ret.Value, out convertedValue))
+                {
+                    throw new Exception("There was an error converting the objects to key/value");
+                }
+
                 method.Invoke(obj, new[] {convertedKey, convertedValue});
             }
             return obj;

@@ -84,7 +84,11 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
                 else
                 {
-                    var redisKey = _commonData.RedisObjectManager.ConvertToRedisValue(dictKey);
+                    RedisValue redisKey;
+                    if (!_commonData.RedisObjectManager.TryConvertToRedisValue(dictKey, out redisKey))
+                    {
+                        throw new Exception("Invalid Key Type...");
+                    }
                     hashEntry = new HashEntry(redisKey, key.RedisKey);
                 }
 
@@ -104,8 +108,10 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 RedisValue newDictValue;
                 if (!(dictValue is RedisValue))
                 {
-                    newDictValue = _commonData.RedisObjectManager.ConvertToRedisValue(dictValue);
-                    //throw new InvalidOperationException("Dictionary Value can only be IRedisObject or RedisValue");
+                    if (!_commonData.RedisObjectManager.TryConvertToRedisValue(dictValue, out newDictValue))
+                    {
+                        throw new Exception("Cannot convert to RedisValue");
+                    }
                 }
                 else
                 {
@@ -119,7 +125,11 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
                 else
                 {
-                    var redisKey = _commonData.RedisObjectManager.ConvertToRedisValue(dictKey);
+                    RedisValue redisKey;
+                    if (!_commonData.RedisObjectManager.TryConvertToRedisValue(dictKey, out redisKey))
+                    {
+                        throw new Exception("Cannot convert to RedisValue");
+                    }
                     hashEntry = new HashEntry(redisKey, newDictValue);
                 }
 

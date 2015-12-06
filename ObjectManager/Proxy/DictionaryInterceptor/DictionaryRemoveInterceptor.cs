@@ -44,11 +44,13 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
             }
 
-            // TODO We need to start using type converters here
             RedisValue value;
             if (!(invocation.Arguments[0] is RedisValue))
             {
-                value = _commonData.RedisObjectManager.ConvertToRedisValue(invocation.Arguments[0]);
+                if (!_commonData.RedisObjectManager.TryConvertToRedisValue(invocation.Arguments[0], out value))
+                {
+                    throw new Exception("Cannot convert to RedisValue");
+                }
             }
             else
             {

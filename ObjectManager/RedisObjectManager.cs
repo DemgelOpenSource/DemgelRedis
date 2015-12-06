@@ -55,7 +55,7 @@ namespace DemgelRedis.ObjectManager
             foreach (var prop in o.GetType().GetProperties())
             {
                 HashEntry entry;
-                var type = prop.PropertyType;
+                //var type = prop.PropertyType;
                 if (prop.PropertyType.GetInterfaces().Any(x => x == typeof(IRedisObject)))
                 {
                     var redisObject = prop.GetValue(o, null);
@@ -89,24 +89,21 @@ namespace DemgelRedis.ObjectManager
                     //ITypeConverter converter;
                     //if (!TypeConverters.TryGetValue(type, out converter)) continue;
                     //var obj = ConvertToRedisValue(prop.GetValue(o, null));
-                    entry = new HashEntry(prop.Name, ConvertToRedisValue(prop.GetValue(o, null)));
+                    RedisValue obj;
+                    entry = TryConvertToRedisValue(prop.GetValue(o, null), out obj) 
+                        ? new HashEntry(prop.Name, obj) 
+                        : new HashEntry(prop.Name, RedisValue.Null);
                 }
- 
+
                 if (entry.Value.IsNull) continue;
                 yield return entry;
             }
 
-            HashEntry typeEntry;
             // Need to start recording the type
-            if (o is IProxyTargetAccessor)
-            {
-                var acessor = (IProxyTargetAccessor) o;
-                typeEntry = new HashEntry("Type", acessor.DynProxyGetTarget().GetType().ToString());
-            }
-            else
-            {
-                typeEntry = new HashEntry("Type", o.GetType().ToString());
-            }
+            var accessor = o as IProxyTargetAccessor;
+            var typeEntry = accessor != null 
+                ? new HashEntry("Type", accessor.DynProxyGetTarget().GetType().ToString()) 
+                : new HashEntry("Type", o.GetType().ToString());
             yield return typeEntry;
         }
 
@@ -121,11 +118,14 @@ namespace DemgelRedis.ObjectManager
                 if (!hashDict.TryGetValue(prop.Name, out hashPair)) continue;
 
                 var type = prop.PropertyType;
-                var value = ConvertFromRedisValue(type, hashPair);
-                //ITypeConverter converter;
-                //if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                //var value = converter.OnRead(hashPair);
-                prop.SetValue(obj, value);
+                object value;
+                if (TryConvertFromRedisValue(type, hashPair, out value))
+                {
+                    //ITypeConverter converter;
+                    //if (!TypeConverters.TryGetValue(type, out converter)) continue;
+                    //var value = converter.OnRead(hashPair);
+                    prop.SetValue(obj, value);
+                }
             }
 
             return obj;
@@ -246,28 +246,32 @@ namespace DemgelRedis.ObjectManager
                 .ToArray().Any();
         }
 
-        public RedisValue ConvertToRedisValue(object value)
+        public bool TryConvertToRedisValue(object value, out RedisValue convertedRedisValue)
         {
             ITypeConverter converter;
             if (!TypeConverters.TryGetValue(value.GetType(),
                         out converter))
             {
-                throw new Exception("No converter Found for type of " + value.GetType());
+                convertedRedisValue = RedisValue.Null;
+                return false;
             }
 
-            return converter.ToWrite(value);
+            convertedRedisValue = converter.ToWrite(value);
+            return true;
         }
 
-        public object ConvertFromRedisValue(Type type, RedisValue value)
+        public bool TryConvertFromRedisValue(Type type, RedisValue value, out object convertedValue)
         {
             ITypeConverter converter;
             if (!TypeConverters.TryGetValue(type,
                         out converter))
             {
-                throw new Exception("No converter Found for type of " + type);
+                convertedValue = null;
+                return false;
             }
 
-            return converter.OnRead(value);
+            convertedValue = converter.OnRead(value);
+            return true;
         }
     }   
 }

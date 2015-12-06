@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
@@ -45,7 +46,12 @@ namespace DemgelRedis.Extensions
             var commonData = accessor.GetCommonData();
             dictionary.RestoreDictionary();
             var hashKey = new RedisKeyObject(accessor.GetTargetPropertyInfo(), commonData.Id);
-            var value = commonData.RedisObjectManager.ConvertToRedisValue(key);
+            RedisValue value;
+            if (!commonData.RedisObjectManager.TryConvertToRedisValue(key, out value))
+            {
+                throw new Exception("Invalid key type...");
+            }
+            //var value = commonData.RedisObjectManager.ConvertToRedisValue(key);
             return commonData.RedisDatabase.HashExists(hashKey.RedisKey, value);
         }
 
