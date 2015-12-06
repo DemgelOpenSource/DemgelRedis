@@ -99,7 +99,14 @@ namespace DemgelRedis.Tests
             [RedisDeleteCascade(Cascade = false)]
             public virtual IDictionary<RedisValue, Subscription> Slugs { get; set; } = new Dictionary<RedisValue, Subscription>();
             [RedisDeleteCascade(Cascade = false)]
-            public virtual IDictionary<RedisValue, string> Modules { get; set; } = new Dictionary<RedisValue, string>();
+            public virtual IDictionary<RedisValue, TestNull> Modules { get; set; } = new Dictionary<RedisValue, TestNull>();
+        }
+
+        public class TestNull : IRedisObject
+        {
+            [RedisIdKey]
+            public virtual string Id { get; set; }
+            public virtual string SomeNullValue { get; set; } 
         }
 
         [Test]
@@ -110,16 +117,17 @@ namespace DemgelRedis.Tests
             var watch = Stopwatch.StartNew();
 
             var tt = test4.Modules.FullDictionary();
+            var ttt = tt["test"].SomeNullValue;
 
-            //tt.Add("test", "test");
-            
+            tt.Add("test1", new TestNull());
+
             //Debug.WriteLine($"There are {test4.Subscriptions.FullCount()} in this list.");
             //foreach (var t in test4.Subscriptions.Limit(3, 50))
             //{
             //    if (t.Founder == null)
             //    {
             //        t.Founder = test4;
-                    
+
             //    }
             //    Debug.WriteLine(t.Id + " --- " + t.Name + " --- " + t.Founder?.Id);
 
@@ -155,7 +163,7 @@ namespace DemgelRedis.Tests
             //newsub.Founder = test4;
             //test4.Subscriptions.Add(newsub);
             //newsub.Members.Add(test4.Id, test4);
-            
+
 
             //test3.test = "This should be changed to this new value...";
         }

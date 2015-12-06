@@ -254,6 +254,12 @@ namespace DemgelRedis.ObjectManager
                 return true;
             }
 
+            if (value == null)
+            {
+                convertedRedisValue = RedisValue.Null;
+                return false;
+            }
+
             ITypeConverter converter;
             if (!TypeConverters.TryGetValue(value.GetType(),
                         out converter))
