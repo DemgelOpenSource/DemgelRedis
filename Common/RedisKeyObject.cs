@@ -69,5 +69,9 @@ namespace DemgelRedis.Common
             }
             Id = id;
         }
+
+        public RedisKeyObject(Type classType) : this(classType, string.Empty)
+        {
+        }
     }
 }

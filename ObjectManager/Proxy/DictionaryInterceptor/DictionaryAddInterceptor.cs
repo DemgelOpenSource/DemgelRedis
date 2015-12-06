@@ -23,8 +23,6 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
 
             _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, hashKey);
 
-            // For now limit to Strings as dictionary key, later will implement any value that
-            // can be converted to String (as in, Guid, string, redisvalue of string type)
             object dictKey = null, dictValue = null;
 
             // Determine if this is a KeyValuePair or a 2 argument
@@ -48,26 +46,19 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 throw new NullReferenceException("Key or Value cannot be null");
             }
 
-            // TODO this will go away - yay use converters to force RedisValue
-            //if (!(dictKey is string) && !(dictKey is RedisValue))
-            //{
-            //    throw new InvalidOperationException("Dictionary Key can only be of type String");
-            //}
-
-            // Only IRedis Objects and RedisValue can be saved into dictionary (for now)
             var redisObject = dictValue as IRedisObject;
             if (redisObject != null)
             {
                 RedisKeyObject key;
                 if (!(dictValue is IProxyTargetAccessor))
                 {
-                    var proxy = redisObject.CreateProxy(_commonData, out key); // CreateProxy(redisObject, out key);
+                    var proxy = redisObject.CreateProxy(_commonData, out key);
                     invocation.Arguments[1] = proxy;
                     dictValue = proxy;
                 }
                 else
                 {
-                    key = new RedisKeyObject(redisObject.GetType(), string.Empty);
+                    key = new RedisKeyObject(redisObject.GetType());
                     _commonData.RedisDatabase.GenerateId(key, dictValue, _commonData.RedisObjectManager.RedisBackup);
                 }
 
