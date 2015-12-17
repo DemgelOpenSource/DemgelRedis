@@ -6,6 +6,8 @@ This package is no where near ready for use... For Developers only (if intereste
 
 ## Demgel Redis
 
+[![Join the chat at https://gitter.im/DemgelOpenSource/DemgelRedis](https://badges.gitter.im/DemgelOpenSource/DemgelRedis.svg)](https://gitter.im/DemgelOpenSource/DemgelRedis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Backing Source
 DemgelRedis BackingSource will backup your Redis Cache to a Backing Datasource such as Azure Tables, Azure DocumentDB, SqlServer, MySql, and will retrieve/restore these objects to the Redis Cache as needed.
 
