@@ -132,10 +132,14 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
-            var hashKey = new RedisKeyObject(objType, id);
+            if (obj is IRedisObject)
+            {
+                ((IRedisObject)obj).DeleteRedisObject();
+            }
+            //var hashKey = new RedisKeyObject(objType, id);
 
             // TODO delete from Backup Too?
-            redisDatabase.KeyDelete(hashKey.RedisKey);
+            //redisDatabase.KeyDelete(hashKey.RedisKey);
 
             return true;
         }

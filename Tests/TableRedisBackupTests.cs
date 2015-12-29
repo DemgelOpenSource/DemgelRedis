@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using Microsoft.WindowsAzure.Storage;
