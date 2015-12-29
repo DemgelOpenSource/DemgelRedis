@@ -75,7 +75,7 @@ namespace DemgelRedis.Tests
             Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.test}");
 
             Assert.IsTrue(test2.Id == "12345");
-            Assert.IsTrue(test2.subTest.test == "test string");
+            Assert.IsTrue(test2.subTest.TestInitite.test == "test string");
 
             Assert.IsTrue(test1 != null);
         }
