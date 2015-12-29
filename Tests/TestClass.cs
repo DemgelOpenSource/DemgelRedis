@@ -6,6 +6,9 @@ using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Attributes;
 using Newtonsoft.Json;
 using StackExchange.Redis;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace DemgelRedis.Tests
 {
