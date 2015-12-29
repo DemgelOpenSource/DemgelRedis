@@ -60,7 +60,7 @@ namespace DemgelRedis.ObjectManager.Handlers
                 {
                     var baseObject = prop.GetValue(obj, null) ?? Activator.CreateInstance(prop.PropertyType);
                     // If the target is an IRedisObject we need to get the ID differently
-                    string objectKey;
+                    string objectKey = null;
                     if (prop.PropertyType.GetInterfaces().Any(x => x == typeof (IRedisObject)))
                     {
                         // Try to get the property value from ret
@@ -73,7 +73,10 @@ namespace DemgelRedis.ObjectManager.Handlers
                         {
                             // No key was found (this property has no value)
                             //continue;
-                            objectKey = id;
+                            
+                            var key = new RedisKeyObject(baseObject.GetType(), String.Empty);
+                            redisDatabase.GenerateId(key, baseObject, null);
+                            objectKey = key.Id;
                         }
                     }
                     else
@@ -81,9 +84,12 @@ namespace DemgelRedis.ObjectManager.Handlers
                         objectKey = id;
                     }
 
-                    foreach (var p in baseObject.GetType().GetProperties().Where(p => p.HasAttribute<RedisIdKey>()))
+                    if (objectKey != null)
                     {
-                        p.SetValue(baseObject, objectKey);
+                        foreach (var p in baseObject.GetType().GetProperties().Where(p => p.HasAttribute<RedisIdKey>()))
+                        {
+                            p.SetValue(baseObject, objectKey);
+                        }
                     }
 
                     if (!(baseObject is IProxyTargetAccessor))
@@ -99,6 +105,11 @@ namespace DemgelRedis.ObjectManager.Handlers
                 }
             }
 
+            //if (!redisDatabase.HashExists(redisKey.RedisKey, "Id"))
+            //{
+            //    Save(obj, objType, redisDatabase, redisKey.Id, null);
+            //}
+            
             return obj;
         }
 
@@ -108,6 +119,7 @@ namespace DemgelRedis.ObjectManager.Handlers
             string id, 
             PropertyInfo basePropertyInfo = null)
         {
+            Debug.WriteLine("SAVING OBJECT!!!!!!");
             var redisKey = new RedisKeyObject(objType, id);
 
             CommonData data = null;

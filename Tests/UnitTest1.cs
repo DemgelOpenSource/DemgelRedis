@@ -31,7 +31,6 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        [Ignore("don't run")]
         public void TestConvertToRedisHash()
         {
             var test = new TestClass
@@ -72,7 +71,7 @@ namespace DemgelRedis.Tests
             test1.subTest.TestInitite.test = "test string";
 
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
-            Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.test}");
+            Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.TestInitite.test}");
 
             Assert.IsTrue(test2.Id == "12345");
             Assert.IsTrue(test2.subTest.TestInitite.test == "test string");

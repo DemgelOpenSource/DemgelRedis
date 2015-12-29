@@ -60,9 +60,9 @@ namespace DemgelRedis.ObjectManager
                 {
                     var redisObject = prop.GetValue(o, null);
                     var redisIdAttr =
-                        redisObject.GetType().GetProperties().SingleOrDefault(
+                        redisObject?.GetType().GetProperties().SingleOrDefault(
                             x => x.HasAttribute<RedisIdKey>()) ??
-                        redisObject.GetType().BaseType?.GetProperties().SingleOrDefault(
+                        redisObject?.GetType().BaseType?.GetProperties().SingleOrDefault(
                                 x => x.HasAttribute<RedisIdKey>());
 
                     if (redisIdAttr != null)
@@ -166,20 +166,21 @@ namespace DemgelRedis.ObjectManager
                 throw new Exception("RedisIDkey Attribute is required on one property");
             }
 
-            if (prop.PropertyType.IsAssignableFrom(typeof (Guid)))
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, obj);
+
+            if (prop.PropertyType.IsAssignableFrom(typeof(Guid)))
             {
-                prop.SetValue(obj, Guid.Parse(id));
+                prop.SetValue(proxy, Guid.Parse(id));
             }
-            else if (prop.PropertyType.IsAssignableFrom(typeof (string)))
+            else if (prop.PropertyType.IsAssignableFrom(typeof(string)))
             {
-                prop.SetValue(obj, id);
+                prop.SetValue(proxy, id);
             }
             else
             {
                 throw new Exception("Id can only be of type String or Guid");
             }
 
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, obj);            
             return proxy as T;
         }
 
