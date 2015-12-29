@@ -52,7 +52,7 @@ namespace DemgelRedis.Common
             if (_setOrderKey.PropertyType == typeof (DateTime))
             {
                 int test = ((DateTime) x1).CompareTo((DateTime) y1);
-                return test == 0 ? 1 : test;
+                return test;// == 0 ? 1 : test;
             }
 
             // TODO fix this for performance

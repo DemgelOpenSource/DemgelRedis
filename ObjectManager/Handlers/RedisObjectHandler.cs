@@ -72,7 +72,8 @@ namespace DemgelRedis.ObjectManager.Handlers
                         else
                         {
                             // No key was found (this property has no value)
-                            continue;
+                            //continue;
+                            objectKey = id;
                         }
                     }
                     else

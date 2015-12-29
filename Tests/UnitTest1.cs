@@ -69,10 +69,10 @@ namespace DemgelRedis.Tests
         public void TestRedisRetrieveObject()
         {
             var test1 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
-            test1.subTest.test = "test string";
+            test1.subTest.TestInitite.test = "test string";
 
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
-            Debug.WriteLine($"Id ${test2.subTest.Id} - Test Value: ${test2.subTest.test}");
+            Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.test}");
 
             Assert.IsTrue(test2.Id == "12345");
             Assert.IsTrue(test2.subTest.test == "test string");
@@ -127,13 +127,14 @@ namespace DemgelRedis.Tests
             testSet2.TestSet.Limit(DateTime.MinValue, DateTime.MaxValue, 4, 2);
 
             Assert.IsTrue(testSet2.TestSet.Count == 4);
-            testSet2.TestSet.Remove(testSet2.TestSet.First());
-            //testSet2.TestSet.Remove(testSet2.TestSet.First());
 
-            Assert.IsTrue(testSet2.TestSet.Count == 3);
+            testSet2.TestSet.Remove(testSet2.TestSet.First());
+            testSet2.TestSet.Remove(testSet2.TestSet.First());
+
+            Assert.IsTrue(testSet2.TestSet.Count == 2);
 
             var testSet3 = _redis.RetrieveObjectProxy<TestSetOpertions>("666", _database);
-            testSet3.TestSet.Limit(DateTime.MinValue, DateTime.MaxValue, 6, 2);
+            testSet3.TestSet.Limit(DateTime.MinValue, DateTime.MaxValue, 6, 0);
 
             Assert.IsTrue(testSet3.TestSet.Count == 4);
         }

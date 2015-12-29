@@ -46,7 +46,7 @@ namespace DemgelRedis.ObjectManager.Proxy.SetInterceptor
             //_commonData.RedisObjectManager.RedisBackup?.DeleteSet((string)invocation.Arguments[0], setKey);
             _commonData.RedisDatabase.SortedSetRemove(setKey.RedisKey, objectKey.RedisKey);
 
-
+            invocation.Arguments[0] = original;
             invocation.Proceed();
         }
     }
