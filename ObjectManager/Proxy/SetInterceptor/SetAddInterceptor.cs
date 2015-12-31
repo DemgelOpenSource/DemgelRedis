@@ -22,10 +22,7 @@ namespace DemgelRedis.ObjectManager.Proxy.SetInterceptor
             var prop = ((IProxyTargetAccessor) invocation.Proxy).GetTargetPropertyInfo();
             var setKey = new RedisKeyObject(prop, _commonData.Id);
 
-            // TODO Restore Set
-
             // There should only be one argument we need to get the score
-
             var redisObject = invocation.Arguments[0] as IRedisObject;
             if (redisObject == null)
             {
@@ -33,8 +30,6 @@ namespace DemgelRedis.ObjectManager.Proxy.SetInterceptor
             }
 
             var score = redisObject.GetSetScore();
-
-            Debug.WriteLine("Score is: " + score);
 
             RedisKeyObject key;
 
@@ -57,6 +52,7 @@ namespace DemgelRedis.ObjectManager.Proxy.SetInterceptor
             }
 
             // TODO Redis Backup Entries
+            _commonData.RedisObjectManager.RedisBackup?.AddSetItem(setKey, key.RedisKey, score);
             _commonData.RedisDatabase.SortedSetAdd(setKey.RedisKey, key.RedisKey, score);
             _commonData.RedisObjectManager.SaveObject(invocation.Arguments[0], key.Id, _commonData.RedisDatabase);
 
