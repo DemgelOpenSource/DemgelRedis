@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using DemgelRedis.BackingManager;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
 using NUnit.Framework;
 using StackExchange.Redis;
 using DemgelRedis.Extensions;
-using DemgelRedis.Interfaces;
-using DemgelRedis.ObjectManager.Attributes;
-using Microsoft.WindowsAzure.Storage;
 
 namespace DemgelRedis.Tests
 {

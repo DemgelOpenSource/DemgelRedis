@@ -81,7 +81,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackingManager\ListTableEntry.cs" />
     <Compile Include="Common\RedisKeyObject.cs" />
     <Compile Include="Common\RedisSortedSet.cs" />
     <Compile Include="Converters\DateTimeConverter.cs" />
@@ -137,8 +136,6 @@
     <Compile Include="ObjectManager\Proxy\GeneralProxyGenerationHook.cs" />
     <Compile Include="JobQueue\RedisJobQueue.cs" />
     <Compile Include="JobQueue\RedisValueDictionary.cs" />
-    <Compile Include="BackingManager\TableRedisBackup.cs" />
-    <Compile Include="Tests\TableRedisBackupTests.cs" />
     <Compile Include="Tests\TestClass.cs" />
     <Compile Include="Tests\UnitTest1.cs" />
   </ItemGroup>
