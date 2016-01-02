@@ -149,18 +149,6 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
-        public void GetProxyTarget()
-        {
-            var testObject = _redis.RetrieveObjectProxy<TestConvertClass>(Guid.NewGuid().ToString(), _database);
-            testObject.TestValue = "some String";
-
-            var obj = testObject.GetTarget();
-            obj.TestValue = "some other value";
-
-            Assert.IsTrue(testObject.TestValue == "some String");
-        }
-
-        [Test]
         public void TestGetDictionary()
         {
             var testDictionary = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
