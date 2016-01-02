@@ -292,5 +292,41 @@ namespace DemgelRedis.ObjectManager
             convertedValue = converter.OnRead(value);
             return true;
         }
+
+        public object GetRedisObjectWithType(IDatabase redisDatabase, RedisKey redisKey, string id)
+        {
+            var typeHash = redisDatabase.HashGet(redisKey, "Type");
+            Type finalItemType = Type.GetType(typeHash);
+            if (finalItemType == null)
+            {
+                throw new Exception("Type was not saved with object... this is fatal");
+            }
+
+            var key = new RedisKeyObject(finalItemType, id);
+            RedisBackup?.RestoreHash(redisDatabase, key);
+
+            if (!redisDatabase.KeyExists(redisKey))
+            {
+                return null;
+            }
+
+            var newObj = Activator.CreateInstance(finalItemType);
+            var keyProp = newObj.GetType().GetProperties().SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
+            if (keyProp == null) throw new Exception("RedisObjects need to have a RedisIdKey property.");
+            if (keyProp.PropertyType.IsAssignableFrom(typeof(string)))
+            {
+                keyProp.SetValue(newObj, id);
+            }
+            else if (keyProp.PropertyType.IsAssignableFrom(typeof(Guid)))
+            {
+                keyProp.SetValue(newObj, Guid.Parse(id));
+            }
+            else
+            {
+                throw new Exception("RedisIdKey can only be of type String or Guid");
+            }
+
+            return RetrieveObjectProxy(finalItemType, id, redisDatabase, newObj);
+        }
     }   
 }

@@ -19,5 +19,15 @@ namespace DemgelRedis.Extensions
         {
             return methodInfo.Name.StartsWith("Remove", StringComparison.Ordinal);
         }
+
+        public static bool IsGetMethod(this MethodInfo methodInfo)
+        {
+            return methodInfo.Name.StartsWith("get_", StringComparison.Ordinal);
+        }
+
+        public static bool IsTryGetValueMethod(this MethodInfo methodInfo)
+        {
+            return methodInfo.Name.StartsWith("TryGetValue", StringComparison.Ordinal);
+        }
     }
 }

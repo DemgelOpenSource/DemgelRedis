@@ -23,6 +23,9 @@ namespace DemgelRedis.ObjectManager.Proxy
             if (methodInfo.Name.StartsWith("Remove", StringComparison.Ordinal))
                 return true;
 
+            if (methodInfo.Name.StartsWith("TryGetValue", StringComparison.Ordinal))
+                return true;
+
             //if (methodInfo.Name.StartsWith("get_Count", StringComparison.Ordinal))
             //    return true;
 

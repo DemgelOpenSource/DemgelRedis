@@ -75,6 +75,21 @@ namespace DemgelRedis.Tests
         }
 
         [Test]
+        public void TestRedisListSupport()
+        {
+            var test1 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("testList", _database);
+            test1.SomeIntegers.Add(new TestConvertClass2 { TestValue = "testItem1" });
+
+            var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("testList", _database);
+            test2.SomeIntegers.FullList();
+
+            Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testItem1");
+            test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
+
+            test2.DeleteRedisObject();
+        }
+
+        [Test]
         public void TestRedisKey()
         {
             var type = typeof (TestConvertClassSubSuffix);
@@ -131,6 +146,31 @@ namespace DemgelRedis.Tests
             testSet3.TestSet.Limit(DateTime.MinValue, DateTime.MaxValue, 6, 0);
 
             Assert.IsTrue(testSet3.TestSet.Count == 4);
+        }
+
+        [Test]
+        public void GetProxyTarget()
+        {
+            var testObject = _redis.RetrieveObjectProxy<TestConvertClass>(Guid.NewGuid().ToString(), _database);
+            testObject.TestValue = "some String";
+
+            var obj = testObject.GetTarget();
+            obj.TestValue = "some other value";
+
+            Assert.IsTrue(testObject.TestValue == "some String");
+        }
+
+        [Test]
+        public void TestGetDictionary()
+        {
+            var testDictionary = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
+            testDictionary.TestingInterface.Add("testKey", new TestInterface{ test = "test" });
+
+            var testDictionary2 = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
+            var test = testDictionary2.TestingInterface["testKey"];
+            var t = testDictionary2.TestDictionary["testKey"];
+
+            Assert.IsTrue(test.test == "test");
         }
     }
 }

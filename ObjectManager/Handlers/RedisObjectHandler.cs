@@ -104,11 +104,6 @@ namespace DemgelRedis.ObjectManager.Handlers
                     Debug.WriteLine("Error here - really?" + e);
                 }
             }
-
-            //if (!redisDatabase.HashExists(redisKey.RedisKey, "Id"))
-            //{
-            //    Save(obj, objType, redisDatabase, redisKey.Id, null);
-            //}
             
             return obj;
         }
@@ -119,7 +114,6 @@ namespace DemgelRedis.ObjectManager.Handlers
             string id, 
             PropertyInfo basePropertyInfo = null)
         {
-            Debug.WriteLine("SAVING OBJECT!!!!!!");
             var redisKey = new RedisKeyObject(objType, id);
 
             CommonData data = null;
@@ -145,15 +139,11 @@ namespace DemgelRedis.ObjectManager.Handlers
 
         public override bool Delete(object obj, Type objType, IDatabase redisDatabase, string id, PropertyInfo basePropertyInfo = null)
         {
+            // TODO make this delete sub objects too, as long as they dont have RedisCascdeDelete(false)
             if (obj is IRedisObject)
             {
                 ((IRedisObject)obj).DeleteRedisObject();
             }
-            //var hashKey = new RedisKeyObject(objType, id);
-
-            // TODO delete from Backup Too?
-            //redisDatabase.KeyDelete(hashKey.RedisKey);
-
             return true;
         }
 

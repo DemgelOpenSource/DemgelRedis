@@ -46,5 +46,19 @@ namespace DemgelRedis.Extensions
             data = ((IProxyTargetAccessor)redisObject).GetCommonData();
             return true;
         }
+
+        public static T GetTarget<T>(this T redisObject)
+            where T : IRedisObject
+        {
+            if (!(redisObject is IProxyTargetAccessor))
+            {
+                // There is not need to get the target, it already is one
+                return redisObject;
+            }
+
+            var accessor = (IProxyTargetAccessor)redisObject;
+
+            return (T)accessor.DynProxyGetTarget();
+        }
     }
 }

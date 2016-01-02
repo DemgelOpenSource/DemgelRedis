@@ -109,8 +109,10 @@
     <Compile Include="ObjectManager\LimitObject.cs" />
     <Compile Include="ObjectManager\Proxy\CommonData.cs" />
     <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionaryAddInterceptor.cs" />
+    <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionaryGetInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionaryRemoveInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionarySetInterceptor.cs" />
+    <Compile Include="ObjectManager\Proxy\DictionaryInterceptor\DictionaryTryGetValueInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\GeneralGetInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\ListInterceptor\ListAddInterceptor.cs" />
     <Compile Include="ObjectManager\Proxy\ListInterceptor\ListGetInteceptor.cs" />

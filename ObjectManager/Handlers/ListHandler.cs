@@ -71,35 +71,44 @@ namespace DemgelRedis.ObjectManager.Handlers
 
                 foreach (var ret in retlist)
                 {
-                    var hashKey = new RedisKeyObject(itemType, ret.ParseKey());
-                    RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
-                    // Detect if the base object exists in Redis
-                    if (!redisDatabase.KeyExists((string) ret))
+                    //var hashKey = new RedisKeyObject(itemType, ret.ParseKey());
+                    //RedisObjectManager.RedisBackup?.RestoreHash(redisDatabase, hashKey);
+                    //// Detect if the base object exists in Redis
+                    //if (!redisDatabase.KeyExists((string) ret))
+                    //{
+                    //    RedisObjectManager.RedisBackup?.RemoveListItem(listKey, ret);
+                    //    redisDatabase.ListRemove(listKey.RedisKey, ret, 1);
+                    //    continue;
+                    //}
+
+                    //var newObj = Activator.CreateInstance(itemType);
+                    //var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, hashKey.Id, redisDatabase, newObj);
+                    //var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
+
+                    //if (redisKeyProp != null)
+                    //{
+                    //    // Parse the key...
+                    //    var key = ret.ParseKey();
+
+                    //    if (redisKeyProp.PropertyType == typeof(string))
+                    //    {
+                    //        redisKeyProp.SetValue(newProxy, key);
+                    //    }
+                    //    else
+                    //    {
+                    //        redisKeyProp.SetValue(newProxy, Guid.Parse(key));
+                    //    }
+                    //}
+                    var newProxy = RedisObjectManager.GetRedisObjectWithType(redisDatabase, (string)ret, ret.ParseKey());
+                    if (newProxy == null)
                     {
                         RedisObjectManager.RedisBackup?.RemoveListItem(listKey, ret);
                         redisDatabase.ListRemove(listKey.RedisKey, ret, 1);
-                        continue;
                     }
-
-                    var newObj = Activator.CreateInstance(itemType);
-                    var newProxy = RedisObjectManager.RetrieveObjectProxy(itemType, hashKey.Id, redisDatabase, newObj);
-                    var redisKeyProp = itemType.GetProperties().SingleOrDefault(x => x.GetCustomAttributes().Any(y => y is RedisIdKey));
-
-                    if (redisKeyProp != null)
+                    else
                     {
-                        // Parse the key...
-                        var key = ret.ParseKey();
-
-                        if (redisKeyProp.PropertyType == typeof(string))
-                        {
-                            redisKeyProp.SetValue(newProxy, key);
-                        }
-                        else
-                        {
-                            redisKeyProp.SetValue(newProxy, Guid.Parse(key));
-                        }
+                        method.Invoke(obj, new[] { newProxy });
                     }
-                    method.Invoke(obj, new[] { newProxy });
                 }
                 return obj;
             }

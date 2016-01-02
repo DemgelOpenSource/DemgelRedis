@@ -84,42 +84,7 @@ namespace DemgelRedis.ObjectManager.Handlers
 
                     var key = ret.ParseKey();
 
-                    Type finalItemType;
-                    if (itemType.IsInterface)
-                    {
-                        // TODO Get the item type from the RedisHash
-                        //finalItemType = itemType;
-                        var typeHash = redisDatabase.HashGet((string)ret, "Type");
-                        finalItemType = Type.GetType(typeHash);
-                    }
-                    else
-                    {
-                        finalItemType = itemType;
-                    }
-
-                    if (finalItemType == null)
-                    {
-                        throw new Exception("Type was not saved with object... this is fatal");
-                    }
-
-                    var newObj = Activator.CreateInstance(finalItemType);
-                    var keyProp = newObj.GetType().GetProperties().SingleOrDefault(x => x.HasAttribute<RedisIdKey>());
-                    if (keyProp == null) throw new Exception("RedisObjects need to have a RedisIdKey property.");
-                    if (keyProp.PropertyType.IsAssignableFrom(typeof(string)))
-                    {
-                        keyProp.SetValue(newObj, key);
-                    }
-                    else if (keyProp.PropertyType.IsAssignableFrom(typeof(Guid)))
-                    {
-                        keyProp.SetValue(newObj, Guid.Parse(key));
-                    }
-                    else
-                    {
-                        throw new Exception("RedisIdKey can only be of type String or Guid");
-                    }
-
-                    var newProxy = RedisObjectManager.RetrieveObjectProxy(finalItemType, key, redisDatabase, newObj);
-                    keyProp.GetValue(newProxy, null);
+                    var newProxy = RedisObjectManager.GetRedisObjectWithType(redisDatabase, (string)ret, key);
 
                     var t = method.Invoke(obj, new[] { newProxy as IRedisObject });
                 }
