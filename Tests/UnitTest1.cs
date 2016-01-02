@@ -164,6 +164,7 @@ namespace DemgelRedis.Tests
         public void TestGetDictionary()
         {
             var testDictionary = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
+            testDictionary.TestDictionary.Add("testKey", "testValue");
             testDictionary.TestingInterface.Add("testKey", new TestInterface{ test = "test" });
 
             var testDictionary2 = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
