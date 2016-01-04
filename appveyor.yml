@@ -1,0 +1,36 @@
+version: 1.0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}-alpha.{build}'
+environment:
+  REDIS2: 
+    secure: KvidzpujQu2BLGLqVmVwJtkuH09qroHkVz4K1hy7ScvJ+lwjzSQ+XX+U12xnrRmse5evrJC5pylFsb2ZSimFGuav1IHYARQ/wg28RDPsG1EP9kGy/FnlK2ZR2ZuFNxmOXPTYjq0cgljHnofbN2ghyQ==
+  REDIS: localhost
+install:
+  - nuget install redis-64 -excludeversion
+  - redis-64\tools\redis-server.exe --service-install
+  - redis-64\tools\redis-server.exe --service-start
+nuget:
+  project_feed: true
+before_build:
+- cmd: nuget restore
+build:
+  project: DemgelRedis.sln
+  publish_nuget: true
+  verbosity: minimal
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/demgel/api/v2/package
+  api_key:
+    secure: g7+1AL5lwnb9DuN5yKe0hz/YOZWXT0USa8/drGPVUvYhHe1/t5lZ4XdHTA/q5Kn3
+notifications:
+- provider: Webhook
+  url: https://webhooks.gitter.im/e/70b41c3436d4289a5857
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
