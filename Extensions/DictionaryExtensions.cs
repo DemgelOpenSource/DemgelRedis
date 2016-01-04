@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.ObjectManager;
@@ -110,7 +111,8 @@ namespace DemgelRedis.Extensions
             commonData.Processing = true;
             commonData.RedisObjectManager.RetrieveObject(limits.LimitedObject, commonData.Id, commonData.RedisDatabase, accessor.GetTargetPropertyInfo(), limits);
             commonData.Processing = false;
-            return limits.LimitedObject as IDictionary<TKey, TValue>;
+            var ret = limits.LimitedObject as IDictionary<TKey, TValue>;
+            return new ReadOnlyDictionary<TKey, TValue>(ret);
         }
     }
 }
