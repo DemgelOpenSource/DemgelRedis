@@ -43,8 +43,6 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
 
             var method = invocation.Proxy.GetType().GetMethod("Add", new[] { keyType, itemType });
 
-            _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, hashKey);
-
             RedisValue dictKey;
             if (invocation.Arguments[0] is RedisValue)
             {
@@ -57,6 +55,15 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                     throw new Exception("Invalid Key Type...");
                 }
             }
+
+            var containsKeyMethod = invocation.Proxy.GetType().GetMethod("ContainsKey", new[] { keyType });
+            if ((bool)containsKeyMethod.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType) }))
+            {
+                invocation.Proceed();
+                return;
+            }
+
+            _commonData.RedisObjectManager.RedisBackup?.RestoreHash(_commonData.RedisDatabase, hashKey);
 
             // This assumes string or RedisValue are the dictionary key - probably should check for sanitity
             if (_commonData.RedisDatabase.HashExists(hashKey.RedisKey, dictKey))
@@ -71,7 +78,7 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
                 else
                 {
-                    method.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType), redisKey });
+                    method.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType), Convert.ChangeType(redisKey, itemType) });
                 }
             }
 

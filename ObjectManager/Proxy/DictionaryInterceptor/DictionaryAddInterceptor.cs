@@ -46,6 +46,13 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 throw new NullReferenceException("Key or Value cannot be null");
             }
 
+            var containsKeyMethod = invocation.Proxy.GetType().GetMethod("ContainsKey", new[] { dictKey.GetType() });
+            if ((bool)containsKeyMethod.Invoke(invocation.Proxy, new[] { dictKey }))
+            {
+                invocation.Proceed();
+                return;
+            }
+
             var redisObject = dictValue as IRedisObject;
             if (redisObject != null)
             {

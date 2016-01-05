@@ -110,6 +110,7 @@ namespace DemgelRedis.Tests
             var testDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("testDictionary", _database);
 
             testDictObject.TestDictionaryWithInt.Add(15, "test");
+            var tt = testDictObject.TestDictionaryWithInt[15];
 
             Assert.IsTrue(testDictObject.TestDictionaryWithInt.KeyExists(15));
 
