@@ -15,8 +15,6 @@ environment:
     secure: KvidzpujQu2BLGLqVmVwJtkuH09qroHkVz4K1hy7ScvJ+lwjzSQ+XX+U12xnrRmse5evrJC5pylFsb2ZSimFGuav1IHYARQ/wg28RDPsG1EP9kGy/FnlK2ZR2ZuFNxmOXPTYjq0cgljHnofbN2ghyQ==
   REDIS: localhost
   packageVersion: 1.0.0
-  NUGETKEY:
-    secure: 3RjgrzcwsRjZUGEQijEmq/9A8x8y216UK5pR2kU77W4jswZDoczKuj8O+aSgLDLe
 install:
   - nuget install redis-64 -excludeversion
   - redis-64\tools\redis-server.exe --service-install
@@ -24,7 +22,6 @@ install:
 nuget:
   project_feed: true
 before_build:
-- cmd: nuget setApiKey 02e27ef2-ba58-4305-8dc3-68e9e8d275f8
 - cmd: nuget restore
 build:
   project: DemgelRedis.sln
@@ -38,7 +35,7 @@ deploy:
     secure: 3RjgrzcwsRjZUGEQijEmq/9A8x8y216UK5pR2kU77W4jswZDoczKuj8O+aSgLDLe
 notifications:
 - provider: Webhook
-  url: https://webhooks.gitter.im/e/70b41c3436d4289a5857
+  url: https://webhooks.gitter.im/e/3d6a267030e921c27097
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
