@@ -14,6 +14,7 @@ environment:
   REDIS2: 
     secure: KvidzpujQu2BLGLqVmVwJtkuH09qroHkVz4K1hy7ScvJ+lwjzSQ+XX+U12xnrRmse5evrJC5pylFsb2ZSimFGuav1IHYARQ/wg28RDPsG1EP9kGy/FnlK2ZR2ZuFNxmOXPTYjq0cgljHnofbN2ghyQ==
   REDIS: localhost
+  packageVersion: 1.0.0
 install:
   - nuget install redis-64 -excludeversion
   - redis-64\tools\redis-server.exe --service-install
