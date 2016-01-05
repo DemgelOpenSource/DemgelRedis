@@ -97,6 +97,7 @@
     <Compile Include="Extensions\RedisValueExtensions.cs" />
     <Compile Include="Extensions\SetExtensions.cs" />
     <Compile Include="Interfaces\AbstractRedisBackup.cs" />
+    <Compile Include="ObjectManager\Attributes\IgnorePropertyAttribute.cs" />
     <Compile Include="ObjectManager\Attributes\RedisDeleteCascade.cs" />
     <Compile Include="ObjectManager\Attributes\RedisSetOrderKey.cs" />
     <Compile Include="ObjectManager\Attributes\RedisIdKey.cs" />

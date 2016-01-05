@@ -1,12 +1,15 @@
-version: 1.0.0.{build}
+init:
+  - ps: $env:buildVersion = "$env:packageVersion.$env:appveyor_build_number"
+  - ps: $env:nugetVersion = "$env:packageVersion-beta-$env:appveyor_build_number"
+  - ps: Update-AppveyorBuild -Version $env:buildVersion
 pull_requests:
   do_not_increment_build_number: true
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}-alpha.{build}'
+  assembly_version: '$(buildVersion)'
+  assembly_file_version: '$(buildVersion)'
+  assembly_informational_version: '$(nugetVersion)'
 environment:
   REDIS2: 
     secure: KvidzpujQu2BLGLqVmVwJtkuH09qroHkVz4K1hy7ScvJ+lwjzSQ+XX+U12xnrRmse5evrJC5pylFsb2ZSimFGuav1IHYARQ/wg28RDPsG1EP9kGy/FnlK2ZR2ZuFNxmOXPTYjq0cgljHnofbN2ghyQ==
