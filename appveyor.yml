@@ -24,11 +24,12 @@ install:
 nuget:
   project_feed: true
 before_build:
-- cmd: nuget setApiKey $(NUGETKEY)
+- cmd: nuget setApiKey 02e27ef2-ba58-4305-8dc3-68e9e8d275f8
 - cmd: nuget restore
 build:
   project: DemgelRedis.sln
   publish_nuget: true
+  publish_nuget_symbols: true
   verbosity: minimal
 deploy:
 - provider: NuGet
