@@ -33,7 +33,7 @@ build:
   verbosity: minimal
 deploy:
 - provider: NuGet
-  server: https://www.myget.org/F/demgel/api/v2/package
+  server:
   api_key:
     secure: g7+1AL5lwnb9DuN5yKe0hz/YOZWXT0USa8/drGPVUvYhHe1/t5lZ4XdHTA/q5Kn3
 notifications:
