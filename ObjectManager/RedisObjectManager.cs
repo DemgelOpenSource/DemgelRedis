@@ -296,7 +296,12 @@ namespace DemgelRedis.ObjectManager
         public object GetRedisObjectWithType(IDatabase redisDatabase, RedisKey redisKey, string id)
         {
             var typeHash = redisDatabase.HashGet(redisKey, "Type");
-            Type finalItemType = Type.GetType(typeHash);
+            Type finalItemType = null;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) { 
+                finalItemType = Type.GetType(typeHash + "," + assembly.FullName);
+                if (finalItemType != null) break;
+            }
+
             if (finalItemType == null)
             {
                 throw new Exception("Type was not saved with object... this is fatal");

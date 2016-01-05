@@ -82,11 +82,13 @@ namespace DemgelRedis.Tests
 
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("testList", _database);
             test2.SomeIntegers.FullList();
+            test2.SomeIntegers[0].TestNonVirtualValue = "test";
+            test2.SomeIntegers[0].TestValue = "testChangeValue";
 
-            Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testItem1");
-            test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
+            Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testChangeValue");
+            //test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
 
-            test2.DeleteRedisObject();
+            //test2.DeleteRedisObject();
         }
 
         [Test]
