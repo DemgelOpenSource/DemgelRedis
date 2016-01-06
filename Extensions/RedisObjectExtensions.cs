@@ -3,6 +3,7 @@ using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
 using DemgelRedis.ObjectManager.Proxy;
 using System;
+using System.Threading.Tasks;
 
 namespace DemgelRedis.Extensions
 {
@@ -20,7 +21,7 @@ namespace DemgelRedis.Extensions
             return newArgument;
         }
 
-        public async static void DeleteRedisObject(this IRedisObject redisObject)
+        public static void DeleteRedisObject(this IRedisObject redisObject)
         {
             CommonData data;
             if (!redisObject.GetCommonData(out data))
@@ -31,7 +32,7 @@ namespace DemgelRedis.Extensions
             var key = new RedisKeyObject(redisObject.GetType(), string.Empty);
             data.RedisDatabase.GenerateId(key, redisObject, data.RedisObjectManager.RedisBackup);
 
-            await data.RedisDatabase.KeyDeleteAsync(key.RedisKey);
+            data.RedisDatabase.KeyDelete(key.RedisKey);
             data.RedisObjectManager.RedisBackup?.DeleteHash(key);
         }
 

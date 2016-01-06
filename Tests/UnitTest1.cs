@@ -86,9 +86,9 @@ namespace DemgelRedis.Tests
             test2.SomeIntegers[0].TestValue = "testChangeValue";
 
             Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testChangeValue");
-            //test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
+            test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
 
-            //test2.DeleteRedisObject();
+            test2.DeleteRedisObject();
         }
 
         [Test]
