@@ -68,6 +68,9 @@ namespace DemgelRedis.Tests
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
             Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.TestInitite.test}");
 
+            test2.subTest = new TestConvertClassSub { test = "test string" };
+            test2.subTest.TestInitite.test = "test string";
+
             Assert.IsTrue(test2.Id == "12345");
             Assert.IsTrue(test2.subTest.TestInitite.test == "test string");
 

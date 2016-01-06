@@ -4,6 +4,8 @@ using DemgelRedis.Common;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
 using StackExchange.Redis;
+using Castle.Core.Internal;
+using DemgelRedis.ObjectManager.Attributes;
 
 namespace DemgelRedis.ObjectManager.Proxy.RedisObjectInterceptor
 {
@@ -47,16 +49,30 @@ namespace DemgelRedis.ObjectManager.Proxy.RedisObjectInterceptor
                         return;
                     }
                 }
-                //var objectKey = new RedisKeyObject(invocation.InvocationTarget.GetType(), _commonData.Id);
-                // FIX THIS...
+
                 var property =
                     invocation.Method.ReflectedType?.GetProperties()
                         .SingleOrDefault(x => x.SetMethod != null && x.SetMethod.Name == invocation.Method.Name);
 
                 if (property != null)
                 {
-                    _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(
-                        new HashEntry(property.Name, key.RedisKey), objectKey);
+                    bool deleteCascade = true;
+                    // Need to check if the item is currently set (ie are we replacing a value)
+                    if (property.HasAttribute<RedisDeleteCascade>())
+                    {
+                        deleteCascade = property.GetAttribute<RedisDeleteCascade>().Cascade;
+                    }
+
+                    if (deleteCascade)
+                    {
+                        object currentValue = property.GetValue(invocation.Proxy);
+                        if (currentValue is IRedisObject)
+                        {
+                            ((IRedisObject)currentValue).DeleteRedisObject();
+                        }
+                    }
+                    // Need to check is there is a RedisDeleteCascade on property
+                    _commonData.RedisObjectManager.RedisBackup?.UpdateHashValue(new HashEntry(property.Name, key.RedisKey), objectKey);
 
                     _commonData.RedisDatabase.HashSet(objectKey.RedisKey, property.Name, key.RedisKey);
                     _commonData.RedisObjectManager.SaveObject(redisObject, key.Id, _commonData.RedisDatabase);

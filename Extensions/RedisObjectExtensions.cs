@@ -29,6 +29,17 @@ namespace DemgelRedis.Extensions
                 throw new Exception("Objects needs to be a Proxy (call RetrieveObjectProxy first)");
             }
 
+            data.Processing = true;
+            foreach(var prop in redisObject.GetType().GetProperties())
+            {
+                var value = prop.GetValue(redisObject, null);
+                if (value is IRedisObject)
+                {
+                    ((IRedisObject)value).DeleteRedisObject();
+                }
+            }
+            data.Processing = false;
+
             var key = new RedisKeyObject(redisObject.GetType(), string.Empty);
             data.RedisDatabase.GenerateId(key, redisObject, data.RedisObjectManager.RedisBackup);
 

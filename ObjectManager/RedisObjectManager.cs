@@ -86,9 +86,6 @@ namespace DemgelRedis.ObjectManager
                 }
                 else
                 {
-                    //ITypeConverter converter;
-                    //if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                    //var obj = ConvertToRedisValue(prop.GetValue(o, null));
                     RedisValue obj;
                     entry = TryConvertToRedisValue(prop.GetValue(o, null), out obj) 
                         ? new HashEntry(prop.Name, obj) 
@@ -121,9 +118,6 @@ namespace DemgelRedis.ObjectManager
                 object value;
                 if (TryConvertFromRedisValue(type, hashPair, out value))
                 {
-                    //ITypeConverter converter;
-                    //if (!TypeConverters.TryGetValue(type, out converter)) continue;
-                    //var value = converter.OnRead(hashPair);
                     prop.SetValue(obj, value);
                 }
             }
@@ -153,20 +147,17 @@ namespace DemgelRedis.ObjectManager
         /// <param name="id">The id of the object to find</param>
         /// <param name="redisDatabase"></param>
         /// <returns></returns>
-        public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
+        public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase, T baseObject)
             where T : class, new()
         {
-            // We are going to start setting the ID here of the base Object
-            var obj = new T();
-
-            var prop = obj.GetType().GetProperties().SingleOrDefault(p => p.HasAttribute<RedisIdKey>());
+            var prop = baseObject.GetType().GetProperties().SingleOrDefault(p => p.HasAttribute<RedisIdKey>());
 
             if (prop == null)
             {
                 throw new Exception("RedisIDkey Attribute is required on one property");
             }
 
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, obj);
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, baseObject);
 
             if (prop.PropertyType.IsAssignableFrom(typeof(Guid)))
             {
@@ -182,6 +173,14 @@ namespace DemgelRedis.ObjectManager
             }
 
             return proxy as T;
+        }
+
+        public T RetrieveObjectProxy<T>(string id, IDatabase redisDatabase)
+            where T : class, new()
+        {
+            var obj = new T();
+
+            return RetrieveObjectProxy(id, redisDatabase, obj);
         }
 
         protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, object parentProxy = null)
