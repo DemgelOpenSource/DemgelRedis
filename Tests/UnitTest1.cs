@@ -100,6 +100,9 @@ namespace DemgelRedis.Tests
             var propertyType = type.GetProperties().SingleOrDefault(x => x.Name == "SomeStrings");
             var key2 = new RedisKeyObject(propertyType, "123");
 
+            var key3 = new RedisKeyObject(key.RedisKey);
+            var key4 = new RedisKeyObject("123");
+
             Assert.IsTrue(key2.RedisKey.Equals("TestConvertClassSubSuffix:123:SomeStrings"));
             Assert.IsTrue(key.RedisKey.Equals("TestConvertClassSubSuffix:123"));
         }

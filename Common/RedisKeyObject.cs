@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using DemgelRedis.ObjectManager.Attributes;
+using System.Text.RegularExpressions;
 
 namespace DemgelRedis.Common
 {
@@ -72,6 +73,37 @@ namespace DemgelRedis.Common
 
         public RedisKeyObject(Type classType) : this(classType, string.Empty)
         {
+        }
+
+        public RedisKeyObject(string key)
+        {
+            Regex re = new Regex(@"(\w*):?(\w*):?(\w*)$");
+            MatchCollection mc = re.Matches(key);
+
+            string f = "", s = "", t = "";
+            var emc = mc.GetEnumerator();
+            emc.MoveNext();
+            var match = emc.Current as Match;
+
+            f = match.Groups[1].Value;
+            s = match.Groups[2].Value;
+            t = match.Groups[3].Value;
+                        
+            if (string.IsNullOrEmpty(s) && string.IsNullOrEmpty(t))
+            {
+                Id = f;
+            }
+            else if (string.IsNullOrEmpty(t))
+            {
+                Prefix = f;
+                Id = s;
+            }
+            else
+            {
+                Prefix = f;
+                Id = s;
+                Suffix = t;
+            }
         }
     }
 }

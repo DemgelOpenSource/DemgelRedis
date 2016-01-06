@@ -295,7 +295,17 @@ namespace DemgelRedis.ObjectManager
 
         public object GetRedisObjectWithType(IDatabase redisDatabase, RedisKey redisKey, string id)
         {
+            var key = new RedisKeyObject(redisKey);
+            RedisBackup?.RestoreHash(redisDatabase, key);
+
+            if (!redisDatabase.KeyExists(redisKey))
+            {
+                return null;
+            }
+
             var typeHash = redisDatabase.HashGet(redisKey, "Type");
+            if (typeHash.IsNullOrEmpty) return null;
+
             Type finalItemType = null;
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) { 
                 finalItemType = Type.GetType(typeHash + "," + assembly.FullName);
@@ -304,15 +314,7 @@ namespace DemgelRedis.ObjectManager
 
             if (finalItemType == null)
             {
-                throw new Exception("Type was not saved with object... this is fatal");
-            }
-
-            var key = new RedisKeyObject(finalItemType, id);
-            RedisBackup?.RestoreHash(redisDatabase, key);
-
-            if (!redisDatabase.KeyExists(redisKey))
-            {
-                return null;
+                throw new ArgumentException("Type value is saved incorrectly and will lead to corruption.");
             }
 
             var newObj = Activator.CreateInstance(finalItemType);
