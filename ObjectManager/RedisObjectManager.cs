@@ -183,6 +183,15 @@ namespace DemgelRedis.ObjectManager
             return RetrieveObjectProxy(id, redisDatabase, obj);
         }
 
+        public T RetrieveObjectProxy<T>(IDatabase redisDatabase, T baseObject)
+            where T : class, new()
+        {
+            var key = new RedisKeyObject(typeof(T), string.Empty);
+            redisDatabase.GenerateId(key, baseObject, RedisBackup);
+
+            return RetrieveObjectProxy(key.Id, redisDatabase, baseObject);
+        }
+
         protected internal object RetrieveObjectProxy(Type type, string id, IDatabase redisDatabase, object obj, object parentProxy = null)
         {
             var commonData = new CommonData
