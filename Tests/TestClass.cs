@@ -56,12 +56,8 @@ namespace DemgelRedis.Tests
     {
         [RedisIdKey]
         public virtual string Id { get; set; }
-        //public virtual string test { get; set; }
+        [RedisDeleteCascade(Cascade = false)]
         public virtual TestConvertClassSub subTest { get; set; }
-        //[RedisSuffix(Key = "testlist")]
-        //public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
-        //[RedisPrefix(Key = "guidtest")]
-        //public virtual IList<TestConvertClass> SomeIntegers { get; set; } = new List<TestConvertClass>();
     }
 
     internal class TestConvertClassSub : IRedisObject

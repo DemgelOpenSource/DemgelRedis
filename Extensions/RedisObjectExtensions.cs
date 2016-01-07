@@ -1,6 +1,8 @@
-﻿using Castle.DynamicProxy;
+﻿using Castle.Core.Internal;
+using Castle.DynamicProxy;
 using DemgelRedis.Common;
 using DemgelRedis.Interfaces;
+using DemgelRedis.ObjectManager.Attributes;
 using DemgelRedis.ObjectManager.Proxy;
 using System;
 using System.Threading.Tasks;
@@ -30,8 +32,13 @@ namespace DemgelRedis.Extensions
             }
 
             data.Processing = true;
-            foreach(var prop in redisObject.GetType().GetProperties())
+            var target = redisObject.GetTarget();
+            foreach(var prop in target.GetType().GetProperties())
             {
+                if (prop.HasAttribute<RedisDeleteCascade>())
+                {
+                    if (!prop.GetAttribute<RedisDeleteCascade>().Cascade) continue;
+                }
                 var value = prop.GetValue(redisObject, null);
                 if (value is IRedisObject)
                 {

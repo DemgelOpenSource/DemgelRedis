@@ -56,7 +56,7 @@ namespace DemgelRedis.Tests
 
             Assert.IsInstanceOf<TestClass>(ret);
             Assert.IsInstanceOf<Guid>(((TestClass)ret).TestGuid);
-            Assert.AreEqual(((TestClass) ret).TestString, "SomeTest");
+            Assert.AreEqual(((TestClass)ret).TestString, "SomeTest");
         }
 
         [Test]
@@ -75,6 +75,17 @@ namespace DemgelRedis.Tests
             Assert.IsTrue(test2.subTest.TestInitite.test == "test string");
 
             Assert.IsTrue(test1 != null);
+        }
+
+        [Test]
+        public void ReplaceRedisObjectProperty()
+        {
+            var subTest = new TestConvertClassSub { test = "original" };
+            var mainTest = new TestConvertClassSubSuffix { subTest = subTest };
+            var test1 = _redis.RetrieveObjectProxy("testReplace", _database, mainTest);
+            test1.subTest = subTest;
+
+            // TODO finish this test
         }
 
         [Test]
@@ -99,7 +110,7 @@ namespace DemgelRedis.Tests
         [Test]
         public void TestRedisKey()
         {
-            var type = typeof (TestConvertClassSubSuffix);
+            var type = typeof(TestConvertClassSubSuffix);
             var key = new RedisKeyObject(type, "123");
 
             var propertyType = type.GetProperties().SingleOrDefault(x => x.Name == "SomeStrings");
@@ -164,13 +175,25 @@ namespace DemgelRedis.Tests
         {
             var testDictionary = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
             testDictionary.TestDictionary.Add("testKey", "testValue");
-            testDictionary.TestingInterface.Add("testKey", new TestInterface{ test = "test" });
+            testDictionary.TestingInterface.Add("testKey", new TestInterface { test = "test" });
 
             var testDictionary2 = _redis.RetrieveObjectProxy<TestDictionaryClass>("123", _database);
             var test = testDictionary2.TestingInterface["testKey"];
             var t = testDictionary2.TestDictionary["testKey"];
 
             Assert.IsTrue(test.test == "test");
+        }
+
+        [Test]
+        public void TestDeleteObject()
+        {
+            // Make an Object
+            var testObject = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("testObjectDelete", _database);
+            testObject.subTest = new TestConvertClassSub { Id = "idtocheck", test = "This should not get deleted" };
+            testObject.DeleteRedisObject();
+
+            var checkIfExists = _redis.RetrieveObjectProxy<TestConvertClassSub>("idtocheck", _database);
+            Assert.IsTrue(checkIfExists.test == "This should not get deleted");
         }
     }
 }

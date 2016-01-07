@@ -68,7 +68,13 @@ namespace DemgelRedis.ObjectManager.Proxy.RedisObjectInterceptor
                         object currentValue = property.GetValue(invocation.Proxy);
                         if (currentValue is IRedisObject)
                         {
-                            ((IRedisObject)currentValue).DeleteRedisObject();
+                            RedisKeyObject originalKey = new RedisKeyObject(currentValue.GetType(), string.Empty);
+                            _commonData.RedisDatabase.GenerateId(originalKey, currentValue, _commonData.RedisObjectManager.RedisBackup);
+
+                            if (originalKey != key)
+                            {
+                                ((IRedisObject)currentValue).DeleteRedisObject();
+                            }
                         }
                     }
                     // Need to check is there is a RedisDeleteCascade on property

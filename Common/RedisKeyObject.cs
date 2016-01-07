@@ -105,5 +105,29 @@ namespace DemgelRedis.Common
                 Suffix = t;
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is RedisKeyObject)) return false;
+            var robj = (RedisKeyObject)obj;
+
+            if (robj.RedisKey == RedisKey) return true;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return RedisKey.GetHashCode();
+        }
+
+        public static bool operator ==(RedisKeyObject left, RedisKeyObject right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RedisKeyObject left, RedisKeyObject right)
+        {
+            return !left.Equals(right);
+        }
     }
 }
