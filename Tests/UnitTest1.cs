@@ -100,6 +100,7 @@ namespace DemgelRedis.Tests
             test2.SomeIntegers.FullList();
             test2.SomeIntegers[0].TestNonVirtualValue = "test";
             test2.SomeIntegers[0].TestValue = "testChangeValue";
+            test2.NewSomeStrings.FullList();
 
             Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testChangeValue");
             test2.SomeIntegers.Remove(test2.SomeIntegers[0]);

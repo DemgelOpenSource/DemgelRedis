@@ -113,17 +113,22 @@ namespace DemgelRedis.ObjectManager.Handlers
                 return obj;
             }
 
-            if (itemType != typeof (RedisValue))
-            {
-                // Try to process each entry as a proxy, or fail
-                throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
-            }
+            
+            //if (itemType != typeof (RedisValue))
+            //{
+            //    // Try to process each entry as a proxy, or fail
+            //    throw new InvalidCastException($"Use RedisValue instead of {itemType?.Name}.");
+            //}
 
             RedisObjectManager.RedisBackup?.RestoreList(redisDatabase, listKey);
             var retList = redisDatabase.ListRange(listKey.RedisKey);
             foreach (var ret in retList)
             {
-                method.Invoke(obj, new[] {(object)ret});
+                object item;
+                if (RedisObjectManager.TryConvertFromRedisValue(itemType, ret, out item))
+                {
+                    method.Invoke(obj, new[] { item });
+                }
             }
             return obj;
         }
