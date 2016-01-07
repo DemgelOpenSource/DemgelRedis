@@ -182,7 +182,28 @@ namespace DemgelRedis.Tests
             var test = testDictionary2.TestingInterface["testKey"];
             var t = testDictionary2.TestDictionary["testKey"];
 
+            var testFull = testDictionary2.TestDictionary.FullDictionary();
+
             Assert.IsTrue(test.test == "test");
+            Assert.IsTrue(testFull.Count > 0);
+        }
+
+        [Test]
+        public void TestTryGetValueDictionary()
+        {
+            var testDictionary = _redis.RetrieveObjectProxy<TestDictionaryClass>("tryGetTest", _database);
+            testDictionary.TestDictionary.Add("testKey", "testValue");
+
+            var testDictionary2 = _redis.RetrieveObjectProxy<TestDictionaryClass>("tryGetTest", _database);
+            RedisValue value;
+            var test = testDictionary2.TestDictionary.TryGetValue("testKey", out value);
+            RedisValue failValue;
+            var t = testDictionary2.TestDictionary.TryGetValue("testFailKey", out failValue);
+
+            Assert.IsTrue(test);
+            Assert.IsFalse(t);
+
+            Assert.IsTrue(value == "testValue");
         }
 
         [Test]

@@ -1,15 +1,12 @@
-﻿using Castle.Core.Internal;
-using Castle.DynamicProxy;
+﻿using Castle.DynamicProxy;
 using DemgelRedis.Common;
+using DemgelRedis.Exceptions;
 using DemgelRedis.Extensions;
 using DemgelRedis.Interfaces;
-using DemgelRedis.ObjectManager.Attributes;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
 {
@@ -52,7 +49,7 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
             {
                 if (!_commonData.RedisObjectManager.TryConvertToRedisValue(invocation.Arguments[0], out dictKey))
                 {
-                    throw new Exception("Invalid Key Type...");
+                    throw new InvalidKeyTypeException("Invalid Key Type...");
                 }
             }
 

@@ -88,6 +88,8 @@
     <Compile Include="Converters\FloatConverter.cs" />
     <Compile Include="Converters\DoubleConverter.cs" />
     <Compile Include="Converters\Int32Converter.cs" />
+    <Compile Include="Exceptions\InvalidKeyTypeException.cs" />
+    <Compile Include="Exceptions\RedisKeyNotFoundException.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />

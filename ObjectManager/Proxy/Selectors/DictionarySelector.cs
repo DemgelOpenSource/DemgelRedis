@@ -14,8 +14,8 @@ namespace DemgelRedis.ObjectManager.Proxy.Selectors
             if (method.IsAddMethod()) return interceptors.Where(x => x is DictionaryAddInterceptor).ToArray();
             if (method.IsSetMethod()) return interceptors.Where(x => x is DictionarySetInterceptor).ToArray();
             if (method.IsRemoveMethod()) return interceptors.Where(x => x is DictionaryRemoveInterceptor).ToArray();
-            if (method.IsGetMethod()) return interceptors.Where(x => x is DictionaryGetInterceptor).ToArray();
-            if (method.IsTryGetValueMethod()) return interceptors.Where(x => x is DictionaryTryGetValueInterceptor).ToArray();
+            if (method.IsGetMethod() && !method.Name.StartsWith("get_Count", StringComparison.Ordinal)) return interceptors.Where(x => x is DictionaryGetInterceptor).ToArray();
+            if (method.IsTryGetValueMethod()) return interceptors.Where(x => x is DictionaryGetInterceptor).ToArray();
             return new IInterceptor[0];
         }
     }
