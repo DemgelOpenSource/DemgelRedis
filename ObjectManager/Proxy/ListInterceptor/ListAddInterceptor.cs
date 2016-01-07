@@ -63,8 +63,18 @@ namespace DemgelRedis.ObjectManager.Proxy.ListInterceptor
                 }
 
                 // TODO to better checks for casting to RedisValue
-                _commonData.RedisObjectManager.RedisBackup?.AddListItem(listKey, (RedisValue)invocation.Arguments[0]);
-                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, (RedisValue)invocation.Arguments[0]);
+                RedisValue value;
+                if (invocation.Arguments[0] is RedisValue)
+                {
+                    value = (RedisValue)invocation.Arguments[0];
+                }
+                else
+                {
+                    _commonData.RedisObjectManager.TryConvertToRedisValue(invocation.Arguments[0], out value);
+                }
+               
+                _commonData.RedisObjectManager.RedisBackup?.AddListItem(listKey, value);
+                _commonData.RedisDatabase.ListRightPush(listKey.RedisKey, value);
             }
             invocation.Proceed();
         }

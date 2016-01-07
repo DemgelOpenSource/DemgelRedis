@@ -82,6 +82,8 @@ namespace DemgelRedis.Tests
         {
             var test1 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("testList", _database);
             test1.SomeIntegers.Add(new TestConvertClass2 { TestValue = "testItem1" });
+            test1.SomeStrings.Add("hello");
+            test1.NewSomeStrings.Add("test if cast to string works");
 
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix>("testList", _database);
             test2.SomeIntegers.FullList();

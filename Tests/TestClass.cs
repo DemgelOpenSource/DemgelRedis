@@ -47,6 +47,7 @@ namespace DemgelRedis.Tests
         public virtual TestConvertClassSub subTest { get; set; }
         //[RedisSuffix(Key = "testlist")]
         public virtual IList<RedisValue> SomeStrings { get; set; } = new List<RedisValue>();
+        public virtual IList<string> NewSomeStrings { get; set; } = new List<string>();
         //[RedisPrefix(Key = "guidtest")]
         public virtual IList<TestConvertClass2> SomeIntegers { get; set; } = new List<TestConvertClass2>(); 
     }
