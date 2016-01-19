@@ -137,6 +137,9 @@ namespace DemgelRedis.Tests
             var newTestDictObject = _redis.RetrieveObjectProxy<TestDictionaryClass>("testDictionary", _database);
             var t = newTestDictObject.TestDictionaryWithInt.FullDictionary();
 
+            var newTestDictObjectGet = _redis.RetrieveObjectProxy<TestDictionaryClass>("testDictionary", _database);
+            var ttt = newTestDictObjectGet.TestDictionaryWithInt[15];
+
             Assert.IsTrue(newTestDictObject.TestDictionaryWithInt.ContainsKey(15));
 
             newTestDictObject.TestDictionaryWithInt.Remove(15);

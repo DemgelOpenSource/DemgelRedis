@@ -53,9 +53,9 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
             }
 
-            _commonData.Processing = true;
+            
             var containsKeyMethod = invocation.Proxy.GetType().GetMethod("ContainsKey", new[] { keyType });
-            _commonData.Processing = false;
+            
 
             if ((bool)containsKeyMethod.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType) }))
             {
@@ -70,6 +70,8 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
             {
                 var redisKey = _commonData.RedisDatabase.HashGet(hashKey.RedisKey, dictKey);
                 var key = redisKey.ParseKey();
+
+                _commonData.Processing = true;
                 if (itemType.GetInterfaces().Contains(typeof(IRedisObject)))
                 {
                     var newProxy = _commonData.RedisObjectManager.GetRedisObjectWithType(_commonData.RedisDatabase, (string)redisKey, key);
@@ -80,6 +82,7 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 {
                     method.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType), Convert.ChangeType(redisKey, itemType) });
                 }
+                _commonData.Processing = false;
             }
 
             invocation.Proceed();
