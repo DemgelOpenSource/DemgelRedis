@@ -53,7 +53,10 @@ namespace DemgelRedis.ObjectManager.Proxy.DictionaryInterceptor
                 }
             }
 
+            _commonData.Processing = true;
             var containsKeyMethod = invocation.Proxy.GetType().GetMethod("ContainsKey", new[] { keyType });
+            _commonData.Processing = false;
+
             if ((bool)containsKeyMethod.Invoke(invocation.Proxy, new[] { Convert.ChangeType(dictKey, keyType) }))
             {
                 invocation.Proceed();
