@@ -63,7 +63,7 @@ namespace DemgelRedis.Tests
         public void TestRedisRetrieveObject()
         {
             var test1 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
-            test1.subTest.TestInitite.test = "test string";
+            test1.subTest.TestInitite.test = "test string - new";
 
             var test2 = _redis.RetrieveObjectProxy<TestConvertClassSubSuffix2>("12345", _database);
             Debug.WriteLine($"Id {test2.subTest.Id} - Test Value: {test2.subTest.TestInitite.test}");

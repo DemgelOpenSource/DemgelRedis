@@ -157,20 +157,19 @@ namespace DemgelRedis.ObjectManager
                 throw new Exception("RedisIDkey Attribute is required on one property");
             }
 
-            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, baseObject);
-
             if (prop.PropertyType.IsAssignableFrom(typeof(Guid)))
             {
-                prop.SetValue(proxy, Guid.Parse(id));
+                prop.SetValue(baseObject, Guid.Parse(id));
             }
             else if (prop.PropertyType.IsAssignableFrom(typeof(string)))
             {
-                prop.SetValue(proxy, id);
+                prop.SetValue(baseObject, id);
             }
             else
             {
                 throw new Exception("Id can only be of type String or Guid");
             }
+            var proxy = RetrieveObjectProxy(typeof(T), id, redisDatabase, baseObject);
 
             return proxy as T;
         }
