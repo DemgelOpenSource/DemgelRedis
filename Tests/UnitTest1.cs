@@ -104,6 +104,7 @@ namespace DemgelRedis.Tests
 
             Assert.IsTrue(test2.SomeIntegers[0].TestValue == "testChangeValue");
             test2.SomeIntegers.Remove(test2.SomeIntegers[0]);
+            test2.SomeStrings.Remove("hello");
 
             test2.DeleteRedisObject();
         }
