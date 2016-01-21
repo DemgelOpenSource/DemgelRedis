@@ -52,9 +52,9 @@ namespace DemgelRedis.Interfaces
 
         void RestoreSet(IDatabase redisDatabase, RedisKeyObject key);
         Task RestoreSetAsync(IDatabase redisDatabase, RedisKeyObject key, CancellationToken token = default(CancellationToken));
-        void UpdateSetItem(RedisKeyObject key, RedisValue value, double score);
-        void UpdateSetItem(RedisKeyObject key, SortedSetEntry entry);
-        Task UpdateSetItemAsync(RedisKeyObject key, SortedSetEntry entry, CancellationToken token = default(CancellationToken));
+        void UpdateSetItem(RedisKeyObject key, RedisValue value, double score, RedisValue oldValue, double oldScore);
+        void UpdateSetItem(RedisKeyObject key, SortedSetEntry entry, SortedSetEntry oldEntry);
+        Task UpdateSetItemAsync(RedisKeyObject key, SortedSetEntry entry, SortedSetEntry oldEntry, CancellationToken token = default(CancellationToken));
         void AddSetItem(RedisKeyObject key, RedisValue value, double score);
         void AddSetItem(RedisKeyObject key, SortedSetEntry entry);
         Task AddSetItemAsync(RedisKeyObject key, SortedSetEntry entry, CancellationToken token = default(CancellationToken));

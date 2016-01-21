@@ -42,17 +42,11 @@ namespace DemgelRedis.ObjectManager.Proxy.ListInterceptor
             else
             {
                 RedisValue value;
-                if (original is RedisValue)
+                if (_commonData.RedisObjectManager.TryConvertToRedisValue(original, out value))
                 {
-                    value = (RedisValue)original;
+                    _commonData.RedisObjectManager.RedisBackup?.RemoveListItem(listKey, value);
+                    _commonData.RedisDatabase.ListRemove(listKey.RedisKey, value, 1);
                 }
-                else
-                {
-                    _commonData.RedisObjectManager.TryConvertToRedisValue(original, out value);
-                }
-
-                _commonData.RedisObjectManager.RedisBackup?.RemoveListItem(listKey, value);
-                _commonData.RedisDatabase.ListRemove(listKey.RedisKey, value, 1);
             }
 
             invocation.Proceed();

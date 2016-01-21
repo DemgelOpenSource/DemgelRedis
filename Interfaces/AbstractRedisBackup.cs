@@ -117,15 +117,15 @@ namespace DemgelRedis.Interfaces
             Task.Run(async () => await UpdateListItemAsync(key, oldValue, newValue)).Wait();
         }
         public abstract Task UpdateListItemAsync(RedisKeyObject key, RedisValue oldValue, RedisValue newValue, CancellationToken token = default(CancellationToken));
-        public void UpdateSetItem(RedisKeyObject key, SortedSetEntry entry)
+        public void UpdateSetItem(RedisKeyObject key, SortedSetEntry entry, SortedSetEntry oldEntry)
         {
-            Task.Run(async () => await UpdateSetItemAsync(key, entry)).Wait();
+            Task.Run(async () => await UpdateSetItemAsync(key, entry, oldEntry)).Wait();
         }
-        public void UpdateSetItem(RedisKeyObject key, RedisValue value, double score)
+        public void UpdateSetItem(RedisKeyObject key, RedisValue value, double score, RedisValue oldValue, double oldScore)
         {
-            Task.Run(async () => await UpdateSetItemAsync(key, new SortedSetEntry(value, score))).Wait();
+            Task.Run(async () => await UpdateSetItemAsync(key, new SortedSetEntry(value, score), new SortedSetEntry(oldValue, oldScore))).Wait();
         }
-        public abstract Task UpdateSetItemAsync(RedisKeyObject key, SortedSetEntry entry, CancellationToken token = default(CancellationToken));
+        public abstract Task UpdateSetItemAsync(RedisKeyObject key, SortedSetEntry entry, SortedSetEntry oldEntry, CancellationToken token = default(CancellationToken));
         public void UpdateString(IDatabase redisDatabase, RedisKeyObject key, string table = "string")
         {
             Task.Run(async () => await UpdateStringAsync(redisDatabase, key, table)).Wait();
