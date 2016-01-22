@@ -89,7 +89,13 @@ namespace DemgelRedis.Tests
         [RedisIdKey]
         public virtual string Id { get; set; }
         public virtual string test { get; set; }
-        //public virtual TestConvertClassSubSuffix TestInitite { get; set; }
+    }
+
+    internal class TestInterfaceClass : IRedisObject
+    {
+        [RedisIdKey]
+        public virtual string Id { get; set; }
+        public virtual ITestInterface Interface { get; set; }
     }
 
     internal class TestSetOpertions : IRedisObject

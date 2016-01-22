@@ -221,6 +221,17 @@ namespace DemgelRedis.Tests
             var checkIfExists = _redis.RetrieveObjectProxy<TestConvertClassSub>("idtocheck", _database);
             Assert.IsTrue(checkIfExists.test == "This should not get deleted");
         }
+
+        [Test]
+        public void TestInterfaces()
+        {
+            var testObject = _redis.RetrieveObjectProxy<TestInterfaceClass>("testObjectDelete", _database);
+            testObject.Interface = new TestInterface { test = "test" };
+
+            var testObject2 = _redis.RetrieveObjectProxy<TestInterfaceClass>("testObjectDelete", _database);
+            var t = testObject2.Interface;
+            var tt = t.test;
+        }
     }
 }
 

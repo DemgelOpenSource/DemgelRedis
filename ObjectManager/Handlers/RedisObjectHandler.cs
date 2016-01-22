@@ -58,50 +58,64 @@ namespace DemgelRedis.ObjectManager.Handlers
                 if (!prop.PropertyType.IsClass && !prop.PropertyType.IsInterface) continue;
                 try
                 {
-                    var baseObject = prop.GetValue(obj, null) ?? Activator.CreateInstance(prop.PropertyType);
+                    
+
                     // If the target is an IRedisObject we need to get the ID differently
                     string objectKey = null;
-                    if (prop.PropertyType.GetInterfaces().Any(x => x == typeof (IRedisObject)))
+                    //RedisValue propKey = new RedisValue();
+                    if (prop.PropertyType.GetInterfaces().Any(x => x == typeof(IRedisObject)))
                     {
                         // Try to get the property value from ret
                         RedisValue propKey;
                         if (ret.ToDictionary().TryGetValue(prop.Name, out propKey))
                         {
                             objectKey = propKey.ParseKey();
+                            if (prop.GetValue(obj, null) == null)
+                            {
+                                var pr = RedisObjectManager.GetRedisObjectWithType(redisDatabase, (string)propKey, objectKey);
+                                obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
+                            }
                         }
                         else
                         {
-                            // No key was found (this property has no value)
-                            //continue;
-                            
-                            var key = new RedisKeyObject(baseObject.GetType(), String.Empty);
-                            redisDatabase.GenerateId(key, baseObject, null);
-                            objectKey = key.Id;
+                            if (prop.PropertyType.IsInterface)
+                            {
+                                throw new Exception("Properties of type Interface need to be populated first");
+                            }
+                            else
+                            {
+                                object baseObject = prop.GetValue(obj, null) ?? Activator.CreateInstance(prop.PropertyType);
+                                var key = new RedisKeyObject(baseObject.GetType(), string.Empty);
+                                redisDatabase.GenerateId(key, baseObject, null);
+                                objectKey = key.Id;
+
+                                if (!(baseObject is IProxyTargetAccessor))
+                                {
+                                    var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase,
+                                        baseObject, obj);
+                                    obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
+                                }
+                            }
                         }
                     }
                     else
                     {
+                        // Here we try to handle NON redisObjects
+                        object baseObject = prop.GetValue(obj, null) ?? Activator.CreateInstance(prop.PropertyType);
+                        
                         objectKey = id;
-                    }
 
-                    if (objectKey != null)
-                    {
-                        foreach (var p in baseObject.GetType().GetProperties().Where(p => p.HasAttribute<RedisIdKey>()))
+                        if (!(baseObject is IProxyTargetAccessor))
                         {
-                            p.SetValue(baseObject, objectKey);
+                            var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase,
+                                baseObject, obj);
+                            obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
                         }
-                    }
-
-                    if (!(baseObject is IProxyTargetAccessor))
-                    {
-                        var pr = RedisObjectManager.RetrieveObjectProxy(prop.PropertyType, objectKey, redisDatabase,
-                            baseObject, obj);
-                        obj.GetType().GetProperty(prop.Name).SetValue(obj, pr);
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Error here - really?" + e);
+                    Debug.WriteLine(e);
                 }
             }
             
